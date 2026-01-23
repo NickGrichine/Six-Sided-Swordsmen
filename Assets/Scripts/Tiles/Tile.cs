@@ -9,11 +9,16 @@ public class Tile: MonoBehaviour
     public list<Tile> neighbors = new list<Tile>(6); // 6 hex neighbors
     public Vector2Int axialPos; // q (col), r (row) for axial coords
 
-    public boolean passable; // Checks whether if the tile is water / unmovable
-    public int moveCost; // Cost to travel to current tile
+    public boolean passable = true; // Checks whether if the tile is water / unmovable    
+    public int moveCost = 1; // Cost to travel to current tile
 
-
-    void start();
+    private void start()
+    {
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponent<spriteRenderer>();
+        }
+    }
 
     public static int GetDistance(Tile a, Tile b) // 
     {
