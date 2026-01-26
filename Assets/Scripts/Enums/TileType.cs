@@ -1,6 +1,10 @@
 public enum TileType
 {
-    Ocean,
-    Grass,
+    Grassland,
+    Forest,
+    Desert,
+    Hill,
+    Mountain,
+    Ocean
     
 }
