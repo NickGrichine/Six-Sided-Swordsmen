@@ -26,7 +26,7 @@ public class HexGridManager : MonoBehaviour
         {
             for (int r = 0; r < height; r++)
             {
-                grid[q,r] = CreateTile(q, r);
+                grid[q, r] = CreateTile(q, r);
             }
         }
 
@@ -38,7 +38,7 @@ public class HexGridManager : MonoBehaviour
     {
         Tile tile = Instantiate(tilePrefab, transform);
         tile.axialPos = new Vector2Int(q, r);
-        tile.hexSize = hexSize; //position-only version
+        // tile.hexSize = hexSize; //position-only version
 
         // Position
         float xPos = hexSize * 1.5f * q;
@@ -46,8 +46,32 @@ public class HexGridManager : MonoBehaviour
         tile.transform.localPosition = new Vector3(xPos, yPos, 0);
 
         // Randomize type [CUSTOMIZE HERE]
-        tile.type = (Tiletype)Random.range(0, System.Enum.GetNames(typeof(TileType)).Length);
-        if (tile.type == TileType.Wall) tile.passable = false;
+        tile.type = (TileType)Random.Range( 
+            0, System.Enum.GetNames(typeof(TileType)).Length
+        );
+        
+        switch (tile.type)
+        {
+            case TileType.Ocean:
+                tile.altitude = AltitudeLevel.Low;
+                tile.passable = false;
+                break;
+            case TileType.Grassland:
+            case TileType.Desert:
+                tile.altitude = AltitudeLevel.Low;
+                tile.passable = true;
+                break;
+            case TileType.Forest:
+            case TileType.Hill:
+                tile.altitude = AltitudeLevel.Medium;
+                break;
+            case TileType.Mountain:
+                tile.altitude = ALtitudeLevel.Impassable;
+                tile.passable = false;
+                tile.BlockSight = true;
+                break;
+        }
+
 
         // Set sprite
         tile.spriteRenderer.sprite = tile.type = TileType.Wall ? wallSprite : floorSprite;
@@ -83,11 +107,20 @@ public class HexGridManager : MonoBehaviour
 
     void ClearGrid()
     {
-        foreach (Transform child in transform) DestroyImmediate(child.gameObject);
+        foreach (Transform child in transform) 
+            Destroy(child.gameObject);
     }
 
     void Start()
     {
         GenerateGrid();
+    }
+
+    public IEnumerble<Tile> GetAllTiles()
+    {
+        for (int q = 0; q < width; q++)
+            for (int r = 0; r < height; r++)
+                if (grid[q, r] != null)
+                    yield return grid[q, r];
     }
 }
