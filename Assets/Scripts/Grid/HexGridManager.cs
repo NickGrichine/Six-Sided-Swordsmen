@@ -53,29 +53,47 @@ public class HexGridManager : MonoBehaviour
         switch (tile.type)
         {
             case TileType.Ocean:
-                tile.altitude = AltitudeLevel.Low;
+                tile.altitude = 0;
                 tile.passable = false;
                 break;
             case TileType.Grassland:
             case TileType.Desert:
-                tile.altitude = AltitudeLevel.Low;
+                tile.altitude = Random.Range(0, 1);
                 tile.passable = true;
                 break;
             case TileType.Forest:
+                tile.altitude = Random.Range(0, 2);
+                break;
             case TileType.Hill:
-                tile.altitude = AltitudeLevel.Medium;
+                tile.altitude = Random.Range(1, 3);
                 break;
             case TileType.Mountain:
-                tile.altitude = ALtitudeLevel.Impassable;
+                tile.altitude = Random.Range(2, 4);
                 tile.passable = false;
-                tile.BlockSight = true;
                 break;
         }
 
 
-        // Set sprite
-        tile.spriteRenderer.sprite = tile.type = TileType.Wall ? wallSprite : floorSprite;
-
+        // Set sprite, colour coded for now
+        if (tile.spriteRenderer != null)
+        {
+            tile.spriteRenderer.color = tile.type switch
+            {
+                TileType.Ocean => new Color(0.1f, 0.3f, 0.8f),     // Deep Ocean Blue
+                TileType.Grassland => new Color(0.3f, 0.8f, 0.3f), // Bright Grass Green
+                TileType.Desert => new Color(1f, 0.85f, 0.4f),     // Golden Desert Sand
+                TileType.Forest => new Color(0.2f, 0.6f, 0.2f),    // Dark Forest Green
+                TileType.Hill => new Color(0.6f, 0.5f, 0.3f),      // Earthy Hill Brown
+                TileType.Mountain => new Color(0.4f, 0.4f, 0.4f),  // Slate Gray Mountain
+                _ => Color.white                                    // Fallback
+            };
+            
+            Debug.Log($"Tile({q},{r}): Colored {tile.type} at {tile.transform.position}");
+        }
+        else
+        {
+            Debug.LogError($"Tile({q},{r}): No SpriteRenderer!");
+        }
         return tile;
     }
 
