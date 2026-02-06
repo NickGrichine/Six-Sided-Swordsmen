@@ -116,7 +116,7 @@ public class HexGridManager : MonoBehaviour
         GenerateGrid();
     }
 
-    public IEnumerble<Tile> GetAllTiles()
+    public IEnumerable<Tile> GetAllTiles()
     {
         for (int q = 0; q < width; q++)
             for (int r = 0; r < height; r++)

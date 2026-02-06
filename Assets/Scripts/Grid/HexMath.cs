@@ -5,7 +5,7 @@ public static class HexMath
 {
     // Axial (q, r) -> cube (x, y, z) {x + y + z = 0}
 
-    public static Vector3 AxialToCube(Vector2Int axil)
+    public static Vector3 AxialToCube(Vector2Int axial)
     {
         float x = axial.x;
         float z = axial.y;
