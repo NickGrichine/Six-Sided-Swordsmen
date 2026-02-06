@@ -1,11 +1,10 @@
 using UnityEngine;
 using System.Collections.Generic;
-using Script.Units;
 
 public class Tile : MonoBehaviour  
 {
     public TileType type;
-    public AltitudeLevel altitude = AltitudeLevel.Low;
+    public int altitude = 0;
 
     public SpriteRenderer spriteRenderer;
 
@@ -18,8 +17,9 @@ public class Tile : MonoBehaviour
     public IOccupant occupant;
     public bool IsOccupied => occupant != null;
     public bool BlockSight =>
-        altitude >= AltitudeLevel.High ||
+        altitude >= 2 ||
         type == TileType.Mountain; // Mountain always blocks
+
 
 
     // Start (Unity lifecycle method)
@@ -40,6 +40,12 @@ public class Tile : MonoBehaviour
         return (Mathf.Abs(dq) + Mathf.Abs(dr) + Mathf.Abs(ds)) / 2;
     }
 
+    public bool CanClimbFrom(Tile from)
+    {
+        int heightDiff = Mathf.Abs(altitude - from.altitude);
+        return heightDiff < 2;
+    }
+
     // Add neighbor if not included in neighbors
     public void AddNeighbor(Tile neighbor)
     {
@@ -50,6 +56,13 @@ public class Tile : MonoBehaviour
     public bool TryEnter(IOccupant unit)
     {
         if (!passable || IsOccupied) return false;
+
+        if (unit.CurrentTile != null && !CanClimbFrom(unit.CurrentTile))
+        {
+            Debug.Log($"Can't climb {Mathf.Abs(altitude - unit.CurrentTile.altitude)} height!");
+            return false;
+        }
+
         occupant = unit;
         unit.CurrentTile = this;
         return true;
