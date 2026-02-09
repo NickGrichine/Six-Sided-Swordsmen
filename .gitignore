@@ -101,3 +101,6 @@ InitTestScene*.unity*
 
 # Added by Michael
 .vscode/
+
+# macOS
+.DS_Store
