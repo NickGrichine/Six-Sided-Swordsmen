@@ -3,6 +3,29 @@ using System.Collections.Generic;
 
 public class Tile : MonoBehaviour  
 {
+    // Null-object pattern
+    private static Tile _nullTile;
+    public static Tile NullTile
+    {
+        get
+        {
+            if (_nullTile != null) return _nullTile;
+
+            var go = new GameObject("[NullTile]");
+            go.hideFlags = HideFlags.HideAndDontSave;
+            DontDestroyOnLoad(go);
+
+            _nullTile = go.AddComponent<Tile>();
+            _nullTile.enabled = false; // never runs Update; Start won't run when disabled
+            _nullTile.passable = false;
+            _nullTile.moveCost = int.MaxValue;
+            _nullTile.axialPos = new Vector2Int(int.MinValue, int.MinValue);
+
+            return _nullTile;
+        }
+    }
+
+    public bool IsNull => this == NullTile;
     public TileType type;
     public int altitude = 0;
 
