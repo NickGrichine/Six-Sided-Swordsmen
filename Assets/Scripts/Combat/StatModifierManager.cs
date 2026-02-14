@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class StatModifierManager : MonoBehaviour
 {
     [SerializeField] private float multiplier = 1f;

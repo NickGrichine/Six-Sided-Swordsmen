@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class UnitCommandSO : ScriptableObject
 {
     public int commandID;

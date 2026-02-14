@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
 public class HealthManager : MonoBehaviour
 {
     [SerializeField] private int maxHealth;
