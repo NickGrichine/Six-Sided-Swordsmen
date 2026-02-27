@@ -1,32 +1,41 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System;
+using System.Collections;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public abstract class Button : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler
+public class Button : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler
 {
     public enum BUTTON_STATE { ACTIVE, INACTIVE }
 
     [SerializeField] protected TextMeshProUGUI Text;
     public BUTTON_STATE State { get; private set; }
-    public Action<Button> OnClick;
-    public Action<Button> OnHover;
+    public Action<Button> onClick;
+    public Action<Button> onHover;
 
 
+    public void ClearActions()
+    {
+        onClick = null;
+        onHover = null;
+    }
 
     public void SetState(BUTTON_STATE state)
     {
         State = state;
     }
 
-
     public void SetText(string new_text)
     {
+        if (Text == null) return;
         Text.text = new_text;
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (state == BUTTON_STATE.INACTIVE) return;
+        if (State == BUTTON_STATE.INACTIVE) return;
         StartCoroutine(delayedClick());
     }
 
@@ -34,9 +43,25 @@ public abstract class Button : MonoBehaviour, IPointerDownHandler, IPointerEnter
     {
         yield return null;
         onClick?.Invoke(this);
-        // clickFeedback();
+        SetText("Clicked");
+        Debug.Log("Clicked");
     }
 
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (State == BUTTON_STATE.INACTIVE) return;
+        // TODO:
+        SetText("Exit");
+        Debug.Log("Exit");
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (State == BUTTON_STATE.INACTIVE) return;
+        // TODO:
+        SetText("Hover");
+        Debug.Log("Hover");
+    }
 
 }
 
