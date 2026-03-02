@@ -10,5 +10,11 @@ public class DataManager : Singleton <DataManager> {
         return slots; //todo
     }
     public void DeleteActiveGame() {
+        //Search active slot
+        for(int i = 0; i < 3; i++) {
+            if(slots[i] != null && slots[i].Equals(activeSlot)){
+                slots[i] = null;
+            }
+        }
     }
 }

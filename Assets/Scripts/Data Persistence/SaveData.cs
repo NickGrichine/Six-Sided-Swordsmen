@@ -5,6 +5,10 @@ public class SaveData {
         this.name = name;
     }
 
+    public string getName(){
+        return name;
+    }
+
     public string GetString() {
         return ""; //todo
     }
