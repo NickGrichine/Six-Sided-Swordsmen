@@ -1,4 +1,6 @@
+[System.Serializable]
 public class SaveSlot {
+    [SerializeField]
     private SaveData data;
 
     public SaveData getData(){

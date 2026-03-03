@@ -1,4 +1,6 @@
+[System.Serializable]
 public class SaveData {
+    [SerializeField]
     private string name; //todo
     //Constructor
     public SaveData(string name) {

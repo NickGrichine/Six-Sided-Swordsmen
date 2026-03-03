@@ -1,4 +1,8 @@
+using System;
+
+[System.Serializable]
 public class DataManager : Singleton <DataManager> {
+    //No read-only fields --> instead patter to mimic read-only: private + public getter
     private SaveSlot activeSlot;
     private SaveSlot[] slots = new SaveSlot[3]; //todo Assign slots 
 
