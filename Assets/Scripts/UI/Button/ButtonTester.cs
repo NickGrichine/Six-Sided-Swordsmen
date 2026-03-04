@@ -9,37 +9,52 @@ using UnityEngine.UI;
 // NOTE: dummy class.
 public class ButtonTester : MonoBehaviour
 {
-    [SerializeField] private CustomButton buttonToActivate;
+    [SerializeField] private UnitConsole unitConsole;
     [SerializeField] private Sprite icon;
     [SerializeField] private string textDescription; // on hover.
 
     private ButtonDisplayable displayedObject;
-    private CustomButton script;
 
     void Start()
     {
         displayedObject = ScriptableObject.CreateInstance<ButtonDisplayable>();
         displayedObject.SetIcon(icon);
         displayedObject.SetTextDesc(textDescription);
+        foreach (CustomButton cmd in unitConsole.commandButtons)
+        {
+            cmd.onClick += TestDrawButton;
+        }
 
-        // Get script.
-        // script = buttonToActivate.GetComponent<CustomButton>();
-        script = buttonToActivate;
-
-        // Set action.
-        script.onClick += DrawButton;
+        // TEST:
+        TestUnitConsole();
     }
 
-    private void DrawButton(Button button)
+    private void TestUnitConsole()
     {
-        // Resize button.
-        RectTransform rect = buttonToActivate.GetComponent<RectTransform>();
-        rect.sizeDelta = new Vector2(50f, 50f);
-
-        // Initialize button.
-        script.Initialize(displayedObject);
+        unitConsole.SetAttackStat(10);
+        unitConsole.SetHealthStat(10, 15);
+        unitConsole.SetUnitDescription("This is the unit description.");
+        unitConsole.SetDisplayedUnitIcon(displayedObject);
     }
 
+    private void TestDrawButton(Button button)
+    {
+        // Initialize button.
+        CustomButton cbutton = button as CustomButton;
+        RectTransform rect = cbutton.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(49f, 49f);
+        cbutton.Initialize(displayedObject);
+        cbutton.ClearActions();
+        cbutton.onClick += TestClearButton;
+    }
+
+    private void TestClearButton(Button button)
+    {
+        CustomButton cbutton = button as CustomButton;
+        cbutton.ClearActions();
+        cbutton.ClearIcon();
+        cbutton.onClick += TestDrawButton;
+    }
 
 
 }

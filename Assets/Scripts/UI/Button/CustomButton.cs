@@ -34,6 +34,8 @@ public class CustomButton : Button
         // Set icon.
         if (buttonImage)
             buttonImage.sprite = displayedObject.GetIcon();
+        else
+            buttonImage.sprite = null;
 
         SetState(BUTTON_STATE.ACTIVE);
 
@@ -47,19 +49,28 @@ public class CustomButton : Button
         onClick?.Invoke(this);
         Debug.Log("Clicked");
     }
-
     public new void OnPointerExit(PointerEventData eventData)
     {
         if (State == BUTTON_STATE.INACTIVE) return;
         // TODO:
         Debug.Log("Exit");
     }
-
     public new void OnPointerEnter(PointerEventData eventData)
     {
         if (State == BUTTON_STATE.INACTIVE) return;
         // TODO:
         Debug.Log("Hover");
+    }
+
+
+    public void ClearIcon()
+    {
+        IEnumerator delayed_clear()
+        {
+            yield return null;
+            if (buttonImage) buttonImage.sprite = null;
+        }
+        StartCoroutine(delayed_clear());
     }
 }
 

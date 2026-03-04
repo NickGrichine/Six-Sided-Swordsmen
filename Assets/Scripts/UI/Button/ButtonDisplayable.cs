@@ -10,7 +10,6 @@ using UnityEngine.UI;
 // This allows storing an instance of this class like a prefab; makes it easy
 // to apply changes to buttons.
 
-// TODO:
 [CreateAssetMenu]
 public class ButtonDisplayable : ScriptableObject
 {

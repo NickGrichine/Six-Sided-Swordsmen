@@ -44,7 +44,6 @@ public class Button : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, 
         yield return null;
         onClick?.Invoke(this);
         SetText("Clicked");
-        Debug.Log("Clicked");
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -52,7 +51,6 @@ public class Button : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, 
         if (State == BUTTON_STATE.INACTIVE) return;
         // TODO:
         SetText("Exit");
-        Debug.Log("Exit");
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -60,7 +58,6 @@ public class Button : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, 
         if (State == BUTTON_STATE.INACTIVE) return;
         // TODO:
         SetText("Hover");
-        Debug.Log("Hover");
     }
 
 }
