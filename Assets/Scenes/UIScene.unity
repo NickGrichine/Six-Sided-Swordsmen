@@ -530,7 +530,7 @@ GameObject:
   - component: {fileID: 1553712018}
   - component: {fileID: 1553712019}
   m_Layer: 0
-  m_Name: Button Tester
+  m_Name: 'Tester: UnitConsole'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -560,12 +560,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1553712016}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2ab4cdcc98154903a9d3623c2fcd0e9c, type: 3}
+  m_Script: {fileID: 11500000, guid: b7ae15f34f15608a7ae9b156083a0eb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   unitConsole: {fileID: 1956980461}
   icon: {fileID: 21300000, guid: 3baa6b174a565037ebc44d1ab9d8671b, type: 3}
-  textDescription: Hi
+  textDescription: 
 --- !u!1 &1615429453
 GameObject:
   m_ObjectHideFlags: 0

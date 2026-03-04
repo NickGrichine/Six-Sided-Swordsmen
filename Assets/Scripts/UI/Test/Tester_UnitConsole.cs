@@ -7,11 +7,11 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 // NOTE: dummy class.
-public class ButtonTester : MonoBehaviour
+public class Tester_UnitConsole : MonoBehaviour
 {
     [SerializeField] private UnitConsole unitConsole;
     [SerializeField] private Sprite icon;
-    [SerializeField] private string textDescription; // on hover.
+    [SerializeField] private string textDescription;
 
     private ButtonDisplayable displayedObject;
 
