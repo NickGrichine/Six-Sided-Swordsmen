@@ -1,7 +1,25 @@
+using UnityEngine;
+
 [System.Serializable]
 public class SaveSlot {
     [SerializeField]
     private SaveData data;
+
+    private string path; //File path
+
+    public string Path{
+        get{
+            return path;
+        }
+        set{
+            if(!string.IsNullOrEmpty(value)){
+                path = value;
+            }
+            else{
+                Debug.LogError("Name cannot be empty!");
+            }
+        }
+    }
 
     public SaveData getData(){
         return data;
