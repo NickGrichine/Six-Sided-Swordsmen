@@ -41,7 +41,7 @@ public class Tile : MonoBehaviour
     public bool IsOccupied => occupant != null;
     public bool BlockSight =>
         altitude >= 2 ||
-        type == TileType.Mountain; // Mountain always blocks
+        type == TileType.MOUNTAIN; // Mountain always blocks
 
 
 
