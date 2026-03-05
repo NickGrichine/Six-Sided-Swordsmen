@@ -1,8 +1,15 @@
+using UnityEngine;
+[System.Serializable]
 public class SaveData {
+    [SerializeField]
     private string name; //todo
     //Constructor
     public SaveData(string name) {
         this.name = name;
+    }
+
+    public string getName(){
+        return name;
     }
 
     public string GetString() {
