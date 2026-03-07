@@ -13,10 +13,23 @@ public class UnitController : MonoBehaviour, IOccupant
     public List<UnitCommandSO> commands = new List<UnitCommandSO>();
     public int movesRemaining;
 
+    [SerializeField] private SpriteRenderer spriteRenderer;
+
     private void Awake()
     {
         if (healthManager == null)
             healthManager = GetComponent<HealthManager>();
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    public void SetTeam(Team team)
+    {
+        teamID = team;
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = team == Team.Player1 ? Color.blue : Color.red;
+        }
     }
 
     public void StartTurn()
@@ -81,9 +94,17 @@ public class UnitController : MonoBehaviour, IOccupant
 
     // IOccupant implementation
     public int OwnerId => (int)teamID;
-    public Tile CurrentTile { get => position; set => position = value; }
+    public Tile CurrentTile { get => position; set { position = value; UpdatePosition(); } }
+
+    private void UpdatePosition()
+    {
+        if (position != null)
+        {
+            transform.position = position.transform.position;
+        }
+    }
 
     public void OnNewTurn() => StartTurn();
-    public void OnMoved(Tile from, Tile to) { /* optional: update visuals, etc. */ }
+    public void OnMoved(Tile from, Tile to) { UpdatePosition(); }
     public void onDeath() => OnDeath();
 }
