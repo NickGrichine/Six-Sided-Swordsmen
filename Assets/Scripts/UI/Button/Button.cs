@@ -43,21 +43,21 @@ public class Button : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, 
     {
         yield return null;
         onClick?.Invoke(this);
-        SetText("Clicked");
+        // SetText("Clicked");
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         if (State == BUTTON_STATE.INACTIVE) return;
         // TODO:
-        SetText("Exit");
+        // SetText("Exit");
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (State == BUTTON_STATE.INACTIVE) return;
         // TODO:
-        SetText("Hover");
+        // SetText("Hover");
     }
 
 }
