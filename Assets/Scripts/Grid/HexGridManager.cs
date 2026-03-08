@@ -141,4 +141,11 @@ public class HexGridManager : MonoBehaviour
                 if (grid[q, r] != null)
                     yield return grid[q, r];
     }
+
+    public Tile GetTileAt(Vector2Int coord)
+    {
+        if (coord.x < 0 || coord.x >= width || coord.y < 0 || coord.y >= height)
+            return Tile.NullTile;
+        return grid[coord.x, coord.y];
+    }
 }
