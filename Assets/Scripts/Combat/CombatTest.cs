@@ -7,6 +7,18 @@ public class CombatTest : MonoBehaviour
 
     private UnitController unitA;
     private UnitController unitB;
+    private UnitController unitC;
+    private UnitController unitD;
+
+    private UnitController unitE;
+
+    private UnitController unitF;
+
+    private UnitController unitG;
+    private UnitController unitH;
+    private UnitController unitI;
+
+
     private UnitSpawner spawner;
 
     void Start()
@@ -36,7 +48,15 @@ public class CombatTest : MonoBehaviour
         spawner.unitPrefab = unitPrefab;
 
         unitA = spawner.SpawnUnit(Team.Player1, new Vector2Int(0, 0));
-        unitB = spawner.SpawnUnit(Team.Player2, new Vector2Int(2, 2));
+        unitB = spawner.SpawnUnit(Team.Player1, new Vector2Int(2, 1));
+        unitC = spawner.SpawnUnit(Team.Player1, new Vector2Int(0, 2));
+        unitD = spawner.SpawnUnit(Team.Player1, new Vector2Int(1, 3));
+        unitE = spawner.SpawnUnit(Team.Player1, new Vector2Int(0, 4));
+        unitF = spawner.SpawnUnit(Team.Player2, new Vector2Int(4, 6));
+        unitG = spawner.SpawnUnit(Team.Player2, new Vector2Int(6, 5));
+        unitH = spawner.SpawnUnit(Team.Player2, new Vector2Int(6, 8));
+        unitI = spawner.SpawnUnit(Team.Player2, new Vector2Int(4, 7));
+
 
         Debug.Log($"Spawned A at {unitA?.position.axialPos}, B at {unitB?.position.axialPos}");
         Debug.Log("Total units after spawn: " + FindObjectsOfType<UnitController>().Length);
@@ -45,18 +65,22 @@ public class CombatTest : MonoBehaviour
     void Update()
     {
         // press Space to perform an attack and print the result
-        if (Input.GetKeyDown(KeyCode.Space) && unitA != null && unitB != null)
+        if (Input.GetKeyDown(KeyCode.Space) && unitA != null && unitF != null)
         {
-            bool success = unitA.Attack(unitB);
-            Debug.Log($"Attack called: success={success}, B health={unitB.healthManager.GetHealth()}");
+            bool success = unitA.Attack(unitF);
+            Debug.Log($"Attack called: success={success}, B health={unitF.healthManager.GetHealth()}");
         }
 
-        // press M to move unitA to its first neighbor
-        if (Input.GetKeyDown(KeyCode.M) && unitA != null && unitA.position.neighbors.Count > 0)
+        // press M to move unitA along a path to a target tile
+        if (Input.GetKeyDown(KeyCode.M) && unitA != null)
         {
-            Tile dest = unitA.position.neighbors[0];
-            bool moved = unitA.MoveToAdjacentTile(dest);
-            Debug.Log($"Move A to {dest.axialPos}: {moved}, now at {unitA.position.axialPos}");
+            // Find a target tile, e.g., 2 steps away
+            var target = grid.GetTileAt(new Vector2Int(4, 5));
+            if (target != null && target != unitA.position)
+            {
+                bool moved = unitA.MoveToTile(target);
+                Debug.Log($"Move A to {target.axialPos}: {moved}, now at {unitA.position.axialPos}");
+            }
         }
     }
 }

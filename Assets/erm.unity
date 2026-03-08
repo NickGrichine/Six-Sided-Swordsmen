@@ -249,6 +249,8 @@ MonoBehaviour:
   hexSize: 1
   floorSprite: {fileID: 0}
   wallSprite: {fileID: 0}
+  generationMode: 1
+  staticMapLayout: {fileID: 0}
 --- !u!4 &1319725181
 Transform:
   m_ObjectHideFlags: 0

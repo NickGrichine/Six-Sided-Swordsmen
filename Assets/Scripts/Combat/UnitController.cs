@@ -21,6 +21,12 @@ public class UnitController : MonoBehaviour, IOccupant
             healthManager = GetComponent<HealthManager>();
         if (spriteRenderer == null)
             spriteRenderer = GetComponent<SpriteRenderer>();
+
+        // ensure health manager exists and wire death event
+        if (healthManager != null)
+        {
+            healthManager.onDeath += OnDeath;
+        }
     }
 
     public void SetTeam(Team team)
@@ -37,6 +43,15 @@ public class UnitController : MonoBehaviour, IOccupant
         movesRemaining = refData.maxMovesPerTurn;
     }
 
+    private void Start()
+    {
+        // initialize health based on unit data scriptable object
+        if (healthManager != null && refData != null)
+        {
+            healthManager.SetMaxHealth(refData.maxHealth);
+        }
+    }
+
     public void ConsumeMoves(int cost)
     {
         movesRemaining -= cost;
@@ -45,7 +60,12 @@ public class UnitController : MonoBehaviour, IOccupant
 
     public void OnDeath()
     {
-        //TODO:  will have be expanded later. TBA to Kinson?
+        // clear tile reference so it can be reused
+        if (position != null)
+        {
+            position.occupant = null;
+            position = null;
+        }
         Destroy(gameObject);
     }
 
@@ -92,7 +112,25 @@ public class UnitController : MonoBehaviour, IOccupant
         return false;
     }
 
-    // IOccupant implementation
+    public bool MoveToTile(Tile destination)
+    {
+        if (destination == null || destination.IsOccupied || !destination.passable)
+            return false;
+
+        var path = HexPathfinder.FindPath(position, destination);
+        if (path.Count == 0) return false;
+
+        // For now, move directly to destination if adjacent or simple path
+        // TODO: handle multi-step movement with movement points
+        if (path.Count == 2) // Adjacent
+        {
+            return MoveToAdjacentTile(destination);
+        }
+
+        // For longer paths, move to next tile
+        var nextTile = path[1];
+        return MoveToAdjacentTile(nextTile);
+    }
     public int OwnerId => (int)teamID;
     public Tile CurrentTile { get => position; set { position = value; UpdatePosition(); } }
 
