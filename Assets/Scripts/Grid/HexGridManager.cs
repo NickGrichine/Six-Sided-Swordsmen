@@ -5,7 +5,7 @@ public class HexGridManager : MonoBehaviour
 {
     [Header("Grid Settings")]
     public Tile tilePrefab;
-    public int width = 10;  // q cols
+    public int width = 10;   // q cols
     public int height = 10;  // r rows
     public float hexSize = 1f;
 
@@ -14,23 +14,23 @@ public class HexGridManager : MonoBehaviour
     public Sprite wallSprite;
 
     public enum GenerationMode { Procedural, Static }
-    
+
     [Header("Map Generation")]
     public GenerationMode generationMode = GenerationMode.Procedural;
 
     [Header("Biome Sprites")]
-    public Sprite grassFlatSprite; // Grass, no rocks
-    public Sprite grassRock1Sprite; // Grass, one rock
-    public Sprite grassRock2Sprite; // Grass, more rocks
-    public Sprite grassFlowerSprite; // Grass, flower
+    public Sprite grassFlatSprite;      // Grass, no rocks
+    public Sprite grassRock1Sprite;     // Grass, one rock
+    public Sprite grassRock2Sprite;     // Grass, more rocks
+    public Sprite grassFlowerSprite;    // Grass, flower
 
-    public Sprite purpleFlowerSprite; // Purple, flower
+    public Sprite purpleFlowerSprite;   // Purple, flower
     public Sprite purpleMushroomSprite; // Purple, mushroom
 
-    public Sprite shoreSprite; // Shore
-    public Sprite deepOceanSprite; // Deep Ocean
+    public Sprite shoreSprite;          // Shore
+    public Sprite deepOceanSprite;      // Deep Ocean
 
-    public Sprite mountainSprite; // Mountain
+    public Sprite mountainSprite;       // Mountain
 
     [Header("Selection Outline")]
     public Sprite selectionOutlineSprite;
@@ -40,7 +40,7 @@ public class HexGridManager : MonoBehaviour
     [Range(0f, 1f)] public float purpleChance = 0.32f;
     [Range(0f, 0.5f)] public float grassVariantChance = 0.08f;
     [Range(0f, 0.5f)] public float purpleVariantChance = 0.08f;
-    
+
     private Tile[,] grid;
 
     [ContextMenu("Generate Grid")]
@@ -51,9 +51,8 @@ public class HexGridManager : MonoBehaviour
 
         TileType[,] plannedTypes = new TileType[width, height];
 
-        GenerateBiomPlan(plannedTypes);
+        GenerateBiomePlan(plannedTypes);
 
-        // Generate tiles with axial positions
         for (int q = 0; q < width; q++)
         {
             for (int r = 0; r < height; r++)
@@ -62,18 +61,13 @@ public class HexGridManager : MonoBehaviour
             }
         }
 
-        // Link neighbors (6 directions for pointy-top hex)
         LinkNeighbors();
-
         ApplyShorelines();
-
         RefreshAllTileVisuals();
     }
-    
+
     private void GenerateBiomePlan(TileType[,] plannedTypes)
     {
-        float grassNoiseOffsetX = Random.Range(0f, 999f);
-        float grassNoiseOffsetY = Random.Range(0f, 999f);
         float purpleNoiseOffsetX = Random.Range(0f, 999f);
         float purpleNoiseOffsetY = Random.Range(0f, 999f);
         float oceanNoiseOffsetX = Random.Range(0f, 999f);
@@ -107,8 +101,7 @@ public class HexGridManager : MonoBehaviour
                     : TileType.GRASSLAND;
             }
         }
-    } 
-
+    }
 
     private Tile CreateTile(int q, int r, TileType plannedType)
     {
@@ -160,49 +153,45 @@ public class HexGridManager : MonoBehaviour
                 tile.moveCost = 999;
                 break;
         }
-
-        // Promote some high-altitude land to mountain
-        if ((tile.type == TileType.GRASSLAND || tile.type == TileType.PURPLELAND) && tile.altitude >= 3)
-        {
-            tile.type = TileType.MOUNTAIN;
-            tile.passable = false;
-            tile.moveCost = 999;
-        }
     }
 
     private void EnsureSelectionOutline(Tile tile)
     {
-        if (tile.selectionOutline == null)
+        if (tile.selectionOutline != null)
+            return;
+
+        Transform existing = tile.transform.Find("SelectionOutline");
+        GameObject outlineObj;
+
+        if (existing != null)
         {
-            Transform existing = tile.transform.Find("SelectionOutline");
-            GameObject outlineObj;
+            outlineObj = existing.gameObject;
+        }
+        else
+        {
+            outlineObj = new GameObject("SelectionOutline");
+            outlineObj.transform.SetParent(tile.transform, false);
+        }
 
-            if (existing != null)
-            {
-                outlineObj = existing.gameObject;
-            }
-            else
-            {
-                outlineObj = new GameObject("SelectionOutline");
-                outlineObj.transform.SetParent(tile.transform, false);
-            }
+        SpriteRenderer outlineRenderer = outlineObj.GetComponent<SpriteRenderer>();
+        if (outlineRenderer == null)
+            outlineRenderer = outlineObj.AddComponent<SpriteRenderer>();
 
-            SpriteRenderer outlineRenderer = outlineObj.GetComponent<SpriteRenderer>();
-            if (outlineRenderer == null)
-                outlineRenderer = outlineObj.AddComponent<SpriteRenderer>();
+        outlineRenderer.sprite = selectionOutlineSprite;
+        outlineRenderer.color = Color.white;
 
-            outlineRenderer.sprite = selectionOutlineSprite;
-            outlineRenderer.color = Color.white;
+        if (tile.spriteRenderer != null)
+        {
             outlineRenderer.sortingLayerID = tile.spriteRenderer.sortingLayerID;
             outlineRenderer.sortingOrder = tile.spriteRenderer.sortingOrder + 1;
-
-            outlineObj.transform.localPosition = Vector3.zero;
-            outlineObj.transform.localRotation = Quaternion.identity;
-            outlineObj.transform.localScale = Vector3.one;
-
-            outlineObj.SetActive(false);
-            tile.selectionOutline = outlineObj;
         }
+
+        outlineObj.transform.localPosition = Vector3.zero;
+        outlineObj.transform.localRotation = Quaternion.identity;
+        outlineObj.transform.localScale = Vector3.one;
+
+        outlineObj.SetActive(false);
+        tile.selectionOutline = outlineObj;
     }
 
     private void ApplyShorelines()
@@ -254,8 +243,6 @@ public class HexGridManager : MonoBehaviour
 
         tile.spriteRenderer.color = Color.white;
         tile.spriteRenderer.sprite = GetSpriteForTile(tile);
-
-        Debug.Log($"Tile({tile.axialPos.x},{tile.axialPos.y}): Rendered {tile.type} alt={tile.altitude}");
     }
 
     private Sprite GetSpriteForTile(Tile tile)
@@ -263,26 +250,10 @@ public class HexGridManager : MonoBehaviour
         switch (tile.type)
         {
             case TileType.GRASSLAND:
-                return GetLandSprite(
-                    tile.altitude,
-                    grassFlatSprite,
-                    grassRock1Sprite,
-                    grassRock2Sprite,
-                    grassFlowerVariantSprite,
-                    grassMushroomVariantSprite,
-                    grassVariantChance
-                );
+                return GetGrassSprite(tile.altitude);
 
             case TileType.PURPLELAND:
-                return GetLandSprite(
-                    tile.altitude,
-                    purpleFlatSprite,
-                    purpleRock1Sprite,
-                    purpleRock2Sprite,
-                    purpleFlowerVariantSprite,
-                    purpleMushroomVariantSprite,
-                    purpleVariantChance
-                );
+                return GetPurpleSprite();
 
             case TileType.SHORE:
                 return shoreSprite != null ? shoreSprite : deepOceanSprite;
@@ -298,31 +269,38 @@ public class HexGridManager : MonoBehaviour
         }
     }
 
-    private Sprite GetLandSprite(
-        int altitude,
-        Sprite flat,
-        Sprite rock1,
-        Sprite rock2,
-        Sprite flowerVariant,
-        Sprite mushroomVariant,
-        float variantChance
-    )
+    private Sprite GetGrassSprite(int altitude)
     {
         if (altitude <= 0)
         {
-            float roll = Random.value;
-            if (flowerVariant != null && roll < variantChance * 0.5f)
-                return flowerVariant;
-            if (mushroomVariant != null && roll < variantChance)
-                return mushroomVariant;
+            if (grassFlowerSprite != null && Random.value < grassVariantChance)
+                return grassFlowerSprite;
 
-            return flat;
+            return grassFlatSprite;
         }
 
         if (altitude == 1)
-            return rock1 != null ? rock1 : flat;
+            return grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite;
 
-        return rock2 != null ? rock2 : rock1 != null ? rock1 : flat;
+        return grassRock2Sprite != null ? grassRock2Sprite : grassRock1Sprite;
+    }
+
+    private Sprite GetPurpleSprite()
+    {
+        float roll = Random.value;
+
+        if (purpleFlowerSprite != null && purpleMushroomSprite != null)
+        {
+            return roll < 0.5f ? purpleFlowerSprite : purpleMushroomSprite;
+        }
+
+        if (purpleFlowerSprite != null)
+            return purpleFlowerSprite;
+
+        if (purpleMushroomSprite != null)
+            return purpleMushroomSprite;
+
+        return grassFlatSprite;
     }
 
     private void LinkNeighbors()
@@ -350,9 +328,10 @@ public class HexGridManager : MonoBehaviour
             }
         }
     }
+
     void ClearGrid()
     {
-        foreach (Transform child in transform) 
+        foreach (Transform child in transform)
             Destroy(child.gameObject);
     }
 
@@ -373,6 +352,7 @@ public class HexGridManager : MonoBehaviour
     {
         if (coord.x < 0 || coord.x >= width || coord.y < 0 || coord.y >= height)
             return Tile.NullTile;
+
         return grid[coord.x, coord.y];
     }
 }
