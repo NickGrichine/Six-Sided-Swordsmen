@@ -13,6 +13,11 @@ public class HexGridManager : MonoBehaviour
     public Sprite floorSprite;
     public Sprite wallSprite;
 
+    public enum GenerationMode { Procedural, Static }
+    
+    [Header("Map Generation")]
+    public GenerationMode generationMode = GenerationMode.Procedural;
+
     private Tile[,] grid;
 
     [ContextMenu("Generate Grid")]
@@ -45,10 +50,18 @@ public class HexGridManager : MonoBehaviour
         float yPos = hexSize * Mathf.Sqrt(3) * (r + 0.5f * (q % 2));
         tile.transform.localPosition = new Vector3(xPos, yPos, 0);
 
-        // Randomize type [CUSTOMIZE HERE]
-        tile.type = (TileType)Random.Range( 
-            0, System.Enum.GetNames(typeof(TileType)).Length
-        );
+        // Determine tile type
+        if (generationMode == GenerationMode.Static)
+        {
+            tile.type = TileType.GRASSLAND;
+        }
+        else
+        {
+            // Procedural generation (default)
+            tile.type = (TileType)Random.Range( 
+                0, System.Enum.GetNames(typeof(TileType)).Length
+            );
+        }
         
         switch (tile.type)
         {
