@@ -6,7 +6,7 @@ using System.Collections;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UnitConsole : MonoBehaviour
+public class UnitConsole : Singleton<UnitConsole>
 {
     private const int _command_size = 5;
 
