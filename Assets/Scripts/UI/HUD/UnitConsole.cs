@@ -6,7 +6,7 @@ using System.Collections;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UnitConsole : MonoBehaviour
+public class UnitConsole : Singleton<UnitConsole>
 {
     private const int _command_size = 5;
 
@@ -19,10 +19,11 @@ public class UnitConsole : MonoBehaviour
     [SerializeField] private TextMeshProUGUI maxMovesStat;
     [SerializeField] private TextMeshProUGUI unitDescription;
 
-    void Awake()
+    void Start()
     {
         ClearCommandButtons();
-        GridEventHandler.Instance.onTileClicked += UpdateUnitConsole;
+        if (GridEventHandler.Instance)
+            GridEventHandler.Instance.onTileClicked += UpdateUnitConsole;
     }
 
     public void UpdateUnitConsole(Tile tile)

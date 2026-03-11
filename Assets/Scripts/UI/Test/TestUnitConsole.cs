@@ -29,7 +29,7 @@ public class TestUnitConsole : MonoBehaviour
         // TEST:
         TestConsole();
         // TestInitialization();
-        TestInactiveButtion();
+        // TestInactiveButtion();
     }
 
     private void TestInitialization()
@@ -40,11 +40,7 @@ public class TestUnitConsole : MonoBehaviour
         }
     }
 
-    private void TestInactiveButtion()
-    {
-        unitConsole.commandButtons[0].ClearIcon();
-        unitConsole.commandButtons[0].SetState(Button.BUTTON_STATE.INACTIVE);
-    }
+    private void TestInactiveButtion() => TestDisableButton(unitConsole.commandButtons[0]);
 
     private void TestConsole()
     {
