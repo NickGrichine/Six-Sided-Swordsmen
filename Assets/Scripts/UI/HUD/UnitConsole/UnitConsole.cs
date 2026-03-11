@@ -19,10 +19,11 @@ public class UnitConsole : MonoBehaviour
     [SerializeField] private TextMeshProUGUI maxMovesStat;
     [SerializeField] private TextMeshProUGUI unitDescription;
 
-    void Awake()
+    void Start()
     {
         ClearCommandButtons();
-        GridEventHandler.Instance.onTileClicked += UpdateUnitConsole;
+        if (GridEventHandler.Instance)
+            GridEventHandler.Instance.onTileClicked += UpdateUnitConsole;
     }
 
     public void UpdateUnitConsole(Tile tile)
