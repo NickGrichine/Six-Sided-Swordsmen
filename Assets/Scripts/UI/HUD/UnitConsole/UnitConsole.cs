@@ -22,6 +22,23 @@ public class UnitConsole : MonoBehaviour
     void Awake()
     {
         ClearCommandButtons();
+        GridEventHandler.Instance.onTileClicked += UpdateUnitConsole;
+    }
+
+    public void UpdateUnitConsole(Tile tile)
+    {
+        if (tile == Tile.NullTile) return;
+
+        IOccupant occupant = tile.occupant;
+        if (occupant == null) return;
+
+        if (!(occupant is UnitController))
+        {
+            throw new InvalidOperationException("UnitConsole.cs: 'occupant' is not of type UnitController.");
+        }
+
+        UnitController uc = (UnitController)occupant;
+        Initialize(uc);
     }
 
     public void Initialize(UnitController unitController)
