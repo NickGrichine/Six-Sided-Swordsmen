@@ -6,7 +6,7 @@ using System.Collections;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class TurnInfoBar : MonoBehaviour
+public class TurnInfoBar : Singleton<TurnInfoBar>
 {
     [SerializeField] private TextMeshProUGUI turnCounter;
     [SerializeField] private TextMeshProUGUI playerTurnIndicator;
