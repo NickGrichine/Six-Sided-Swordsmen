@@ -80,6 +80,26 @@ public class HexGridManager : MonoBehaviour
         {
             for (int r = 0; r < height; r++)
             {
+                bool isNearBorder =
+                    q <= 1 ||
+                    r <= 1 ||
+                    q >= width - 2 ||
+                    r >= height - 2;
+
+                float purpleNoise = Mathf.PerlinNoise(
+                    purpleNoiseOffsetX + q * biomeScale,
+                    purpleNoiseOffsetY + r * biomeScale
+                );
+
+                // Outer 2 rings are always land
+                if (isNearBorder)
+                {
+                    plannedTypes[q, r] = purpleNoise < purpleChance
+                        ? TileType.PURPLELAND
+                        : TileType.GRASSLAND;
+                    continue;
+                }
+
                 float oceanNoise = Mathf.PerlinNoise(
                     oceanNoiseOffsetX + q * oceanScale,
                     oceanNoiseOffsetY + r * oceanScale
@@ -90,11 +110,6 @@ public class HexGridManager : MonoBehaviour
                     plannedTypes[q, r] = TileType.OCEAN_DEEP;
                     continue;
                 }
-
-                float purpleNoise = Mathf.PerlinNoise(
-                    purpleNoiseOffsetX + q * biomeScale,
-                    purpleNoiseOffsetY + r * biomeScale
-                );
 
                 plannedTypes[q, r] = purpleNoise < purpleChance
                     ? TileType.PURPLELAND

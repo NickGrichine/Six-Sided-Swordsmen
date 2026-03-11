@@ -293,9 +293,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 3786522473565270464, guid: 1244cca042012754baf167dca488c431, type: 3}
-  width: 10
-  height: 10
-  hexSize: 2
+  width: 20
+  height: 20
+  hexSize: 0.95
   floorSprite: {fileID: 0}
   wallSprite: {fileID: 0}
   generationMode: 0
@@ -309,9 +309,9 @@ MonoBehaviour:
   deepOceanSprite: {fileID: -1171527285, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
   mountainSprite: {fileID: 507983394, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
   selectionOutlineSprite: {fileID: 198324669, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
-  oceanChance: 0.18
-  purpleChance: 0.32
-  grassVariantChance: 0.08
+  oceanChance: 0.303
+  purpleChance: 0.257
+  grassVariantChance: 0.269
   purpleVariantChance: 0.08
 --- !u!4 &2027667803
 Transform:
