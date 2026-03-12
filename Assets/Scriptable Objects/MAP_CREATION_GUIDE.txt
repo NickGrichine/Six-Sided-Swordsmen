@@ -1,0 +1,68 @@
+// Example map demonstration. Copy the code below to create maps in Unity:
+//
+// NEW STATIC MAP EXAMPLE 1: Grassland with Vertical Forest Divider
+// =====================================================================
+// 1. In Project window, right-click Assets/Scriptable Objects
+// 2. Create -> Grid -> Map Layout
+// 3. Name it "Grassland_ForestDivider"
+// 4. In Inspector, click the plus (+) icon to add 3 regions:
+//
+// Region 0 (Left Grassland):
+//   - Tile Type: GRASSLAND
+//   - Start Percent X: 0.0
+//   - End Percent X: 0.49
+//   - Start Percent Y: 0.0
+//   - End Percent Y: 1.0
+//
+// Region 1 (Center Forest):
+//   - Tile Type: FOREST
+//   - Start Percent X: 0.49
+//   - End Percent X: 0.51
+//   - Start Percent Y: 0.0
+//   - End Percent Y: 1.0
+//
+// Region 2 (Right Grassland):
+//   - Tile Type: GRASSLAND
+//   - Start Percent X: 0.51
+//   - End Percent X: 1.0
+//   - Start Percent Y: 0.0
+//   - End Percent Y: 1.0
+//
+// Then assign this map to HexGridManager's "Static Map Layout" field
+// and set Generation Mode to "Static"
+//
+//
+// EXAMPLE 2: Coastal Map (Mountains -> Hills -> Forest -> Grassland -> Ocean)
+// =============================================================================
+// Region 0: Mountains (top 10%)
+//   - Tile Type: MOUNTAIN
+//   - Start X: 0.0, End X: 1.0
+//   - Start Y: 0.9, End Y: 1.0
+//
+// Region 1: Hills (20-30%)
+//   - Tile Type: HILL
+//   - Start X: 0.0, End X: 1.0
+//   - Start Y: 0.7, End Y: 0.9
+//
+// Region 2: Forest (40-60%)
+//   - Tile Type: FOREST
+//   - Start X: 0.0, End X: 1.0
+//   - Start Y: 0.4, End Y: 0.7
+//
+// Region 3: Grassland (70-80%)
+//   - Tile Type: GRASSLAND
+//   - Start X: 0.0, End X: 1.0
+//   - Start Y: 0.2, End Y: 0.4
+//
+// Region 4: Ocean (bottom 20%)
+//   - Tile Type: OCEAN
+//   - Start X: 0.0, End X: 1.0
+//   - Start Y: 0.0, End Y: 0.2
+//
+//
+// KEY ADVANTAGES:
+// ===============
+// - Scales automatically: A 10x10 grid or 50x50 grid will have identical layouts.
+// - Easy to tweak: Adjust percentages in Inspector without coding
+// - Reusable: Same layout works for multiple maps
+// - Modular: Store multiple layouts for different biomes/scenarios
