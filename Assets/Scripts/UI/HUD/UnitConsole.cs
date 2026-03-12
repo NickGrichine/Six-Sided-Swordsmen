@@ -31,8 +31,13 @@ public class UnitConsole : Singleton<UnitConsole>
         if (tile == Tile.NullTile) return;
 
         IOccupant occupant = tile.occupant;
-        if (occupant == null) return;
+        if (occupant == null)
+        {
+            // TODO: implement console clearing when occupant is null.
+            return;
+        }
 
+        // TODO: implement differentiation between ally and enemy units.
         if (!(occupant is UnitController))
         {
             throw new InvalidOperationException("UnitConsole.cs: 'occupant' is not of type UnitController.");
