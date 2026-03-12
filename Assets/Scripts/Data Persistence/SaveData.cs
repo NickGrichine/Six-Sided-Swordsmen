@@ -18,7 +18,4 @@ public class SaveData {
     public bool IsEmpty(SaveData data) {
         return false; //todo
     }
-    public bool IsAvailable(SaveData data) {
-        return false; //todo
-    }
 }
