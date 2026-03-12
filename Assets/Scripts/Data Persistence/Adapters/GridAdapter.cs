@@ -18,7 +18,7 @@ public static class GridAdapter{
         return data;
     }
 
-    public static void FromData(HexGridManager grid){
+    public static void FromData(HexGridManager grid, GridData gridData){
         //todo
     }
 }
