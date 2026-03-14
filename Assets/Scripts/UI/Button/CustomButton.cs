@@ -14,7 +14,11 @@ public class CustomButton : Button
 
     void Awake()
     {
-        buttonImage = GetComponent<Image>();
+        // the "buttonImage = GetComponent" line below should not exist if you're giving the option to serialize buttonImage (you marked [serializefield])
+        // it's very confusing if someone sets the buttonImage, but it gets overwritten to a different one
+        // having the ability to serialize the image is nice/necessary, if you don't want the image and the button script to be on the same gameobject
+
+        //buttonImage = GetComponent<Image>();
         // ClearIcon();
     }
 
