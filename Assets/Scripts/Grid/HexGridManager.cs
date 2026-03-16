@@ -10,8 +10,8 @@ public class HexGridManager : MonoBehaviour
     public float hexSize = 1f;
 
     [Header("Sprites by Type")]
-    public Sprite floorSprite;
-    public Sprite wallSprite;
+    public Sprite floorSprite; 
+    public Sprite wallSprite; 
 
     public enum GenerationMode { Procedural, Static }
 
@@ -33,7 +33,8 @@ public class HexGridManager : MonoBehaviour
     public Sprite mountainSprite;       // Mountain
 
     [Header("Selection Outline")]
-    public Sprite selectionOutlineSprite;
+    public Sprite baseOutlineSprite; // Thin border
+    public Sprite selectionOutlineSprite; // Thick border, selected
 
     [Header("Generation Tuning")]
     [Range(0f, 1f)] public float oceanChance = 0.18f;
@@ -172,6 +173,47 @@ public class HexGridManager : MonoBehaviour
 
     private void EnsureSelectionOutline(Tile tile)
     {
+        EnsureBaseOutline(tile);
+        EnsureSelectedOutline(tile);
+    }
+
+    private void EnsureBaseOutline(Tile tile)
+    {
+        Transform existing = tile.transform.Find("BaseOutline");
+        GameObject outlineObj;
+
+        if (existing != null)
+        {
+            outlineObj = existing.gameObject;
+        }
+        else
+        {
+            outlineObj = new GameObject("BaseOutline");
+            outlineObj.transform.SetParent(tile.transform, false);
+        }
+
+        SpriteRenderer outlineRenderer = outlineObj.GetComponent<SpriteRenderer>();
+        if (outlineRenderer == null)
+            outlineRenderer = outlineObj.AddComponent<SpriteRenderer>();
+
+        outlineRenderer.sprite = baseOutlineSprite;
+        outlineRenderer.color = Color.white;
+
+        if (tile.spriteRenderer != null)
+        {
+            outlineRenderer.sortingLayerID = tile.spriteRenderer.sortingLayerID;
+            outlineRenderer.sortingOrder = tile.spriteRenderer.sortingOrder + 1;
+        }
+
+        outlineObj.transform.localPosition = Vector3.zero;
+        outlineObj.transform.localRotation = Quaternion.identity;
+        outlineObj.transform.localScale = Vector3.one;
+
+        outlineObj.SetActive(true);
+    }
+
+    private void EnsureSelectedOutline(Tile tile)
+    {
         if (tile.selectionOutline != null)
             return;
 
@@ -198,7 +240,7 @@ public class HexGridManager : MonoBehaviour
         if (tile.spriteRenderer != null)
         {
             outlineRenderer.sortingLayerID = tile.spriteRenderer.sortingLayerID;
-            outlineRenderer.sortingOrder = tile.spriteRenderer.sortingOrder + 1;
+            outlineRenderer.sortingOrder = tile.spriteRenderer.sortingOrder + 2;
         }
 
         outlineObj.transform.localPosition = Vector3.zero;
