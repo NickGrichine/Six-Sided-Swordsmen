@@ -7,6 +7,20 @@ public class SaveSlot {
 
     private string path; //File path
 
+    public SaveData Data {
+        get{
+            return data;
+        }
+        set {
+            if(value != null){
+                data = value;
+            }
+            else {
+                Debug.LogError("SaveData cannot be empty!");
+            }
+        }
+    }
+
     public string Path{
         get{
             return path;
