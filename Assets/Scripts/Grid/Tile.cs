@@ -30,6 +30,7 @@ public class Tile : MonoBehaviour
     public int altitude = 0;
 
     public SpriteRenderer spriteRenderer;
+    public GameObject selectionOutline;
 
     public List<Tile> neighbors = new List<Tile>(6); // 6 hex neighbors
     public Vector2Int axialPos; // q (col), r (row) for axial coords
@@ -43,18 +44,36 @@ public class Tile : MonoBehaviour
         altitude >= 2 ||
         type == TileType.MOUNTAIN; // Mountain always blocks
 
-
-
-    // Start (Unity lifecycle method)
-    private void Start()
+    private void Awake()
     {
         if (spriteRenderer == null)
         {
             spriteRenderer = GetComponent<SpriteRenderer>();
         }
+
+        if (selectionOutline != null)
+        {
+            selectionOutline.SetActive(false);
+        }
     }
 
-    // Static method for distnce 
+    public void ShowOutline()
+    {
+        if (selectionOutline != null)
+        {
+            selectionOutline.SetActive(true);
+        }
+    }
+
+    public void HideOutline()
+    {
+        if (selectionOutline != null)
+        {
+            selectionOutline.SetActive(false);
+        }
+    }
+
+    // Static method for distance 
     public static int GetDistance(Tile a, Tile b)
     {
         int dq = a.axialPos.x - b.axialPos.x;
