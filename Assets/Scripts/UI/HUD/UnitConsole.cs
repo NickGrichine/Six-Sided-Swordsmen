@@ -6,7 +6,7 @@ using System.Collections;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UnitConsole : MonoBehaviour
+public class UnitConsole : Singleton<UnitConsole>
 {
     private const int _command_size = 5;
 
@@ -19,9 +19,32 @@ public class UnitConsole : MonoBehaviour
     [SerializeField] private TextMeshProUGUI maxMovesStat;
     [SerializeField] private TextMeshProUGUI unitDescription;
 
-    void Awake()
+    void Start()
     {
         ClearCommandButtons();
+        if (GridEventHandler.Instance)
+            GridEventHandler.Instance.onTileClicked += UpdateUnitConsole;
+    }
+
+    public void UpdateUnitConsole(Tile tile)
+    {
+        if (tile == Tile.NullTile) return;
+
+        IOccupant occupant = tile.occupant;
+        if (occupant == null)
+        {
+            // TODO: implement console clearing when occupant is null.
+            return;
+        }
+
+        // TODO: implement differentiation between ally and enemy units.
+        if (!(occupant is UnitController))
+        {
+            throw new InvalidOperationException("UnitConsole.cs: 'occupant' is not of type UnitController.");
+        }
+
+        UnitController uc = (UnitController)occupant;
+        Initialize(uc);
     }
 
     public void Initialize(UnitController unitController)

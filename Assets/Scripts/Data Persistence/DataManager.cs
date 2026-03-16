@@ -17,7 +17,7 @@ public class DataManager : Singleton <DataManager> {
         //create new file and write game data to json file
     }
     public SaveSlot[] GetSaveSlots() {
-        return slots; //todo
+        return slots; 
     }
     public void DeleteActiveGame() {
         //Search active slot
