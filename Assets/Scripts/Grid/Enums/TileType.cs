@@ -3,10 +3,9 @@
 public enum TileType
 {
     GRASSLAND,
-    FOREST,
-    DESERT,
-    HILL,
-    MOUNTAIN,
-    OCEAN
+    PURPLELAND,
+    SHORE,
+    OCEAN_DEEP,
+    MOUNTAIN
     
 }
