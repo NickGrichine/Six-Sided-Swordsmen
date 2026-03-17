@@ -22,7 +22,7 @@ public static class TileAdapter{
         return data;
         
     }
-    public static void FromData(HexGridManager grid){
+    public static void FromData(HexGridManager grid, TileData tileData){
         //todo
     }
 }
