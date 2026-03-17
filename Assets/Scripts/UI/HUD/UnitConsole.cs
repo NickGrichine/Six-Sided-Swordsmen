@@ -16,12 +16,13 @@ public class UnitConsole : Singleton<UnitConsole>
     [SerializeField] private TextMeshProUGUI healthStat;
     [SerializeField] private TextMeshProUGUI attackStat;
     [SerializeField] private TextMeshProUGUI rangeStat;
-    [SerializeField] private TextMeshProUGUI maxMovesStat;
+    [SerializeField] private TextMeshProUGUI movesStat;
     [SerializeField] private TextMeshProUGUI unitDescription;
 
     void Start()
     {
-        ClearCommandButtons();
+        // ClearCommandButtons();
+        ClearUnitConsole();
         if (GridEventHandler.Instance)
             GridEventHandler.Instance.onTileClicked += UpdateUnitConsole;
     }
@@ -33,15 +34,17 @@ public class UnitConsole : Singleton<UnitConsole>
         IOccupant occupant = tile.occupant;
         if (occupant == null)
         {
-            // TODO: implement console clearing when occupant is null.
+            Debug.Log("Hi clearing");
+            ClearUnitConsole();
             return;
         }
 
-        // TODO: implement differentiation between ally and enemy units.
         if (!(occupant is UnitController))
         {
             throw new InvalidOperationException("UnitConsole.cs: 'occupant' is not of type UnitController.");
         }
+
+        // TODO: implement differentiation between ally and enemy units.
 
         UnitController uc = (UnitController)occupant;
         Initialize(uc);
@@ -55,11 +58,12 @@ public class UnitConsole : Singleton<UnitConsole>
         int currentHP = unitController.healthManager.GetHealth();
         int maxHP = unitController.refData.maxHealth;
         int maxMoves = unitController.refData.maxMovesPerTurn;
+        int remainingMoves = unitController.movesRemaining;
         int attackStr = unitController.refData.attackStr;
         int attackRange = unitController.refData.attackRange;
         SetHealthStat(currentHP, maxHP);
         SetAttackStat(attackStr);
-        SetMaxMovesStat(maxMoves);
+        SetMovesStat(remainingMoves, maxMoves);
         SetUnitName(unitController.refData.name);
         SetRangeStat(attackRange);
 
@@ -71,6 +75,17 @@ public class UnitConsole : Singleton<UnitConsole>
         }
 
         // TODO: Set unit icon:
+    }
+
+    private void ClearUnitConsole()
+    {
+        ClearCommandButtons();
+        ClearHealthStat();
+        ClearAttackStat();
+        ClearMovesStat();
+        ClearRangeStat();
+        SetUnitName("");
+        SetUnitDescription("");
     }
 
     /// -----------------------
@@ -115,9 +130,14 @@ public class UnitConsole : Singleton<UnitConsole>
     private void SetHealthStat(int currentHP, int maxHP) { healthStat.text = "HP: " + currentHP + "/" + maxHP; }
     private void SetAttackStat(int attack) { attackStat.text = "ATK: " + attack; }
     private void SetUnitDescription(string desc) { unitDescription.text = desc; }
-    private void SetMaxMovesStat(int maxMoves) { maxMovesStat.text = "MaxMoves: " + maxMoves; }
+    private void SetMovesStat(int remainingMoves, int maxMoves) { movesStat.text = "Moves: " + remainingMoves + "/" + maxMoves; }
     private void SetUnitName(string name) { unitName.text = name.Replace("(Clone)", "").Trim(); }
     private void SetRangeStat(int range) { rangeStat.text = "Range: " + range; }
+
+    private void ClearHealthStat() { healthStat.text = "HP: "; }
+    private void ClearAttackStat() { attackStat.text = "ATK: "; }
+    private void ClearMovesStat() { movesStat.text = "Moves: "; }
+    private void ClearRangeStat() { rangeStat.text = "Range: "; }
 
 
 }
