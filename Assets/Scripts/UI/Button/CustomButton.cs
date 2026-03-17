@@ -12,15 +12,7 @@ public class CustomButton : Button
     public IButtonDisplayable displayedObject { get; private set; }
     [SerializeField] private Image buttonImage;
 
-    void Awake()
-    {
-        // the "buttonImage = GetComponent" line below should not exist if you're giving the option to serialize buttonImage (you marked [serializefield])
-        // it's very confusing if someone sets the buttonImage, but it gets overwritten to a different one
-        // having the ability to serialize the image is nice/necessary, if you don't want the image and the button script to be on the same gameobject
-
-        //buttonImage = GetComponent<Image>();
-        // ClearIcon();
-    }
+    void Awake() { }
 
     public new void SetState(BUTTON_STATE state)
     {
@@ -49,12 +41,21 @@ public class CustomButton : Button
         // Set icon.
         if (buttonImage)
             buttonImage.sprite = displayedObject.Icon;
-        else
-            buttonImage.sprite = null;
 
         // TODO: popup handler.
     }
 
+    public void Initialize(Sprite sprite)
+    {
+        if (!sprite)
+        {
+            SetState(BUTTON_STATE.INACTIVE);
+            return;
+        }
+        SetState(BUTTON_STATE.ACTIVE);
+        if (buttonImage)
+            buttonImage.sprite = sprite;
+    }
 
     private IEnumerator delayedClick()
     {
@@ -81,7 +82,11 @@ public class CustomButton : Button
         IEnumerator delayed_clear()
         {
             yield return null;
-            if (buttonImage) buttonImage.sprite = null; // clear icon.
+            if (buttonImage)
+            {
+                buttonImage.sprite = null; // clear icon.
+                // buttonImage.color = new Color(1, 1, 1, 0);
+            }
         }
         StartCoroutine(delayed_clear());
     }

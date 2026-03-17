@@ -34,7 +34,6 @@ public class UnitConsole : Singleton<UnitConsole>
         IOccupant occupant = tile.occupant;
         if (occupant == null)
         {
-            Debug.Log("Hi clearing");
             ClearUnitConsole();
             return;
         }
@@ -75,10 +74,12 @@ public class UnitConsole : Singleton<UnitConsole>
         }
 
         // TODO: Set unit icon:
+        // unitIcon.Initialize( [sprite here] );
     }
 
     private void ClearUnitConsole()
     {
+        ClearUnitIcon();
         ClearCommandButtons();
         ClearHealthStat();
         ClearAttackStat();
@@ -90,16 +91,6 @@ public class UnitConsole : Singleton<UnitConsole>
 
     /// -----------------------
     /// Command Button methods:
-
-    private void ClearCommandButtons()
-    {
-        foreach (CustomButton cmd in commandButtons)
-        {
-            if (!cmd) continue;
-            cmd.ClearActions();
-            cmd.ClearIcon();
-        }
-    }
 
     private int _counter = 0;
     private bool SetCommandButton(
@@ -123,6 +114,18 @@ public class UnitConsole : Singleton<UnitConsole>
         return true;
     }
 
+    private void ClearCommandButtons()
+    {
+        _counter = 0;
+        foreach (CustomButton cmd in commandButtons)
+        {
+            if (!cmd) continue;
+            cmd.ClearActions();
+            cmd.ClearIcon();
+            cmd.SetState(Button.BUTTON_STATE.INACTIVE);
+        }
+    }
+
     /// ------------------
     /// Unit Info methods:
 
@@ -134,6 +137,7 @@ public class UnitConsole : Singleton<UnitConsole>
     private void SetUnitName(string name) { unitName.text = name.Replace("(Clone)", "").Trim(); }
     private void SetRangeStat(int range) { rangeStat.text = "Range: " + range; }
 
+    private void ClearUnitIcon() => unitIcon.SetState(Button.BUTTON_STATE.INACTIVE);
     private void ClearHealthStat() { healthStat.text = "HP: "; }
     private void ClearAttackStat() { attackStat.text = "ATK: "; }
     private void ClearMovesStat() { movesStat.text = "Moves: "; }
