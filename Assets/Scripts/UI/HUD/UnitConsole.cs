@@ -21,7 +21,7 @@ public class UnitConsole : Singleton<UnitConsole>
     [SerializeField] private TextMeshProUGUI unitDescription;
 
     [SerializeField] private CanvasGroup unitStatsGroup;
-    [SerializeField] private CanvasGroup commandArrayGroup;
+    [SerializeField] private CanvasGroup commandButtonArrayGroup;
 
 
     void Start()
@@ -48,7 +48,6 @@ public class UnitConsole : Singleton<UnitConsole>
             throw new InvalidOperationException("UnitConsole.cs: 'occupant' is not of type UnitController.");
         }
 
-        // TODO: implement differentiation between ally and enemy units.
 
         UnitController uc = (UnitController)occupant;
         Initialize(uc);
@@ -58,7 +57,7 @@ public class UnitConsole : Singleton<UnitConsole>
     {
         ClearCommandButtons();
         EnableCanvasGroup(unitStatsGroup);
-        EnableCanvasGroup(commandArrayGroup);
+        EnableCanvasGroup(commandButtonArrayGroup);
 
         // Display unit stats:
         int currentHP = unitController.healthManager.GetHealth();
@@ -82,6 +81,24 @@ public class UnitConsole : Singleton<UnitConsole>
 
         // TODO: Set unit icon:
         // unitIcon.Initialize( [sprite here] );
+
+        // TODO: implement differentiation between ally and enemy units.
+        Player current_turn_player = GameManager.Instance.TurnPlayer;
+        Player unit_belongs_to = TeamToPlayer(unitController.teamID);
+        if (unit_belongs_to == current_turn_player) EnableCanvasGroup(commandButtonArrayGroup);
+        else
+        {
+            DisableCanvasGroup(commandButtonArrayGroup);
+            Debug.Log("disable this");
+        }
+    }
+
+    // NOTE: To remove later (when Team and Player is unified).
+    private Player TeamToPlayer(Team team)
+    {
+        if (team == Team.Player1) return Player.PLAYER_1;
+        if (team == Team.Player2) return Player.PLAYER_2;
+        return Player.NULL;
     }
 
     private void ClearUnitConsole()
@@ -89,7 +106,7 @@ public class UnitConsole : Singleton<UnitConsole>
         HideUnitIcon();
         ClearCommandButtons();
         DisableCanvasGroup(unitStatsGroup);
-        DisableCanvasGroup(commandArrayGroup);
+        DisableCanvasGroup(commandButtonArrayGroup);
         SetUnitName("");
         SetUnitDescription("");
     }

@@ -18,9 +18,9 @@ public class CustomButton : Button
     {
         base.SetState(state);
         if (state == BUTTON_STATE.INACTIVE)
-            buttonImage.enabled = false;
+            DisableRendering();
         else if (state == BUTTON_STATE.ACTIVE)
-            buttonImage.enabled = true;
+            EnableRendering();
     }
 
     public void Initialize(IButtonDisplayable displayedObject)
@@ -76,6 +76,14 @@ public class CustomButton : Button
         Debug.Log("Hover on " + this);
     }
 
+    private void DisableRendering()
+    {
+        if (buttonImage) buttonImage.enabled = false;
+    }
+    private void EnableRendering()
+    {
+        if (buttonImage) buttonImage.enabled = true;
+    }
 
     public void ClearIcon()
     {
