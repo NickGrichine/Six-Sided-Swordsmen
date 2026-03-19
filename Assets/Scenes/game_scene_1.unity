@@ -354,22 +354,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 4980123793794333555, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4980123793794333555, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
-      propertyPath: m_BlockingMask.m_Bits
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4980123793794333555, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
-      propertyPath: m_IgnoreReversedGraphics
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 6888908768397511165, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
       propertyPath: m_Name
       value: HUD Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 7162570368456633403, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
+      propertyPath: unitStatsGroup
+      value: 
+      objectReference: {fileID: 2115567392}
+    - target: {fileID: 7162570368456633403, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
+      propertyPath: commandArrayGroup
+      value: 
+      objectReference: {fileID: 2115567391}
     - target: {fileID: 7786395475134199620, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -455,6 +451,16 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
+--- !u!225 &2115567391 stripped
+CanvasGroup:
+  m_CorrespondingSourceObject: {fileID: 5296647945916643764, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
+  m_PrefabInstance: {fileID: 2115567388}
+  m_PrefabAsset: {fileID: 0}
+--- !u!225 &2115567392 stripped
+CanvasGroup:
+  m_CorrespondingSourceObject: {fileID: 6456981973248642796, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
+  m_PrefabInstance: {fileID: 2115567388}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2119828636
 PrefabInstance:
   m_ObjectHideFlags: 0

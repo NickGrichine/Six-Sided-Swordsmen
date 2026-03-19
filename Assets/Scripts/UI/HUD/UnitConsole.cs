@@ -12,12 +12,17 @@ public class UnitConsole : Singleton<UnitConsole>
 
     public CustomButton[] commandButtons = new CustomButton[_command_size];
     [SerializeField] private CustomButton unitIcon;
+
     [SerializeField] private TextMeshProUGUI unitName;
     [SerializeField] private TextMeshProUGUI healthStat;
     [SerializeField] private TextMeshProUGUI attackStat;
     [SerializeField] private TextMeshProUGUI rangeStat;
     [SerializeField] private TextMeshProUGUI movesStat;
     [SerializeField] private TextMeshProUGUI unitDescription;
+
+    [SerializeField] private CanvasGroup unitStatsGroup;
+    [SerializeField] private CanvasGroup commandArrayGroup;
+
 
     void Start()
     {
@@ -52,6 +57,8 @@ public class UnitConsole : Singleton<UnitConsole>
     public void Initialize(UnitController unitController)
     {
         ClearCommandButtons();
+        EnableCanvasGroup(unitStatsGroup);
+        EnableCanvasGroup(commandArrayGroup);
 
         // Display unit stats:
         int currentHP = unitController.healthManager.GetHealth();
@@ -79,12 +86,10 @@ public class UnitConsole : Singleton<UnitConsole>
 
     private void ClearUnitConsole()
     {
-        ClearUnitIcon();
+        HideUnitIcon();
         ClearCommandButtons();
-        ClearHealthStat();
-        ClearAttackStat();
-        ClearMovesStat();
-        ClearRangeStat();
+        DisableCanvasGroup(unitStatsGroup);
+        DisableCanvasGroup(commandArrayGroup);
         SetUnitName("");
         SetUnitDescription("");
     }
@@ -92,31 +97,32 @@ public class UnitConsole : Singleton<UnitConsole>
     /// -----------------------
     /// Command Button methods:
 
-    private int _counter = 0;
+    private int _command_index = 0;
     private bool SetCommandButton(
             Action<Button> onClick,
             Action<Button> onHover,
             IButtonDisplayable displayedObject)
     {
-        if (!commandButtons[_counter]) return false;
+        if (_command_index >= _command_size) return false;
+        if (!commandButtons[_command_index]) return false;
 
-        // removing then adding ensures that a specific action is not added multiple times.
-        // nothing happens if it doesn't exist.
-        commandButtons[_counter].onClick -= onClick;
-        commandButtons[_counter].onClick -= onHover;
+        // NOTE: removing then adding an action ensures that a specific action
+        // is not added multiple times. nothing happens if it doesn't exist.
+        commandButtons[_command_index].onClick -= onClick;
+        commandButtons[_command_index].onClick -= onHover;
 
         // Initialize custom button:
-        commandButtons[_counter].onClick += onClick;
-        commandButtons[_counter].onClick += onHover;
-        commandButtons[_counter].Initialize(displayedObject);
+        commandButtons[_command_index].onClick += onClick;
+        commandButtons[_command_index].onClick += onHover;
+        commandButtons[_command_index].Initialize(displayedObject);
 
-        _counter = (_counter + 1) % _command_size;
+        _command_index = (_command_index + 1) % _command_size;
         return true;
     }
 
     private void ClearCommandButtons()
     {
-        _counter = 0;
+        _command_index = 0;
         foreach (CustomButton cmd in commandButtons)
         {
             if (!cmd) continue;
@@ -137,11 +143,16 @@ public class UnitConsole : Singleton<UnitConsole>
     private void SetUnitName(string name) { unitName.text = name.Replace("(Clone)", "").Trim(); }
     private void SetRangeStat(int range) { rangeStat.text = "Range: " + range; }
 
-    private void ClearUnitIcon() => unitIcon.SetState(Button.BUTTON_STATE.INACTIVE);
-    private void ClearHealthStat() { healthStat.text = "HP: "; }
-    private void ClearAttackStat() { attackStat.text = "ATK: "; }
-    private void ClearMovesStat() { movesStat.text = "Moves: "; }
-    private void ClearRangeStat() { rangeStat.text = "Range: "; }
-
+    private void HideUnitIcon() => unitIcon.SetState(Button.BUTTON_STATE.INACTIVE);
+    private void EnableCanvasGroup(CanvasGroup cg)
+    {
+        cg.alpha = 1;
+        cg.interactable = true;
+    }
+    private void DisableCanvasGroup(CanvasGroup cg)
+    {
+        cg.alpha = 0;
+        cg.interactable = false;
+    }
 
 }
