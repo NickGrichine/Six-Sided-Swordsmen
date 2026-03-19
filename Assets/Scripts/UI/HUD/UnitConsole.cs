@@ -56,8 +56,8 @@ public class UnitConsole : Singleton<UnitConsole>
     public void Initialize(UnitController unitController)
     {
         ClearCommandButtons();
-        EnableCanvasGroup(unitStatsGroup);
-        EnableCanvasGroup(commandButtonArrayGroup);
+        SetCanvasGroupState(unitStatsGroup, true);
+        SetCanvasGroupState(commandButtonArrayGroup, true);
 
         // Display unit stats:
         int currentHP = unitController.healthManager.GetHealth();
@@ -83,30 +83,20 @@ public class UnitConsole : Singleton<UnitConsole>
         // unitIcon.Initialize( [sprite here] );
 
         Player current_turn_player = GameManager.Instance.TurnPlayer;
-        // Player unit_belongs_to = TeamToPlayer(unitController.teamID);
         Player unit_belongs_to = unitController.teamID;
-        if (unit_belongs_to == current_turn_player) EnableCanvasGroup(commandButtonArrayGroup);
+        if (unit_belongs_to == current_turn_player) SetCanvasGroupState(commandButtonArrayGroup, true);
         else
         {
-            DisableCanvasGroup(commandButtonArrayGroup);
-            Debug.Log("disable this");
+            SetCanvasGroupState(commandButtonArrayGroup, false);
         }
     }
-
-    // NOTE: To remove later (when Team and Player is unified).
-    // private Player TeamToPlayer(Team team)
-    // {
-    //     if (team == Team.Player1) return Player.PLAYER_1;
-    //     if (team == Team.Player2) return Player.PLAYER_2;
-    //     return Player.NULL;
-    // }
 
     private void ClearUnitConsole()
     {
         HideUnitIcon();
         ClearCommandButtons();
-        DisableCanvasGroup(unitStatsGroup);
-        DisableCanvasGroup(commandButtonArrayGroup);
+        SetCanvasGroupState(unitStatsGroup, false);
+        SetCanvasGroupState(commandButtonArrayGroup, false);
         SetUnitName("");
         SetUnitDescription("");
     }
@@ -161,15 +151,10 @@ public class UnitConsole : Singleton<UnitConsole>
     private void SetRangeStat(int range) { rangeStat.text = "Range: " + range; }
 
     private void HideUnitIcon() => unitIcon.SetState(Button.BUTTON_STATE.INACTIVE);
-    private void EnableCanvasGroup(CanvasGroup cg)
+    private void SetCanvasGroupState(CanvasGroup cg, bool mode)
     {
-        cg.alpha = 1;
-        cg.interactable = true;
-    }
-    private void DisableCanvasGroup(CanvasGroup cg)
-    {
-        cg.alpha = 0;
-        cg.interactable = false;
+        cg.alpha = mode ? 1 : 0;
+        cg.interactable = mode;
     }
 
 }
