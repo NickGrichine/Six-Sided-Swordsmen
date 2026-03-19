@@ -82,9 +82,9 @@ public class UnitConsole : Singleton<UnitConsole>
         // TODO: Set unit icon:
         // unitIcon.Initialize( [sprite here] );
 
-        // TODO: implement differentiation between ally and enemy units.
         Player current_turn_player = GameManager.Instance.TurnPlayer;
-        Player unit_belongs_to = TeamToPlayer(unitController.teamID);
+        // Player unit_belongs_to = TeamToPlayer(unitController.teamID);
+        Player unit_belongs_to = unitController.teamID;
         if (unit_belongs_to == current_turn_player) EnableCanvasGroup(commandButtonArrayGroup);
         else
         {
@@ -94,12 +94,12 @@ public class UnitConsole : Singleton<UnitConsole>
     }
 
     // NOTE: To remove later (when Team and Player is unified).
-    private Player TeamToPlayer(Team team)
-    {
-        if (team == Team.Player1) return Player.PLAYER_1;
-        if (team == Team.Player2) return Player.PLAYER_2;
-        return Player.NULL;
-    }
+    // private Player TeamToPlayer(Team team)
+    // {
+    //     if (team == Team.Player1) return Player.PLAYER_1;
+    //     if (team == Team.Player2) return Player.PLAYER_2;
+    //     return Player.NULL;
+    // }
 
     private void ClearUnitConsole()
     {
