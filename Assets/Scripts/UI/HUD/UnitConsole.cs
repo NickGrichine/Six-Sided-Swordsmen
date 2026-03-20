@@ -49,8 +49,8 @@ public class UnitConsole : Singleton<UnitConsole>
         }
 
 
-        UnitController uc = (UnitController)occupant;
-        Initialize(uc);
+        UnitController unit_occupant = (UnitController)occupant;
+        Initialize(unit_occupant);
     }
 
     public void Initialize(UnitController unitController)
@@ -64,19 +64,19 @@ public class UnitConsole : Singleton<UnitConsole>
         int maxHP = unitController.refData.maxHealth;
         int maxMoves = unitController.refData.maxMovesPerTurn;
         int remainingMoves = unitController.movesRemaining;
-        int attackStr = unitController.refData.attackStr;
+        int attackStrength = unitController.refData.attackStr;
         int attackRange = unitController.refData.attackRange;
         SetHealthStat(currentHP, maxHP);
-        SetAttackStat(attackStr);
+        SetAttackStat(attackStrength);
         SetMovesStat(remainingMoves, maxMoves);
         SetUnitName(unitController.refData.name);
         SetRangeStat(attackRange);
 
         // Set command buttons:
-        foreach (UnitCommandSO cmd in unitController.commands)
+        foreach (UnitCommandSO command in unitController.commands)
         {
             // TODO: add onClick/onHover Actions:
-            SetCommandButton(null, null, cmd);
+            SetCommandButton(null, null, command);
         }
 
         // TODO: Set unit icon:
@@ -130,12 +130,12 @@ public class UnitConsole : Singleton<UnitConsole>
     private void ClearCommandButtons()
     {
         _command_index = 0;
-        foreach (CustomButton cmd in commandButtons)
+        foreach (CustomButton command in commandButtons)
         {
-            if (!cmd) continue;
-            cmd.ClearActions();
-            cmd.ClearIcon();
-            cmd.SetState(Button.BUTTON_STATE.INACTIVE);
+            if (!command) continue;
+            command.ClearActions();
+            command.ClearIcon();
+            command.SetState(Button.BUTTON_STATE.INACTIVE);
         }
     }
 

@@ -93,7 +93,6 @@ public class CustomButton : Button
             if (buttonImage)
             {
                 buttonImage.sprite = null; // clear icon.
-                // buttonImage.color = new Color(1, 1, 1, 0);
             }
         }
         StartCoroutine(delayed_clear());
