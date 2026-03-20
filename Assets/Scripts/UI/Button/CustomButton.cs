@@ -57,12 +57,6 @@ public class CustomButton : Button
             buttonImage.sprite = sprite;
     }
 
-    private IEnumerator delayedClick()
-    {
-        yield return null;
-        onClick?.Invoke(this);
-        Debug.Log("Clicked on " + this);
-    }
     public new void OnPointerExit(PointerEventData eventData)
     {
         if (State == BUTTON_STATE.INACTIVE) return;
