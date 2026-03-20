@@ -40,10 +40,11 @@ public class Button : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, 
     public void OnPointerDown(PointerEventData eventData)
     {
         if (State == BUTTON_STATE.INACTIVE) return;
-        StartCoroutine(delayedClick());
+        print("Button was clicked: " + gameObject.name);
+        StartCoroutine(DelayedClickCoroutine());
     }
 
-    private IEnumerator delayedClick()
+    private IEnumerator DelayedClickCoroutine()
     {
         yield return null;
         onClick?.Invoke(this);
