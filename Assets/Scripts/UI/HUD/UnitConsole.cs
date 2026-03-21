@@ -48,9 +48,7 @@ public class UnitConsole : Singleton<UnitConsole>
             throw new InvalidOperationException("UnitConsole.cs: 'occupant' is not of type UnitController.");
         }
 
-
-        UnitController unit_occupant = (UnitController)occupant;
-        Initialize(unit_occupant);
+        Initialize((UnitController)occupant);
     }
 
     public void Initialize(UnitController unitController)
@@ -116,11 +114,11 @@ public class UnitConsole : Singleton<UnitConsole>
         // NOTE: removing then adding an action ensures that a specific action
         // is not added multiple times. nothing happens if it doesn't exist.
         commandButtons[_command_index].onClick -= onClick;
-        commandButtons[_command_index].onClick -= onHover;
+        commandButtons[_command_index].onHover -= onHover;
 
         // Initialize custom button:
         commandButtons[_command_index].onClick += onClick;
-        commandButtons[_command_index].onClick += onHover;
+        commandButtons[_command_index].onHover += onHover;
         commandButtons[_command_index].Initialize(displayedObject);
 
         _command_index = (_command_index + 1) % _command_size;

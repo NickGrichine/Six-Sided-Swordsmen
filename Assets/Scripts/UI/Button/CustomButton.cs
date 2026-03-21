@@ -61,13 +61,13 @@ public class CustomButton : Button
     {
         if (State == BUTTON_STATE.INACTIVE) return;
         // TODO:
-        Debug.Log("Exit on " + this);
+        // Debug.Log("Exit on " + this);
     }
     public new void OnPointerEnter(PointerEventData eventData)
     {
         if (State == BUTTON_STATE.INACTIVE) return;
         // TODO:
-        Debug.Log("Hover on " + this);
+        // Debug.Log("Hover on " + this);
     }
 
     private void DisableRendering()

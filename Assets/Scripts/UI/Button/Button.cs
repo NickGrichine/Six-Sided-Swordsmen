@@ -15,10 +15,7 @@ public class Button : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, 
     public Action<Button> onClick;
     public Action<Button> onHover;
 
-    void Awake()
-    {
-        // Text = GetComponent<TextMeshProUGUI>();
-    }
+    void Awake() { }
 
     public void ClearActions()
     {
@@ -33,8 +30,8 @@ public class Button : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, 
 
     public void SetText(string new_text)
     {
-        if (Text == null) return;
-        Text.text = new_text;
+        if (Text)
+            Text.text = new_text;
     }
 
     public void OnPointerDown(PointerEventData eventData)
