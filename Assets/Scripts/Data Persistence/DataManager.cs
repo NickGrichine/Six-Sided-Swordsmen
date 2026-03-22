@@ -27,8 +27,13 @@ public class DataManager : Singleton <DataManager> {
         //todo: add debug-log statements
         
     }
-    public void Save() {
+    public void Save(GridData grid, int gameId) {
         //create new file and write game data to json file
+        string json = JsonUtility.ToJson(grid, true);
+        string path = Path.Combine(Application.persistentDataPath, "Game" + gameId + ".json");
+        File.WriteAllText(path, json);
+
+        Debug.Log("Saved JSON to: " + path);
     }
     public SaveSlot[] GetSaveSlots() {
         return slots; 
