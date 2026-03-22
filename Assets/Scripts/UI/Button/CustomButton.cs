@@ -57,17 +57,15 @@ public class CustomButton : Button
             buttonImage.sprite = sprite;
     }
 
-    public new void OnPointerExit(PointerEventData eventData)
+    public override void OnPointerExit(PointerEventData eventData)
     {
         if (State == BUTTON_STATE.INACTIVE) return;
-        // TODO:
-        // Debug.Log("Exit on " + this);
+        PopupHandler.Instance.Hide();
     }
-    public new void OnPointerEnter(PointerEventData eventData)
+    public override void OnPointerEnter(PointerEventData eventData)
     {
         if (State == BUTTON_STATE.INACTIVE) return;
-        // TODO:
-        // Debug.Log("Hover on " + this);
+        PopupHandler.Instance.Show(HoverText);
     }
 
     private void DisableRendering()

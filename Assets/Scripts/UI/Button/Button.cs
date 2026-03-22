@@ -11,6 +11,7 @@ public class Button : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, 
     public enum BUTTON_STATE { ACTIVE, INACTIVE }
 
     [SerializeField] protected TextMeshProUGUI Text;
+    [SerializeField] protected string HoverText;
     public BUTTON_STATE State { get; private set; }
     public Action<Button> onClick;
     public Action<Button> onHover;
@@ -34,7 +35,7 @@ public class Button : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, 
             Text.text = new_text;
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    public virtual void OnPointerDown(PointerEventData eventData)
     {
         if (State == BUTTON_STATE.INACTIVE) return;
         print("Button was clicked: " + gameObject.name);
@@ -48,18 +49,20 @@ public class Button : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, 
         // SetText("Clicked");
     }
 
-    public void OnPointerExit(PointerEventData eventData)
+    public virtual void OnPointerExit(PointerEventData eventData)
     {
         if (State == BUTTON_STATE.INACTIVE) return;
         // TODO:
         // SetText("Exit");
+        Debug.Log("Exit on " + this);
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+    public virtual void OnPointerEnter(PointerEventData eventData)
     {
         if (State == BUTTON_STATE.INACTIVE) return;
         // TODO:
         // SetText("Hover");
+        Debug.Log("Hover on " + this);
     }
 
 }
