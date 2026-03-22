@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum Team { Player1 = 1, Player2 = 2 }
+// public enum Team { Player1 = 1, Player2 = 2 }
 
 public class UnitController : MonoBehaviour, IOccupant
 {
     public int UnitID;
-    public Team teamID;
+    // public Team teamID;
+    public Player teamID;
     public Tile position;
     public UnitDataSO refData;
     public HealthManager healthManager;
@@ -14,6 +15,12 @@ public class UnitController : MonoBehaviour, IOccupant
     public int movesRemaining;
 
     [SerializeField] private SpriteRenderer spriteRenderer;
+
+    private Dictionary<Player, Color> playerColors = new Dictionary<Player, Color>()
+    {
+        { Player.PLAYER_1, Color.blue },
+        { Player.PLAYER_2, Color.red }, // NOTE: Add more as needed.
+    };
 
     private void Awake()
     {
@@ -29,12 +36,19 @@ public class UnitController : MonoBehaviour, IOccupant
         }
     }
 
-    public void SetTeam(Team team)
+    public void SetTeam(Player team)
     {
         teamID = team;
         if (spriteRenderer != null)
         {
-            spriteRenderer.color = team == Team.Player1 ? Color.blue : Color.red;
+            // spriteRenderer.color = team == Player.PLAYER_1 ? Color.blue : Color.red;
+            if (playerColors.TryGetValue(team, out Color teamColor))
+                spriteRenderer.color = teamColor;
+            else
+            {
+                Debug.LogError($"No color defined for player: {team}.");
+                spriteRenderer.color = Color.magenta;
+            }
         }
     }
 

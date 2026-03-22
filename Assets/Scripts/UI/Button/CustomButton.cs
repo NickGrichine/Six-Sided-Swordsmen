@@ -12,23 +12,15 @@ public class CustomButton : Button
     public IButtonDisplayable displayedObject { get; private set; }
     [SerializeField] private Image buttonImage;
 
-    void Awake()
-    {
-        // the "buttonImage = GetComponent" line below should not exist if you're giving the option to serialize buttonImage (you marked [serializefield])
-        // it's very confusing if someone sets the buttonImage, but it gets overwritten to a different one
-        // having the ability to serialize the image is nice/necessary, if you don't want the image and the button script to be on the same gameobject
-
-        //buttonImage = GetComponent<Image>();
-        // ClearIcon();
-    }
+    void Awake() { }
 
     public new void SetState(BUTTON_STATE state)
     {
         base.SetState(state);
         if (state == BUTTON_STATE.INACTIVE)
-            buttonImage.enabled = false;
+            DisableRendering();
         else if (state == BUTTON_STATE.ACTIVE)
-            buttonImage.enabled = true;
+            EnableRendering();
     }
 
     public void Initialize(IButtonDisplayable displayedObject)
@@ -49,39 +41,51 @@ public class CustomButton : Button
         // Set icon.
         if (buttonImage)
             buttonImage.sprite = displayedObject.Icon;
-        else
-            buttonImage.sprite = null;
 
         // TODO: popup handler.
     }
 
-
-    private IEnumerator delayedClick()
+    public void Initialize(Sprite sprite)
     {
-        yield return null;
-        onClick?.Invoke(this);
-        Debug.Log("Clicked on " + this);
-    }
-    public new void OnPointerExit(PointerEventData eventData)
-    {
-        if (State == BUTTON_STATE.INACTIVE) return;
-        // TODO:
-        Debug.Log("Exit on " + this);
-    }
-    public new void OnPointerEnter(PointerEventData eventData)
-    {
-        if (State == BUTTON_STATE.INACTIVE) return;
-        // TODO:
-        Debug.Log("Hover on " + this);
+        if (!sprite)
+        {
+            SetState(BUTTON_STATE.INACTIVE);
+            return;
+        }
+        SetState(BUTTON_STATE.ACTIVE);
+        if (buttonImage)
+            buttonImage.sprite = sprite;
     }
 
+    public override void OnPointerExit(PointerEventData eventData)
+    {
+        if (State == BUTTON_STATE.INACTIVE) return;
+        PopupHandler.Instance.Hide();
+    }
+    public override void OnPointerEnter(PointerEventData eventData)
+    {
+        if (State == BUTTON_STATE.INACTIVE) return;
+        PopupHandler.Instance.Show(HoverText);
+    }
+
+    private void DisableRendering()
+    {
+        if (buttonImage) buttonImage.enabled = false;
+    }
+    private void EnableRendering()
+    {
+        if (buttonImage) buttonImage.enabled = true;
+    }
 
     public void ClearIcon()
     {
         IEnumerator delayed_clear()
         {
             yield return null;
-            if (buttonImage) buttonImage.sprite = null; // clear icon.
+            if (buttonImage)
+            {
+                buttonImage.sprite = null; // clear icon.
+            }
         }
         StartCoroutine(delayed_clear());
     }
