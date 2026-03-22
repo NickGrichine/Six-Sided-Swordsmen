@@ -34,7 +34,7 @@ public class PopupHandler : Singleton<PopupHandler>
         _rect_transform.pivot = new Vector2(pivotX, pivotY);
 
         // Apply a small "Padding" offset so it doesn't touch the actual cursor pixels
-        Vector2 offset = new Vector2(pivotX == 0 ? 20 : 0, pivotY == 1 ? -20 : 20);
+        Vector2 offset = new Vector2(pivotX == 0 ? 20 : 0, pivotY == 1 ? -20 : 0);
 
         _rect_transform.position = mousePos + offset;
     }
