@@ -48,9 +48,7 @@ public class UnitConsole : Singleton<UnitConsole>
             throw new InvalidOperationException("UnitConsole.cs: 'occupant' is not of type UnitController.");
         }
 
-
-        UnitController uc = (UnitController)occupant;
-        Initialize(uc);
+        Initialize((UnitController)occupant);
     }
 
     public void Initialize(UnitController unitController)
@@ -64,19 +62,19 @@ public class UnitConsole : Singleton<UnitConsole>
         int maxHP = unitController.refData.maxHealth;
         int maxMoves = unitController.refData.maxMovesPerTurn;
         int remainingMoves = unitController.movesRemaining;
-        int attackStr = unitController.refData.attackStr;
+        int attackStrength = unitController.refData.attackStr;
         int attackRange = unitController.refData.attackRange;
         SetHealthStat(currentHP, maxHP);
-        SetAttackStat(attackStr);
+        SetAttackStat(attackStrength);
         SetMovesStat(remainingMoves, maxMoves);
         SetUnitName(unitController.refData.name);
         SetRangeStat(attackRange);
 
         // Set command buttons:
-        foreach (UnitCommandSO cmd in unitController.commands)
+        foreach (UnitCommandSO command in unitController.commands)
         {
             // TODO: add onClick/onHover Actions:
-            SetCommandButton(null, null, cmd);
+            SetCommandButton(null, null, command);
         }
 
         // TODO: Set unit icon:
@@ -116,11 +114,11 @@ public class UnitConsole : Singleton<UnitConsole>
         // NOTE: removing then adding an action ensures that a specific action
         // is not added multiple times. nothing happens if it doesn't exist.
         commandButtons[_command_index].onClick -= onClick;
-        commandButtons[_command_index].onClick -= onHover;
+        commandButtons[_command_index].onHover -= onHover;
 
         // Initialize custom button:
         commandButtons[_command_index].onClick += onClick;
-        commandButtons[_command_index].onClick += onHover;
+        commandButtons[_command_index].onHover += onHover;
         commandButtons[_command_index].Initialize(displayedObject);
 
         _command_index = (_command_index + 1) % _command_size;
@@ -130,12 +128,12 @@ public class UnitConsole : Singleton<UnitConsole>
     private void ClearCommandButtons()
     {
         _command_index = 0;
-        foreach (CustomButton cmd in commandButtons)
+        foreach (CustomButton command in commandButtons)
         {
-            if (!cmd) continue;
-            cmd.ClearActions();
-            cmd.ClearIcon();
-            cmd.SetState(Button.BUTTON_STATE.INACTIVE);
+            if (!command) continue;
+            command.ClearActions();
+            command.ClearIcon();
+            command.SetState(Button.BUTTON_STATE.INACTIVE);
         }
     }
 
