@@ -36,6 +36,16 @@ public class HexGridManager : MonoBehaviour
     public Sprite baseOutlineSprite; // Thin border
     public Sprite selectionOutlineSprite; // Thick border, selected
 
+    [Header("Ocean Border")]
+    [SerializeField] private int oceanBorderThickness = 5;
+    private int totalWidth;
+    private int totalHeight;
+    private int playableOffsetQ;
+    private int playableOffsetR;
+
+    [Header("Camera Bounds")]
+    [SerializeField] private int cameraBorderTiles = 3;
+    
     [Header("Generation Tuning")]
     [Range(0f, 1f)] public float oceanChance = 0.18f;
     [Range(0f, 1f)] public float purpleChance = 0.32f;
@@ -48,15 +58,21 @@ public class HexGridManager : MonoBehaviour
     public void GenerateGrid()
     {
         ClearGrid();
-        grid = new Tile[width, height];
 
-        TileType[,] plannedTypes = new TileType[width, height];
+        playableOffsetQ = oceanBorderThickness;
+        playableOffsetR = oceanBorderThickness;
+
+        totalWidth = width + oceanBorderThickness * 2;
+        totalHeight = height + oceanBorderThickness * 2;
+
+        grid = new Tile[totalWidth, totalHeight];
+        TileType[,] plannedTypes = new TileType[totalWidth, totalHeight];
 
         GenerateBiomePlan(plannedTypes);
 
-        for (int q = 0; q < width; q++)
+        for (int q = 0; q < totalWidth; q++)
         {
-            for (int r = 0; r < height; r++)
+            for (int r = 0; r < totalHeight; r++)
             {
                 grid[q, r] = CreateTile(q, r, plannedTypes[q, r]);
             }
@@ -65,6 +81,8 @@ public class HexGridManager : MonoBehaviour
         LinkNeighbors();
         ApplyShorelines();
         RefreshAllTileVisuals();
+        CenterCameraOnPlayableArea();
+        UpdateCameraBoundsToPlayableArea();
     }
 
     private void GenerateBiomePlan(TileType[,] plannedTypes)
@@ -77,23 +95,45 @@ public class HexGridManager : MonoBehaviour
         float biomeScale = 0.18f;
         float oceanScale = 0.14f;
 
-        for (int q = 0; q < width; q++)
+        int playableMinQ = playableOffsetQ;
+        int playableMaxQ = playableOffsetQ + width - 1;
+        int playableMinR = playableOffsetR;
+        int playableMaxR = playableOffsetR + height - 1;
+
+        for (int q = 0; q < totalWidth; q++)
         {
-            for (int r = 0; r < height; r++)
+            for (int r = 0; r < totalHeight; r++)
             {
-                bool isNearBorder =
-                    q <= 1 ||
-                    r <= 1 ||
-                    q >= width - 2 ||
-                    r >= height - 2;
+                bool outsidePlayableArea =
+                    q < playableMinQ ||
+                    q > playableMaxQ ||
+                    r < playableMinR ||
+                    r > playableMaxR;
+
+                // Entire outer border area is forced ocean
+                if (outsidePlayableArea)
+                {
+                    plannedTypes[q, r] = TileType.OCEAN_DEEP;
+                    continue;
+                }
+
+                // Local coordinates inside the playable area
+                int localQ = q - playableOffsetQ;
+                int localR = r - playableOffsetR;
+
+                bool isNearInnerBorder =
+                    localQ <= 1 ||
+                    localR <= 1 ||
+                    localQ >= width - 2 ||
+                    localR >= height - 2;
 
                 float purpleNoise = Mathf.PerlinNoise(
-                    purpleNoiseOffsetX + q * biomeScale,
-                    purpleNoiseOffsetY + r * biomeScale
+                    purpleNoiseOffsetX + localQ * biomeScale,
+                    purpleNoiseOffsetY + localR * biomeScale
                 );
 
-                // Outer 2 rings are always land
-                if (isNearBorder)
+                // Keep outer 2 rings of the playable area as land
+                if (isNearInnerBorder)
                 {
                     plannedTypes[q, r] = purpleNoise < purpleChance
                         ? TileType.PURPLELAND
@@ -102,8 +142,8 @@ public class HexGridManager : MonoBehaviour
                 }
 
                 float oceanNoise = Mathf.PerlinNoise(
-                    oceanNoiseOffsetX + q * oceanScale,
-                    oceanNoiseOffsetY + r * oceanScale
+                    oceanNoiseOffsetX + localQ * oceanScale,
+                    oceanNoiseOffsetY + localR * oceanScale
                 );
 
                 if (oceanNoise < oceanChance)
@@ -117,6 +157,124 @@ public class HexGridManager : MonoBehaviour
                     : TileType.GRASSLAND;
             }
         }
+    }
+
+    private void UpdateCameraBoundsToPlayableArea()
+    {
+        if (CameraController.Instance == null)
+            return;
+
+        Camera cam = Camera.main;
+        if (cam == null || !cam.orthographic)
+            return;
+
+        float minWorldX = float.MaxValue;
+        float maxWorldX = float.MinValue;
+        float minWorldY = float.MaxValue;
+        float maxWorldY = float.MinValue;
+
+        int boundedMinQ = Mathf.Max(0, playableOffsetQ - cameraBorderTiles);
+        int boundedMaxQ = Mathf.Min(totalWidth - 1, playableOffsetQ + width - 1 + cameraBorderTiles);
+        int boundedMinR = Mathf.Max(0, playableOffsetR - cameraBorderTiles);
+        int boundedMaxR = Mathf.Min(totalHeight - 1, playableOffsetR + height - 1 + cameraBorderTiles);
+
+        for (int q = boundedMinQ; q <= boundedMaxQ; q++)
+        {
+            for (int r = boundedMinR; r <= boundedMaxR; r++)
+            {
+                Tile tile = grid[q, r];
+                if (tile == null) continue;
+
+                Vector3 pos = tile.transform.position;
+
+                if (pos.x < minWorldX) minWorldX = pos.x;
+                if (pos.x > maxWorldX) maxWorldX = pos.x;
+                if (pos.y < minWorldY) minWorldY = pos.y;
+                if (pos.y > maxWorldY) maxWorldY = pos.y;
+            }
+        }
+
+        float tilePaddingLeft   = hexSize * 1.0f;
+        float tilePaddingRight  = hexSize * 1.0f;
+        float tilePaddingBottom = hexSize * 0.7f;
+        float tilePaddingTop    = hexSize * 0.25f;
+
+        minWorldX -= tilePaddingLeft;
+        maxWorldX += tilePaddingRight;
+        minWorldY -= tilePaddingBottom;
+        maxWorldY += tilePaddingTop;
+
+        float halfCameraHeight = cam.orthographicSize;
+        float halfCameraWidth = cam.orthographicSize * cam.aspect;
+
+        float clampedMinX = minWorldX + halfCameraWidth;
+        float clampedMaxX = maxWorldX - halfCameraWidth;
+        float clampedMinY = minWorldY + halfCameraHeight;
+        float clampedMaxY = maxWorldY - halfCameraHeight;
+
+        if (clampedMinX > clampedMaxX)
+        {
+            float centerX = (minWorldX + maxWorldX) * 0.5f;
+            clampedMinX = centerX;
+            clampedMaxX = centerX;
+        }
+
+        if (clampedMinY > clampedMaxY)
+        {
+            float centerY = (minWorldY + maxWorldY) * 0.5f;
+            clampedMinY = centerY;
+            clampedMaxY = centerY;
+        }
+
+        CameraController.Instance.SetBounds(
+            clampedMinX,
+            clampedMaxX,
+            clampedMinY,
+            clampedMaxY
+        );
+
+        Vector3 camPos = cam.transform.position;
+        camPos.x = Mathf.Clamp(camPos.x, clampedMinX, clampedMaxX);
+        camPos.y = Mathf.Clamp(camPos.y, clampedMinY, clampedMaxY);
+        cam.transform.position = camPos;
+    }
+
+    private void CenterCameraOnPlayableArea()
+    {
+        Camera cam = Camera.main;
+        if (cam == null)
+            return;
+
+        float minWorldX = float.MaxValue;
+        float maxWorldX = float.MinValue;
+        float minWorldY = float.MaxValue;
+        float maxWorldY = float.MinValue;
+
+        int boundedMinQ = Mathf.Max(0, playableOffsetQ - cameraBorderTiles);
+        int boundedMaxQ = Mathf.Min(totalWidth - 1, playableOffsetQ + width - 1 + cameraBorderTiles);
+        int boundedMinR = Mathf.Max(0, playableOffsetR - cameraBorderTiles);
+        int boundedMaxR = Mathf.Min(totalHeight - 1, playableOffsetR + height - 1 + cameraBorderTiles);
+
+        for (int q = boundedMinQ; q <= boundedMaxQ; q++)
+        {
+            for (int r = boundedMinR; r <= boundedMaxR; r++)
+            {
+                Tile tile = grid[q, r];
+                if (tile == null) continue;
+
+                Vector3 pos = tile.transform.position;
+
+                if (pos.x < minWorldX) minWorldX = pos.x;
+                if (pos.x > maxWorldX) maxWorldX = pos.x;
+                if (pos.y < minWorldY) minWorldY = pos.y;
+                if (pos.y > maxWorldY) maxWorldY = pos.y;
+            }
+        }
+
+        Vector3 camPos = cam.transform.position;
+        camPos.x = (minWorldX + maxWorldX) * 0.5f;
+        camPos.y = (minWorldY + maxWorldY) * 0.5f;
+        cam.transform.position = camPos;
     }
 
     private Tile CreateTile(int q, int r, TileType plannedType)
@@ -253,9 +411,9 @@ public class HexGridManager : MonoBehaviour
 
     private void ApplyShorelines()
     {
-        for (int q = 0; q < width; q++)
+        for (int q = 0; q < totalWidth; q++)
         {
-            for (int r = 0; r < height; r++)
+            for (int r = 0; r < totalHeight; r++)
             {
                 Tile tile = grid[q, r];
                 if (tile == null || tile.type != TileType.OCEAN_DEEP)
@@ -279,9 +437,9 @@ public class HexGridManager : MonoBehaviour
 
     private void RefreshAllTileVisuals()
     {
-        for (int q = 0; q < width; q++)
+        for (int q = 0; q < totalWidth; q++)
         {
-            for (int r = 0; r < height; r++)
+            for (int r = 0; r < totalHeight; r++)
             {
                 Tile tile = grid[q, r];
                 if (tile != null)
@@ -368,16 +526,16 @@ public class HexGridManager : MonoBehaviour
             new Vector2Int(-1, 0), new Vector2Int(-1, 1), new Vector2Int(0, 1)
         };
 
-        for (int q = 0; q < width; q++)
+        for (int q = 0; q < totalWidth; q++)
         {
-            for (int r = 0; r < height; r++)
+            for (int r = 0; r < totalHeight; r++)
             {
                 Tile tile = grid[q, r];
                 foreach (Vector2Int dir in directions)
                 {
                     int nq = q + dir.x;
                     int nr = r + dir.y;
-                    if (nq >= 0 && nq < width && nr >= 0 && nr < height)
+                    if (nq >= 0 && nq < totalWidth && nr >= 0 && nr < totalHeight)
                     {
                         tile.AddNeighbor(grid[nq, nr]);
                     }
@@ -399,17 +557,20 @@ public class HexGridManager : MonoBehaviour
 
     public IEnumerable<Tile> GetAllTiles()
     {
-        for (int q = 0; q < width; q++)
-            for (int r = 0; r < height; r++)
+        for (int q = 0; q < totalWidth; q++)
+            for (int r = 0; r < totalHeight; r++)
                 if (grid[q, r] != null)
                     yield return grid[q, r];
     }
 
     public Tile GetTileAt(Vector2Int coord)
     {
-        if (coord.x < 0 || coord.x >= width || coord.y < 0 || coord.y >= height)
+        int q = coord.x + playableOffsetQ;
+        int r = coord.y + playableOffsetR;
+
+        if (q < 0 || q >= totalWidth || r < 0 || r >= totalHeight)
             return Tile.NullTile;
 
-        return grid[coord.x, coord.y];
+        return grid[q, r];
     }
 }
