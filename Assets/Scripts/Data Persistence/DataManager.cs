@@ -28,10 +28,11 @@ public class DataManager : Singleton <DataManager> {
         //todo: add debug-log statements
         
     }
-    public void Save(GridData grid, int gameId) {
+    public void Save(HexGridManager grid, GridData gridData, int gameId) { //*CALLED IN START AT END OF GAME
         //create new file and write game data to json file
-        string json = JsonUtility.ToJson(grid, true);
+        string json = JsonUtility.ToJson(gridData, true); //Data record for save data
         string path = Path.Combine(Application.persistentDataPath, "Game" + gameId + ".json");
+        activeSlot = new SaveSlot(new SaveData("Game " + gameId, gameId, grid), path);
         File.WriteAllText(path, json);
 
         Debug.Log("Saved JSON to: " + path);
