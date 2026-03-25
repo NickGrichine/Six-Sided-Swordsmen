@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class CombatTest : MonoBehaviour
 {
-    public HexGridManager grid;      
-    public GameObject unitPrefab;     
+    public HexGridManager grid;
+    public GameObject unitPrefab;
 
     private UnitController unitA;
     private UnitController unitB;
@@ -49,15 +49,15 @@ public class CombatTest : MonoBehaviour
         spawner.grid = grid;
         spawner.unitPrefab = unitPrefab;
 
-        unitA = spawner.SpawnUnit(Team.Player1, new Vector2Int(0, 0));
-        unitB = spawner.SpawnUnit(Team.Player1, new Vector2Int(2, 1));
-        unitC = spawner.SpawnUnit(Team.Player1, new Vector2Int(0, 2));
-        unitD = spawner.SpawnUnit(Team.Player1, new Vector2Int(1, 3));
-        unitE = spawner.SpawnUnit(Team.Player1, new Vector2Int(0, 4));
-        unitF = spawner.SpawnUnit(Team.Player2, new Vector2Int(4, 6));
-        unitG = spawner.SpawnUnit(Team.Player2, new Vector2Int(6, 5));
-        unitH = spawner.SpawnUnit(Team.Player2, new Vector2Int(6, 8));
-        unitI = spawner.SpawnUnit(Team.Player2, new Vector2Int(4, 7));
+        unitA = spawner.SpawnUnit(Player.PLAYER_1, new Vector2Int(0, 0));
+        unitB = spawner.SpawnUnit(Player.PLAYER_1, new Vector2Int(2, 1));
+        unitC = spawner.SpawnUnit(Player.PLAYER_1, new Vector2Int(0, 2));
+        unitD = spawner.SpawnUnit(Player.PLAYER_1, new Vector2Int(1, 3));
+        unitE = spawner.SpawnUnit(Player.PLAYER_1, new Vector2Int(0, 4));
+        unitF = spawner.SpawnUnit(Player.PLAYER_2, new Vector2Int(4, 6));
+        unitG = spawner.SpawnUnit(Player.PLAYER_2, new Vector2Int(6, 5));
+        unitH = spawner.SpawnUnit(Player.PLAYER_2, new Vector2Int(6, 8));
+        unitI = spawner.SpawnUnit(Player.PLAYER_2, new Vector2Int(4, 7));
 
 
         Debug.Log($"Spawned A at {unitA?.position.axialPos}, B at {unitB?.position.axialPos}");

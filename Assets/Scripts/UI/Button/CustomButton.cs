@@ -18,9 +18,9 @@ public class CustomButton : Button
     {
         base.SetState(state);
         if (state == BUTTON_STATE.INACTIVE)
-            buttonImage.enabled = false;
+            DisableRendering();
         else if (state == BUTTON_STATE.ACTIVE)
-            buttonImage.enabled = true;
+            EnableRendering();
     }
 
     public void Initialize(IButtonDisplayable displayedObject)
@@ -57,25 +57,25 @@ public class CustomButton : Button
             buttonImage.sprite = sprite;
     }
 
-    private IEnumerator delayedClick()
-    {
-        yield return null;
-        onClick?.Invoke(this);
-        Debug.Log("Clicked on " + this);
-    }
-    public new void OnPointerExit(PointerEventData eventData)
+    public override void OnPointerExit(PointerEventData eventData)
     {
         if (State == BUTTON_STATE.INACTIVE) return;
-        // TODO:
-        Debug.Log("Exit on " + this);
+        PopupHandler.Instance.Hide();
     }
-    public new void OnPointerEnter(PointerEventData eventData)
+    public override void OnPointerEnter(PointerEventData eventData)
     {
         if (State == BUTTON_STATE.INACTIVE) return;
-        // TODO:
-        Debug.Log("Hover on " + this);
+        PopupHandler.Instance.Show(HoverText);
     }
 
+    private void DisableRendering()
+    {
+        if (buttonImage) buttonImage.enabled = false;
+    }
+    private void EnableRendering()
+    {
+        if (buttonImage) buttonImage.enabled = true;
+    }
 
     public void ClearIcon()
     {
@@ -85,7 +85,6 @@ public class CustomButton : Button
             if (buttonImage)
             {
                 buttonImage.sprite = null; // clear icon.
-                // buttonImage.color = new Color(1, 1, 1, 0);
             }
         }
         StartCoroutine(delayed_clear());

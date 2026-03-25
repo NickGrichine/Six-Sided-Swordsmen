@@ -12,12 +12,17 @@ public class UnitConsole : Singleton<UnitConsole>
 
     public CustomButton[] commandButtons = new CustomButton[_command_size];
     [SerializeField] private CustomButton unitIcon;
+
     [SerializeField] private TextMeshProUGUI unitName;
     [SerializeField] private TextMeshProUGUI healthStat;
     [SerializeField] private TextMeshProUGUI attackStat;
     [SerializeField] private TextMeshProUGUI rangeStat;
     [SerializeField] private TextMeshProUGUI movesStat;
     [SerializeField] private TextMeshProUGUI unitDescription;
+
+    [SerializeField] private CanvasGroup unitStatsGroup;
+    [SerializeField] private CanvasGroup commandButtonArrayGroup;
+
 
     void Start()
     {
@@ -43,48 +48,53 @@ public class UnitConsole : Singleton<UnitConsole>
             throw new InvalidOperationException("UnitConsole.cs: 'occupant' is not of type UnitController.");
         }
 
-        // TODO: implement differentiation between ally and enemy units.
-
-        UnitController uc = (UnitController)occupant;
-        Initialize(uc);
+        Initialize((UnitController)occupant);
     }
 
     public void Initialize(UnitController unitController)
     {
         ClearCommandButtons();
+        SetCanvasGroupState(unitStatsGroup, true);
+        SetCanvasGroupState(commandButtonArrayGroup, true);
 
         // Display unit stats:
         int currentHP = unitController.healthManager.GetHealth();
         int maxHP = unitController.refData.maxHealth;
         int maxMoves = unitController.refData.maxMovesPerTurn;
         int remainingMoves = unitController.movesRemaining;
-        int attackStr = unitController.refData.attackStr;
+        int attackStrength = unitController.refData.attackStr;
         int attackRange = unitController.refData.attackRange;
         SetHealthStat(currentHP, maxHP);
-        SetAttackStat(attackStr);
+        SetAttackStat(attackStrength);
         SetMovesStat(remainingMoves, maxMoves);
         SetUnitName(unitController.refData.name);
         SetRangeStat(attackRange);
 
         // Set command buttons:
-        foreach (UnitCommandSO cmd in unitController.commands)
+        foreach (UnitCommandSO command in unitController.commands)
         {
             // TODO: add onClick/onHover Actions:
-            SetCommandButton(null, null, cmd);
+            SetCommandButton(null, null, command);
         }
 
         // TODO: Set unit icon:
         // unitIcon.Initialize( [sprite here] );
+
+        Player current_turn_player = GameManager.Instance.TurnPlayer;
+        Player unit_belongs_to = unitController.teamID;
+        if (unit_belongs_to == current_turn_player) SetCanvasGroupState(commandButtonArrayGroup, true);
+        else
+        {
+            SetCanvasGroupState(commandButtonArrayGroup, false);
+        }
     }
 
     private void ClearUnitConsole()
     {
-        ClearUnitIcon();
+        HideUnitIcon();
         ClearCommandButtons();
-        ClearHealthStat();
-        ClearAttackStat();
-        ClearMovesStat();
-        ClearRangeStat();
+        SetCanvasGroupState(unitStatsGroup, false);
+        SetCanvasGroupState(commandButtonArrayGroup, false);
         SetUnitName("");
         SetUnitDescription("");
     }
@@ -92,37 +102,38 @@ public class UnitConsole : Singleton<UnitConsole>
     /// -----------------------
     /// Command Button methods:
 
-    private int _counter = 0;
+    private int _command_index = 0;
     private bool SetCommandButton(
             Action<Button> onClick,
             Action<Button> onHover,
             IButtonDisplayable displayedObject)
     {
-        if (!commandButtons[_counter]) return false;
+        if (_command_index >= _command_size) return false;
+        if (!commandButtons[_command_index]) return false;
 
-        // removing then adding ensures that a specific action is not added multiple times.
-        // nothing happens if it doesn't exist.
-        commandButtons[_counter].onClick -= onClick;
-        commandButtons[_counter].onClick -= onHover;
+        // NOTE: removing then adding an action ensures that a specific action
+        // is not added multiple times. nothing happens if it doesn't exist.
+        commandButtons[_command_index].onClick -= onClick;
+        commandButtons[_command_index].onHover -= onHover;
 
         // Initialize custom button:
-        commandButtons[_counter].onClick += onClick;
-        commandButtons[_counter].onClick += onHover;
-        commandButtons[_counter].Initialize(displayedObject);
+        commandButtons[_command_index].onClick += onClick;
+        commandButtons[_command_index].onHover += onHover;
+        commandButtons[_command_index].Initialize(displayedObject);
 
-        _counter = (_counter + 1) % _command_size;
+        _command_index = (_command_index + 1) % _command_size;
         return true;
     }
 
     private void ClearCommandButtons()
     {
-        _counter = 0;
-        foreach (CustomButton cmd in commandButtons)
+        _command_index = 0;
+        foreach (CustomButton command in commandButtons)
         {
-            if (!cmd) continue;
-            cmd.ClearActions();
-            cmd.ClearIcon();
-            cmd.SetState(Button.BUTTON_STATE.INACTIVE);
+            if (!command) continue;
+            command.ClearActions();
+            command.ClearIcon();
+            command.SetState(Button.BUTTON_STATE.INACTIVE);
         }
     }
 
@@ -137,11 +148,11 @@ public class UnitConsole : Singleton<UnitConsole>
     private void SetUnitName(string name) { unitName.text = name.Replace("(Clone)", "").Trim(); }
     private void SetRangeStat(int range) { rangeStat.text = "Range: " + range; }
 
-    private void ClearUnitIcon() => unitIcon.SetState(Button.BUTTON_STATE.INACTIVE);
-    private void ClearHealthStat() { healthStat.text = "HP: "; }
-    private void ClearAttackStat() { attackStat.text = "ATK: "; }
-    private void ClearMovesStat() { movesStat.text = "Moves: "; }
-    private void ClearRangeStat() { rangeStat.text = "Range: "; }
-
+    private void HideUnitIcon() => unitIcon.SetState(Button.BUTTON_STATE.INACTIVE);
+    private void SetCanvasGroupState(CanvasGroup cg, bool mode)
+    {
+        cg.alpha = mode ? 1 : 0;
+        cg.interactable = mode;
+    }
 
 }
