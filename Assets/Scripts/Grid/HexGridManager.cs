@@ -52,7 +52,7 @@ public class HexGridManager : MonoBehaviour
     [Range(0f, 0.5f)] public float grassVariantChance = 0.08f;
     [Range(0f, 0.5f)] public float purpleVariantChance = 0.08f;
 
-    private Tile[,] grid;
+    public Tile[,] grid;
 
     [ContextMenu("Generate Grid")]
     public void GenerateGrid()
