@@ -11,6 +11,7 @@ public static class GridAdapter{
             hexSize = grid.hexSize,
             tiles = new List<TileData>()
         };
+        //TODO: NEED GRID TO BE PUBLIC FIELD
         // foreach (var tile in grid.grid)
         // {
         //     TileAdapter.ToData(tile);
@@ -18,7 +19,12 @@ public static class GridAdapter{
         return data;
     }
 
-    public static void FromData(HexGridManager grid, GridData gridData){
+    public static HexGridManager FromData(HexGridManager grid, GridData gridData){
         //todo
+        grid.width = gridData.width;
+        grid.height = gridData.height;
+        grid.hexSize = gridData.hexSize;
+
+        return grid;
     }
 }
