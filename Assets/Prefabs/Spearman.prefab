@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5852851653461846090}
   - component: {fileID: -3586668808884303377}
   m_Layer: 0
-  m_Name: Unit
+  m_Name: Spearman
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -49,7 +49,7 @@ MonoBehaviour:
   UnitID: 0
   teamID: 0
   position: {fileID: 0}
-  refData: {fileID: 11400000, guid: b0b42cdd824572b4d8afaaa1487f9c27, type: 2}
+  refData: {fileID: 11400000, guid: 34dbeaf81524f9145a8b7707d0dca66a, type: 2}
   healthManager: {fileID: 5852851653461846090}
   commands: []
   movesRemaining: 0
@@ -108,7 +108,7 @@ SpriteRenderer:
   m_SortingLayerID: -380280147
   m_SortingLayer: 2
   m_SortingOrder: 0
-  m_Sprite: {fileID: 2012179291, guid: c152a547652e83a47abe29106d5e7d19, type: 3}
+  m_Sprite: {fileID: -1872174823, guid: c152a547652e83a47abe29106d5e7d19, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

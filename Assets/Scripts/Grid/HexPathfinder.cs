@@ -7,6 +7,12 @@ public static class HexPathfinder
     {
         if (start == null || goal == null || start == goal) return new List<Tile>();
 
+        if (!goal.passable)
+        {
+            Debug.LogWarning($"Pathfinding failed: goal tile '{goal.name}' is not passable.");
+            return new List<Tile>();
+        }
+
         var frontier = new Queue<Tile>();
         var cameFrom = new Dictionary<Tile, Tile>();
         frontier.Enqueue(start);
@@ -19,12 +25,26 @@ public static class HexPathfinder
 
             foreach (var neighbor in current.neighbors)
             {
-                if (neighbor != null && neighbor.passable && !cameFrom.ContainsKey(neighbor))
+                if (neighbor == null || !neighbor.passable || cameFrom.ContainsKey(neighbor))
                 {
-                    frontier.Enqueue(neighbor);
-                    cameFrom[neighbor] = current;
+                    continue;
                 }
+
+                // A move is only valid if the neighbor can be climbed from the current tile.
+                if (!neighbor.CanClimbFrom(current))
+                {
+                    continue;
+                }
+
+                frontier.Enqueue(neighbor);
+                cameFrom[neighbor] = current;
             }
+        }
+
+        if (!cameFrom.ContainsKey(goal))
+        {
+            Debug.LogWarning($"Pathfinding failed: no valid path from '{start.name}' to '{goal.name}'.");
+            return new List<Tile>();
         }
 
         // Reconstruct path
