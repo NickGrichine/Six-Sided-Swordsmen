@@ -34,6 +34,7 @@ public class Tile : MonoBehaviour
 
     public List<Tile> neighbors = new List<Tile>(6); // 6 hex neighbors
     public Vector2Int axialPos; // q (col), r (row) for axial coords
+    public int tileId = -1; // tile id
 
     public bool passable = true; // Checks whether tile is water / unmovable    
     public int moveCost = 1; // Cost to travel to current tile
