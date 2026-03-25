@@ -41,8 +41,6 @@ public class CustomButton : Button
         // Set icon.
         if (buttonImage)
             buttonImage.sprite = displayedObject.Icon;
-
-        // TODO: popup handler.
     }
 
     public void Initialize(Sprite sprite)
