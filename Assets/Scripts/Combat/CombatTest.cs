@@ -21,6 +21,8 @@ public class CombatTest : MonoBehaviour
 
     private UnitSpawner spawner;
 
+    public HealthManager healthManager;
+
     void Start()
     {
         Debug.Log("CombatTest.Start called");

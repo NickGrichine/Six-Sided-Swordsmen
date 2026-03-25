@@ -19,10 +19,13 @@ public class HealthManager : MonoBehaviour
     public Action onDeath;
 
 
+    public HealthBar healthBar;
+
 
     private void Awake()
     {
         health = maxHealth;
+        healthBar.SetMaxHealth(maxHealth);
         DamageTakenModifier = gameObject.AddComponent<StatModifierManager>();
         HealingReceivedModifier = gameObject.AddComponent<StatModifierManager>();
     }

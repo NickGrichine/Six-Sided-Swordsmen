@@ -9,7 +9,7 @@ public class UnitController : MonoBehaviour, IOccupant
     public Team teamID;
     public Tile position;
     public UnitDataSO refData;
-    public HealthManager healthManager;
+    public HealthManager healthManager;    
     public List<UnitCommandSO> commands = new List<UnitCommandSO>();
     public int movesRemaining;
 
@@ -26,6 +26,14 @@ public class UnitController : MonoBehaviour, IOccupant
         if (healthManager != null)
         {
             healthManager.onDeath += OnDeath;
+        }
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            healthManager.TakeDamage(5);
         }
     }
 
