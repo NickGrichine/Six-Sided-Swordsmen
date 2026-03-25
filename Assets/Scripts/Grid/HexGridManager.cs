@@ -290,7 +290,7 @@ public class HexGridManager : MonoBehaviour
     {
         Tile tile = Instantiate(tilePrefab, transform);
         tile.axialPos = new Vector2Int(q, r);
-        tile.tileId = GetTildId(q, r);
+        tile.tileId = GetTileId(q, r);
 
         float xPos = hexSize * 1.5f * q;
         float yPos = hexSize * Mathf.Sqrt(3) * (r + 0.5f * (q % 2));
