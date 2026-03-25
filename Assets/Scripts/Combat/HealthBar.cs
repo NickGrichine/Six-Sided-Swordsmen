@@ -17,6 +17,7 @@ public class HealthBar : MonoBehaviour
         
     }
 
+    //public HealthManager healthManager;
     public Slider slider;
 
     public void SetHealth(int health)

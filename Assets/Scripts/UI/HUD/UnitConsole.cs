@@ -81,7 +81,7 @@ public class UnitConsole : Singleton<UnitConsole>
         // unitIcon.Initialize( [sprite here] );
 
         Player current_turn_player = GameManager.Instance.TurnPlayer;
-        Player unit_belongs_to = unitController.teamID;
+        Player unit_belongs_to = (Player)unitController.teamID;
         if (unit_belongs_to == current_turn_player) SetCanvasGroupState(commandButtonArrayGroup, true);
         else
         {
