@@ -54,6 +54,15 @@ public class HexGridManager : MonoBehaviour
 
     private Tile[,] grid;
 
+    public Tile[,] Grid => grid;
+
+    public int TotalWidth => totalWidth;
+    public int TotalHeight => totalHeight;
+    public int PlayableOffsetQ => playableOffsetQ;
+    public int PlayableOffsetR => playableOffsetR;
+    public int OceanBorderThickness => oceanBorderThickness;
+    public int CameraBorderTiles => cameraBorderTiles; 
+
     [ContextMenu("Generate Grid")]
     public void GenerateGrid()
     {
@@ -281,6 +290,7 @@ public class HexGridManager : MonoBehaviour
     {
         Tile tile = Instantiate(tilePrefab, transform);
         tile.axialPos = new Vector2Int(q, r);
+        tile.tileId = GetTildId(q, r);
 
         float xPos = hexSize * 1.5f * q;
         float yPos = hexSize * Mathf.Sqrt(3) * (r + 0.5f * (q % 2));
@@ -561,6 +571,49 @@ public class HexGridManager : MonoBehaviour
             for (int r = 0; r < totalHeight; r++)
                 if (grid[q, r] != null)
                     yield return grid[q, r];
+    }
+
+    public int GetTileId(int q, int r)
+    {
+        return q * totalHeight + r;
+    }
+
+    public bool TryGetCoordFromTileId(int tileId, out int q, out int r)
+    {
+        q = -1;
+        r = -1;
+
+        if (tileId < 0 || totalHeight <= 0)
+            return false;
+
+        q = tileId / totalHeight;
+        r = tileId % totalHeight;
+
+        return q >= 0 && q < totalWidth && r >= 0 && r < totalHeight;
+    }
+
+    public Tile GetTileById(int tileId)
+    {
+        if (!TryGetCoordFromTileId(tileId, out int q, out int r))
+            return Tile.NullTile;
+
+        return grid[q, r];
+    }
+
+    public List<int> GetNeighborIds(Tile tile)
+    {
+        var ids = new List<int>();
+
+        if (tile == null || tile.IsNull)
+            return ids;
+
+        foreach (Tile neighbor in tile.neighbors)
+        {
+            if (neighbor != null && !neighbor.IsNull)
+                ids.Add(neighbor.tileId);
+        }
+
+        return ids;
     }
 
     public Tile GetTileAt(Vector2Int coord)
