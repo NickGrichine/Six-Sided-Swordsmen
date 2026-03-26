@@ -4,14 +4,10 @@ using UnityEngine;
 public class HexGridManager : MonoBehaviour
 {
     [Header("Grid Settings")]
-    public Tile tilePrefab;
+    public Tile tilePrefab; 
     public int width = 10;   // q cols
     public int height = 10;  // r rows
-    public float hexSize = 1f;
-
-    [Header("Sprites by Type")]
-    public Sprite floorSprite; 
-    public Sprite wallSprite; 
+    public float hexSize = 1f; // Base Spacing factor for hex layout
 
     public enum GenerationMode { Procedural, Static }
 
@@ -53,6 +49,8 @@ public class HexGridManager : MonoBehaviour
     [Range(0f, 0.5f)] public float purpleVariantChance = 0.08f;
 
     public Tile[,] grid;
+
+    // Accessor Fields
 
     public Tile[,] Grid => grid;
 
