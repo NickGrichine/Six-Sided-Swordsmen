@@ -7,7 +7,7 @@ public class SaveData {
     private int id;
 
     GridData gridData;
-    TileData tileData;
+    //TileData tileData;
     //Constructor
     public SaveData(string name, int id, HexGridManager grid) {
         this.name = name;
