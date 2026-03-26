@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &9030648936904342042
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2729045054329302679}
+  - component: {fileID: 7537681685364899693}
+  m_Layer: 0
+  m_Name: HexGridManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2729045054329302679
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9030648936904342042}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7537681685364899693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9030648936904342042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0550519e34ad14ca9b07afb3a8c4704f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tilePrefab: {fileID: 3786522473565270464, guid: 1244cca042012754baf167dca488c431, type: 3}
+  width: 20
+  height: 20
+  hexSize: 0.95
+  floorSprite: {fileID: 0}
+  wallSprite: {fileID: 0}
+  generationMode: 0
+  grassFlatSprite: {fileID: 481734694, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
+  grassRock1Sprite: {fileID: 2087224726, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
+  grassRock2Sprite: {fileID: 1382508836, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
+  grassFlowerSprite: {fileID: -82042141, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
+  purpleFlowerSprite: {fileID: 209944492, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
+  purpleMushroomSprite: {fileID: -1497907793, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
+  shoreSprite: {fileID: 584785962, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
+  deepOceanSprite: {fileID: -1171527285, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
+  mountainSprite: {fileID: 507983394, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
+  baseOutlineSprite: {fileID: -2075421952, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
+  selectionOutlineSprite: {fileID: 198324669, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
+  oceanChance: 0.303
+  purpleChance: 0.257
+  grassVariantChance: 0.075
+  purpleVariantChance: 0.08

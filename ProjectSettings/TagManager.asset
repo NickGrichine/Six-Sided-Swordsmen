@@ -41,3 +41,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Environment
+    uniqueID: 2272229665
+    locked: 0
+  - name: NPC
+    uniqueID: 3914687149
+    locked: 0
+  - name: Effects
+    uniqueID: 2448599803
+    locked: 0
+  - name: UI
+    uniqueID: 3559226919
+    locked: 0

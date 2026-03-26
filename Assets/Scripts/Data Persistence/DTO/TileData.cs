@@ -12,6 +12,6 @@ public class TileData{
     public Vector2Int axialPos;
     public int moveCost;
     public IOccupant occupant;
-    public bool IsOccupied;
-    public bool BlockSight;
+    //public bool IsOccupied;
+    //public bool BlockSight;
 }

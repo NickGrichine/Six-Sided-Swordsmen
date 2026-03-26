@@ -12,19 +12,15 @@ public class CustomButton : Button
     public IButtonDisplayable displayedObject { get; private set; }
     [SerializeField] private Image buttonImage;
 
-    void Awake()
-    {
-        buttonImage = GetComponent<Image>();
-        // ClearIcon();
-    }
+    void Awake() { }
 
     public new void SetState(BUTTON_STATE state)
     {
         base.SetState(state);
         if (state == BUTTON_STATE.INACTIVE)
-            buttonImage.enabled = false;
+            DisableRendering();
         else if (state == BUTTON_STATE.ACTIVE)
-            buttonImage.enabled = true;
+            EnableRendering();
     }
 
     public void Initialize(IButtonDisplayable displayedObject)
@@ -45,39 +41,49 @@ public class CustomButton : Button
         // Set icon.
         if (buttonImage)
             buttonImage.sprite = displayedObject.Icon;
-        else
-            buttonImage.sprite = null;
-
-        // TODO: popup handler.
     }
 
-
-    private IEnumerator delayedClick()
+    public void Initialize(Sprite sprite)
     {
-        yield return null;
-        onClick?.Invoke(this);
-        Debug.Log("Clicked on " + this);
+        if (!sprite)
+        {
+            SetState(BUTTON_STATE.INACTIVE);
+            return;
+        }
+        SetState(BUTTON_STATE.ACTIVE);
+        if (buttonImage)
+            buttonImage.sprite = sprite;
     }
-    public new void OnPointerExit(PointerEventData eventData)
-    {
-        if (State == BUTTON_STATE.INACTIVE) return;
-        // TODO:
-        Debug.Log("Exit on " + this);
-    }
-    public new void OnPointerEnter(PointerEventData eventData)
+
+    public override void OnPointerExit(PointerEventData eventData)
     {
         if (State == BUTTON_STATE.INACTIVE) return;
-        // TODO:
-        Debug.Log("Hover on " + this);
+        PopupHandler.Instance.Hide();
+    }
+    public override void OnPointerEnter(PointerEventData eventData)
+    {
+        if (State == BUTTON_STATE.INACTIVE) return;
+        PopupHandler.Instance.Show(HoverText);
     }
 
+    private void DisableRendering()
+    {
+        if (buttonImage) buttonImage.enabled = false;
+    }
+    private void EnableRendering()
+    {
+        if (buttonImage) buttonImage.enabled = true;
+    }
 
     public void ClearIcon()
     {
         IEnumerator delayed_clear()
         {
             yield return null;
-            if (buttonImage) buttonImage.sprite = null; // clear icon.
+            if (buttonImage)
+            {
+                buttonImage.sprite = null; // clear icon.
+            }
         }
         StartCoroutine(delayed_clear());
     }

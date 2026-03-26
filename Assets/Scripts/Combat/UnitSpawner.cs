@@ -5,7 +5,7 @@ public class UnitSpawner : MonoBehaviour
     public HexGridManager grid;
     public GameObject unitPrefab;
 
-    public UnitController SpawnUnit(Team team, Vector2Int axialPos)
+    public UnitController SpawnUnit(Player team, Vector2Int axialPos)
     {
         Tile tile = FindPassableTileNear(axialPos);
         if (tile == null)

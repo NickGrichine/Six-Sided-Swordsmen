@@ -6,16 +6,60 @@ using UnityEngine;
 [System.Serializable]
 public class DataManager : Singleton <DataManager> {
     //No read-only fields --> instead patter to mimic read-only: private + public getter
+    
     private SaveSlot activeSlot;
     private SaveSlot[] slots = new SaveSlot[3]; //todo Assign slots 
 
-    public void Load(SaveSlot data) {
+    public void Load(SaveSlot slot) {
         //get game from Unity Engine and read data before saving to object
+        //SaveData data = data.getData();
+        //SaveData data = JsonUtility.FromJson<SaveData>();
+
+
+        // first, read from the file at the filepath specified by the saveslot
+        // open and read it with a file reader
+        // turn the contents of the file into a string; this string has the json contents of SaveData
+        // pass that string into FromJsons
+        string path = slot.Path;
+        string json = File.ReadAllText(path);
+        SaveData obj = JsonUtility.FromJson<SaveData>(json);
+        slot.Data = obj;
+
+        activeSlot = slot;
+
+        //todo: add debug-log statements
         
     }
-    public void Save() {
+    //Create Save Data as an argument
+    public void Save(HexGridManager grid, GridData gridData, int gameId) { //*CALLED IN START AT END OF GAME
         //create new file and write game data to json file
+        string json = JsonUtility.ToJson(gridData, true); //Data record for save data
+        string path = Path.Combine(Application.persistentDataPath, "Game" + gameId + ".json");
+        activeSlot = new SaveSlot(new SaveData("Game " + gameId, gameId, grid), path);
+        File.WriteAllText(path, json);
+
+        Debug.Log("Saved JSON to: " + path);
     }
+
+    public void dummyLoad()
+    {
+        string path = Path.Combine(Application.persistentDataPath, "DummyGame.json");
+        string json = File.ReadAllText(path);
+        print("Json Dummy Content" + json);
+    }
+    //Need to create empty object
+    //obj must be serialized
+    public void dummySave(System.Object obj)
+    {
+        string json = JsonUtility.ToJson(obj, true);
+        string path = Path.Combine(Application.persistentDataPath, "DummyGame.json");
+        File.WriteAllText(path, json);
+
+        Debug.Log("Dummy Game Saved");
+    }
+
+
+
     public SaveSlot[] GetSaveSlots() {
         return slots; 
     }
