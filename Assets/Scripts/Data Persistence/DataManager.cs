@@ -78,4 +78,16 @@ public class DataManager : Singleton <DataManager> {
             }
         }
     }
+
+
+    public void Start()
+    {
+        
+    }
+
+    public void OnApplicationQuit()
+    {
+        
+    }
+
 }
