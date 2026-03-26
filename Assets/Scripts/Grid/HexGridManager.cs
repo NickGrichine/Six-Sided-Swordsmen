@@ -37,7 +37,7 @@ public class HexGridManager : MonoBehaviour
     public Sprite selectionOutlineSprite; // Thick border, selected
 
     [Header("Ocean Border")]
-    [SerializeField] private int oceanBorderThickness = 5;
+    [SerializeField] private int oceanBorderThickness = 10;
     private int totalWidth;
     private int totalHeight;
     private int playableOffsetQ;
