@@ -4,8 +4,12 @@ using UnityEngine;
 
 public class HealthManager : MonoBehaviour
 {
-    [SerializeField] private int maxHealth;
-    private int health;
+    //[SerializeField] private int maxHealth;
+    public int maxHealth;
+
+    //private int health;
+    public int health;
+
     public StatModifierManager DamageTakenModifier { get; private set; }
     public StatModifierManager HealingReceivedModifier { get; private set; }
     private float dodge;
@@ -19,7 +23,6 @@ public class HealthManager : MonoBehaviour
     public Action onDeath;
 
     public HealthBar healthBar;
-    public Action<int, int> onHealthChanged;
 
 
     private void Awake()
@@ -27,8 +30,6 @@ public class HealthManager : MonoBehaviour
         health = maxHealth;
         DamageTakenModifier = gameObject.AddComponent<StatModifierManager>();
         HealingReceivedModifier = gameObject.AddComponent<StatModifierManager>();
-
-        onHealthChanged?.Invoke(health, maxHealth);
     }
 
     public void SetMaxHealth(int health)
@@ -36,6 +37,8 @@ public class HealthManager : MonoBehaviour
         if (health <= 0) return;
         maxHealth = health;
         this.health = maxHealth;
+
+        healthBar.SetMaxHealth(health);
     }
 
     public void SetMaxHealth(float relativeHealth)
@@ -77,6 +80,9 @@ public class HealthManager : MonoBehaviour
             onDeath?.Invoke();
         }
         onDamage?.Invoke(modifiedAmount);
+
+
+        healthBar.SetHealth(health);
     }
 
 
@@ -136,10 +142,15 @@ public class HealthManager : MonoBehaviour
         //Debug.Log("initial = " + amount + " x" +healReceivedModifier.getMultiplier()+ "modifier; healed " + modifiedAmount +" ; total " + health);
         
         onHeal?.Invoke(modifiedAmount);
+
+        healthBar.SetHealth(health);
     }
 
     
     
     public int GetHealth() => health;
     public int GetMaxHealth() => maxHealth;
+
+
+    // maybe i should make the changing of the health bar as an action instead so that i don't need to put healthBar.SetHealth everytime? not needed for now i guess
 }

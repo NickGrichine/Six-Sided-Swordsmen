@@ -27,6 +27,8 @@ public class UnitController : MonoBehaviour, IOccupant
         {
             healthManager.onDeath += OnDeath;
         }
+
+        //healthManager.SetMaxHealth(healthManager.maxHealth);
     }
 
     private void Update()
@@ -35,7 +37,53 @@ public class UnitController : MonoBehaviour, IOccupant
         {
             healthManager.TakeDamage(5);
         }
+
+
+        // TESTING HEALTH BAR
+        if (!IsCurrentlySelected())
+        {
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            healthManager.TakeDamage(1);
+
+            Debug.Log("UNIT TOOK DAMAGE! New health: " + healthManager.health);
+        }
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            healthManager.GainHealth(1);
+
+            Debug.Log("UNIT GAINED HEALTH! New health: " + healthManager.health);
+        }
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            healthManager.SetMaxHealth(10);
+
+            Debug.Log("UNIT HEALTH RESET! New health: " + healthManager.health);
+        }
     }
+
+    // This function is for making sure that only the unit that is currently selected (highlighted tile) will be affected
+    // ie. making sure that any changes in Health status only applies to this selected unit, rather than ALL units
+    private bool IsCurrentlySelected()
+    {
+        if (position == null || position.occupant != this)
+        {
+            return false;
+        }
+
+        GridEventHandler gridEventHandler = GridEventHandler.Instance;
+        if (gridEventHandler == null)
+        {
+            return false;
+        }
+
+        return gridEventHandler.SelectedTile == position;
+    }
+
+
 
     public void SetTeam(Team team)
     {

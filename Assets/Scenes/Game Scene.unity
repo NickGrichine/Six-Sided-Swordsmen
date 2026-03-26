@@ -455,6 +455,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: HUD Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 6888908768397511165, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7116295041427414866, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -674,8 +678,8 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 169639241}
+  - {fileID: 1446639556}
   - {fileID: 1153814719}
   - {fileID: 2057721467}
   - {fileID: 2119828636}
   - {fileID: 2115567388}
-  - {fileID: 1446639556}
