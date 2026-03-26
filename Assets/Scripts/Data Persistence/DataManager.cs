@@ -25,6 +25,8 @@ public class DataManager : Singleton <DataManager> {
         SaveData obj = JsonUtility.FromJson<SaveData>(json);
         slot.Data = obj;
 
+        activeSlot = slot;
+
         //todo: add debug-log statements
         
     }
@@ -37,6 +39,23 @@ public class DataManager : Singleton <DataManager> {
 
         Debug.Log("Saved JSON to: " + path);
     }
+
+    public void dummyLoad(string path)
+    {
+        string json = File.ReadAllText(path);
+        print("Json Dummy Content" + json);
+    }
+    public void dummySave(System.Object obj)
+    {
+        string json = JsonUtility.ToJson(obj, true);
+        string path = Path.Combine(Application.persistentDataPath, "DummyGame.json");
+        File.WriteAllText(path, json);
+
+        Debug.Log("Dummy Game Saved");
+    }
+
+
+
     public SaveSlot[] GetSaveSlots() {
         return slots; 
     }
