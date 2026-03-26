@@ -53,6 +53,8 @@ public class DataManager : Singleton <DataManager> {
     {
         string json = JsonUtility.ToJson(obj, true);
         string path = Path.Combine(Application.persistentDataPath, "DummyGame.json");
+        //string path = Path.Combine("..", "DummyGame.json");
+        path = Path.GetFullPath(path);
         File.WriteAllText(path, json);
 
         Debug.Log("Dummy Game Saved");
