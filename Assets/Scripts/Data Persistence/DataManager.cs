@@ -41,11 +41,13 @@ public class DataManager : Singleton <DataManager> {
         Debug.Log("Saved JSON to: " + path);
     }
 
-    public void dummyLoad()
+    public DummyGame dummyLoad()
     {
         string path = Path.Combine(Application.persistentDataPath, "DummyGame.json");
         string json = File.ReadAllText(path);
         print("Json Dummy Content" + json);
+
+        return JsonUtility.FromJson<DummyGame>(json);
     }
     //Need to create empty object
     //obj must be serialized

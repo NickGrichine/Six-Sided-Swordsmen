@@ -3,5 +3,7 @@ using UnityEngine;
 [System.Serializable]
 public class DummyGame
 {
-    public string name = "Dummy Game";
+    //public string name = "Dummy Game";
+    
+    public string name;
 }
