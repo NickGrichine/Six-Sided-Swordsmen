@@ -4,7 +4,7 @@ using System.Collections.Generic;
 [Serializable]
 public class GridData{
     //DTO: Data-Transferable-Objects
-    public List<TileData> tiles; //Grid container
+    //public List<TileData> tiles; //Grid container
     //public Tile tilePrefab;
     public int width;
     public int height;

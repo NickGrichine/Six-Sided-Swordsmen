@@ -8,5 +8,7 @@ public class DataPersistence : MonoBehaviour
         DataManager.Instance.dummySave(game);
 
         DataManager.Instance.dummyLoad();
+
+        Debug.Log("Test Data Persistence Executed!");
     }
 }
