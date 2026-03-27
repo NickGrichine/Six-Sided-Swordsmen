@@ -77,7 +77,7 @@ public class CombatTest : MonoBehaviour
         unitI = spawner.SpawnUnit(Player.PLAYER_2, new Vector2Int(4, 7), UnitSpawner.TagUnitType.Spearman);
 
 
-        Debug.Log($"Spawned A at {unitA?.position.axialPos}, B at {unitB?.position.axialPos}");
+        Debug.Log($"Spawned A at {unitA?.position.gridPos}, B at {unitB?.position.gridPos}");
         Debug.Log("Total units after spawn: " + FindObjectsOfType<UnitController>().Length);
 
         if (GridEventHandler.Instance != null)
@@ -130,7 +130,7 @@ public class CombatTest : MonoBehaviour
             if (commandMode == CommandMode.Move)
                 selectionMode = SelectionMode.AwaitingMoveTarget;
 
-            Debug.Log($"CombatTest: selected unit '{selectedUnit.name}' at {selectedUnit.position?.axialPos}. Mode={selectionMode}, Command={commandMode}");
+            Debug.Log($"CombatTest: selected unit '{selectedUnit.name}' at {selectedUnit.position?.gridPos}. Mode={selectionMode}, Command={commandMode}");
             return;
         }
 
@@ -142,7 +142,7 @@ public class CombatTest : MonoBehaviour
 
         if (clickedTile.IsOccupied)
         {
-            Debug.Log($"CombatTest: destination {clickedTile.axialPos} is occupied. Move cancelled.");
+            Debug.Log($"CombatTest: destination {clickedTile.gridPos} is occupied. Move cancelled.");
             return;
         }
 
@@ -163,7 +163,7 @@ public class CombatTest : MonoBehaviour
         if (commandMode == CommandMode.Move)
             selectionMode = SelectionMode.AwaitingMoveTarget;
 
-        Debug.Log($"CombatTest: selected unit '{selectedUnit.name}' at {selectedUnit.position?.axialPos}. Mode={selectionMode}, Command={commandMode}");
+        Debug.Log($"CombatTest: selected unit '{selectedUnit.name}' at {selectedUnit.position?.gridPos}. Mode={selectionMode}, Command={commandMode}");
     }
 
     private void TryMoveSelectedUnitTo(Tile destination)
@@ -183,7 +183,7 @@ public class CombatTest : MonoBehaviour
         List<Tile> path = HexPathfinder.FindPath(selectedUnit.position, destination);
         if (path == null || path.Count < 2)
         {
-            Debug.LogWarning($"CombatTest: no valid move path for '{selectedUnit.name}' from {selectedUnit.position.axialPos} to {destination.axialPos}.");
+            Debug.LogWarning($"CombatTest: no valid move path for '{selectedUnit.name}' from {selectedUnit.position.gridPos} to {destination.gridPos}.");
             return;
         }
 
@@ -204,17 +204,17 @@ public class CombatTest : MonoBehaviour
             bool moved = unit.MoveToAdjacentTile(next);
             if (!moved)
             {
-                Debug.LogWarning($"CombatTest: movement failed at step {i}/{path.Count - 1} toward {next.axialPos}. Unit stopped at {unit.position?.axialPos}.");
+                Debug.LogWarning($"CombatTest: movement failed at step {i}/{path.Count - 1} toward {next.gridPos}. Unit stopped at {unit.position?.gridPos}.");
                 selectionMode = SelectionMode.AwaitingMoveTarget;
                 activeMoveRoutine = null;
                 yield break;
             }
 
-            Debug.Log($"CombatTest: moved step {i}/{path.Count - 1} to {unit.position.axialPos}.");
+            Debug.Log($"CombatTest: moved step {i}/{path.Count - 1} to {unit.position.gridPos}.");
             yield return new WaitForSeconds(secondsPerStep);
         }
 
-        Debug.Log($"CombatTest: '{unit.name}' arrived at {unit.position.axialPos}. Movement complete.");
+        Debug.Log($"CombatTest: '{unit.name}' arrived at {unit.position.gridPos}. Movement complete.");
         selectionMode = SelectionMode.AwaitingMoveTarget;
         activeMoveRoutine = null;
     }

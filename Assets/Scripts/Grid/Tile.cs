@@ -19,7 +19,7 @@ public class Tile : MonoBehaviour
             _nullTile.enabled = false; // never runs Update; Start won't run when disabled
             _nullTile.passable = false;
             _nullTile.moveCost = int.MaxValue;
-            _nullTile.axialPos = new Vector2Int(int.MinValue, int.MinValue);
+            _nullTile.gridPos = new Vector2Int(int.MinValue, int.MinValue);
             _nullTile.tileId = -1;
 
             return _nullTile;
@@ -34,7 +34,7 @@ public class Tile : MonoBehaviour
     public GameObject selectionOutline;
 
     public List<Tile> neighbors = new List<Tile>(6); // 6 hex neighbors
-    public Vector2Int gridPos; // q (col), r (row) for axial coords
+    public Vector2Int gridPos; // q column, r row in flat-top odd-q offset coords
     public int tileId = -1; // tile id
 
     public bool passable = true; // Checks whether tile is water / unmovable    
