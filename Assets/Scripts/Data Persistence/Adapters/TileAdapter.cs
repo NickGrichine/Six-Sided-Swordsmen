@@ -10,14 +10,8 @@ public static class TileAdapter{
             altitude = tile.altitude,
             axialPos = tile.axialPos,
             moveCost = tile.moveCost,
-            occupant = tile.occupant,
-            //IsOccupied = tile.IsOccupied,
-            //BlockSight = tile.BlockSight,
+            occupant = tile.occupant
 
-            // List<TileData> neighb();
-            // foreach(var ntile in tile.neighbors){
-            //     ToData(ntile);
-            // }
         };
         return data;
         

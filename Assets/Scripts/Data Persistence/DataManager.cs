@@ -25,9 +25,12 @@ public class DataManager : Singleton <DataManager> {
         SaveData obj = JsonUtility.FromJson<SaveData>(json);
         slot.Data = obj;
 
+        activeSlot = slot;
+
         //todo: add debug-log statements
         
     }
+    //Create Save Data as an argument
     public void Save(HexGridManager grid, GridData gridData, int gameId) { //*CALLED IN START AT END OF GAME
         //create new file and write game data to json file
         string json = JsonUtility.ToJson(gridData, true); //Data record for save data
@@ -37,6 +40,26 @@ public class DataManager : Singleton <DataManager> {
 
         Debug.Log("Saved JSON to: " + path);
     }
+
+    public void dummyLoad()
+    {
+        string path = Path.Combine(Application.persistentDataPath, "DummyGame.json");
+        string json = File.ReadAllText(path);
+        print("Json Dummy Content" + json);
+    }
+    //Need to create empty object
+    //obj must be serialized
+    public void dummySave(System.Object obj)
+    {
+        string json = JsonUtility.ToJson(obj, true);
+        string path = Path.Combine(Application.persistentDataPath, "DummyGame.json");
+        File.WriteAllText(path, json);
+
+        Debug.Log("Dummy Game Saved");
+    }
+
+
+
     public SaveSlot[] GetSaveSlots() {
         return slots; 
     }

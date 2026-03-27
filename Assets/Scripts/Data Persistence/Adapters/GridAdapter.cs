@@ -12,10 +12,10 @@ public static class GridAdapter{
             tiles = new List<TileData>()
         };
         //TODO: NEED GRID TO BE PUBLIC FIELD
-        // foreach (var tile in grid.grid)
-        // {
-        //     TileAdapter.ToData(tile);
-        // }
+        foreach (var tile in grid.grid)
+        {
+            TileAdapter.ToData(tile);
+        }
         return data;
     }
 
