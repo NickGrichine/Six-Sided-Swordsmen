@@ -580,10 +580,24 @@ public class HexGridManager : MonoBehaviour
 
     private void LinkNeighbors()
     {
-        Vector2Int[] directions =
+        Vector2Int[] evenQDirections =
         {
-            new Vector2Int(1, 0), new Vector2Int(1, -1), new Vector2Int(0, -1),
-            new Vector2Int(-1, 0), new Vector2Int(-1, 1), new Vector2Int(0, 1)
+            new Vector2Int(+1, -1),
+            new Vector2Int(+1,  0),
+            new Vector2Int( 0, -1),
+            new Vector2Int( 0, +1),
+            new Vector2Int(-1, -1),
+            new Vector2Int(-1,  0)
+        };
+
+        Vector2Int[] oddQDirections =
+        {
+            new Vector2Int(+1,  0),
+            new Vector2Int(+1, +1),
+            new Vector2Int( 0, -1),
+            new Vector2Int( 0, +1),
+            new Vector2Int(-1,  0),
+            new Vector2Int(-1, +1)
         };
 
         for (int q = 0; q < totalWidth; q++)
@@ -591,10 +605,17 @@ public class HexGridManager : MonoBehaviour
             for (int r = 0; r < totalHeight; r++)
             {
                 Tile tile = grid[q, r];
+                if (tile == null) continue;
+
+                tile.neighbors.Clear();
+
+                Vector2Int[] directions = (q % 2 == 0) ? evenQDirections : oddQDirections;
+
                 foreach (Vector2Int dir in directions)
                 {
                     int nq = q + dir.x;
                     int nr = r + dir.y;
+
                     if (nq >= 0 && nq < totalWidth && nr >= 0 && nr < totalHeight)
                     {
                         tile.AddNeighbor(grid[nq, nr]);
