@@ -48,7 +48,7 @@ public class HexGridManager : MonoBehaviour
     [Range(0f, 0.5f)] public float grassVariantChance = 0.08f; // chance for grass tile to use flower variant
     [Range(0f, 0.5f)] public float purpleVariantChance = 0.08f; // tuning value for purple variation
 
-    private Tile[,] grid;
+    public Tile[,] grid;
 
     // public Fields
 
