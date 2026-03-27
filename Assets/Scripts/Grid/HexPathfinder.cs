@@ -30,7 +30,6 @@ public static class HexPathfinder
                     continue;
                 }
 
-                // A move is only valid if the neighbor can be climbed from the current tile.
                 if (!neighbor.CanClimbFrom(current))
                 {
                     continue;
@@ -47,7 +46,7 @@ public static class HexPathfinder
             return new List<Tile>();
         }
 
-        // Reconstruct path
+        // Reconstructing path here
         var path = new List<Tile>();
         var step = goal;
         while (step != null)

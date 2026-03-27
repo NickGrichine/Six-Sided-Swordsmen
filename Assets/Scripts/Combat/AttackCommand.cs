@@ -16,7 +16,7 @@ public class AttackCommand : IUnitCommand
         target.unit.healthManager.TakeDamage(damage);
 
         // Create record with damage stored somehow
-        var record = new AttackExecutionRecord(actor.UnitID, target, damage);
+        var record = new AttackExecutionRecord(actor.teamID, target, damage);
         return record;
     }
 
@@ -33,8 +33,8 @@ public class AttackCommand : IUnitCommand
 public class AttackExecutionRecord : CommandExecutionRecord
 {
     public int damageDealt;
-
-    public AttackExecutionRecord(int actorID, CommandTarget target, int damage) : base(null, actorID, target)
+                                                                                            //BASE IS NULL!!!
+    public AttackExecutionRecord(Player actorID, CommandTarget target, int damage) : base(null, actorID, target)
     {
         this.damageDealt = damage;
     }

@@ -46,7 +46,6 @@ public class CombatTest : MonoBehaviour
     {
         Debug.Log("CombatTest.Start called");
         var allUnits = FindObjectsOfType<UnitController>();
-        Debug.Log($"Total UnitController in scene before destroy: {allUnits.Length}");
         foreach (var u in allUnits) Debug.Log($"Unit: {u.gameObject.name} at {u.transform.position}");
 
         if (FindObjectsOfType<CombatTest>().Length > 1)
@@ -56,8 +55,7 @@ public class CombatTest : MonoBehaviour
             return;
         }
 
-        // Destroy any leftover units from previous runs
-        foreach (var unit in allUnits)
+        foreach (var unit in allUnits) //cleanup any possible leftover units from previous test runs in the editor, since they won't be cleaned up by Play mode stop if they were spawned in edit mode.
         {
             Destroy(unit.gameObject);
         }
@@ -139,7 +137,7 @@ public class CombatTest : MonoBehaviour
         if (commandMode != CommandMode.Move || selectionMode != SelectionMode.AwaitingMoveTarget)
         {
             Debug.Log("CombatTest: select a Move command and a unit before choosing a destination tile.");
-            return;
+            return; //eventually for when button for move command is implemented
         }
 
         if (clickedTile.IsOccupied)
