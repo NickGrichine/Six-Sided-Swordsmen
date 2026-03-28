@@ -10,9 +10,10 @@ public static class TileAdapter{
             altitude = tile.altitude,
             axialPos = tile.axialPos,
             moveCost = tile.moveCost,
-            occupant = tile.occupant
+            passable = tile.passable,
 
         };
+        //foreach(var tileId in tile.tiles)
         return data;
         
     }
@@ -24,6 +25,8 @@ public static class TileAdapter{
         //tile.axialPos = tileData.axialPos;
         tile.moveCost = tileData.moveCost;
         //tile.occupant = tileData.occupant;
+        tile.passable = tileData.passable;
+        
 
     }
 }
