@@ -9,6 +9,8 @@ public class GridData{
     public int width;
     public int height;
     public float hexSize;
+    public int oceanBorderThickness;
+    public int cameraBorderTiles;
 
     // Sprites can be disregarded from data persistence as they are retrievable
     // public Sprite floorSprite;

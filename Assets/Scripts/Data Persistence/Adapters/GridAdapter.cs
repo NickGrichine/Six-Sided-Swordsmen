@@ -10,6 +10,8 @@ public static class GridAdapter{
             height = grid.height,
             hexSize = grid.hexSize,
             //tiles = new List<TileData>()
+            oceanBorderThickness = grid.OceanBorderThickness,
+            cameraBorderTiles = grid.CameraBorderTiles,
         };
         //TODO: NEED GRID TO BE PUBLIC FIELD
         // foreach (var tile in grid.grid)
@@ -24,6 +26,10 @@ public static class GridAdapter{
         grid.width = gridData.width;
         grid.height = gridData.height;
         grid.hexSize = gridData.hexSize;
+        //todo Tiles
+        //grid.OceanBorderThickness = gridData.oceanBorderThickness,
+        //grid.CameraBorderTiles = gridData.cameraBorderTiles,
+        
 
         return grid;
     }
