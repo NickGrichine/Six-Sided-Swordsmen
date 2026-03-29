@@ -1,9 +1,29 @@
+using TMPro;
 using UnityEngine;
 
 public class UnitSpawner : MonoBehaviour
 {
     public HexGridManager grid;
     public GameObject unitPrefab;
+    public GameObject knightPrefab;
+    public GameObject archerPrefab;
+    public GameObject clericPrefab;
+    public GameObject spearmanPrefab;
+
+    public enum TagUnitType
+    {
+        Knight, Archer, Cleric, Spearman
+    }
+
+    public UnitController SpawnUnit(Player team, Vector2Int axialPos, TagUnitType unitType)
+    {
+        GameObject previousPrefab = unitPrefab;
+        unitPrefab = GetPrefabForType(unitType);
+        UnitController spawned = SpawnUnit(team, axialPos);
+        unitPrefab = previousPrefab;
+        return spawned;
+    }
+
 
     public UnitController SpawnUnit(Player team, Vector2Int axialPos)
     {
@@ -17,6 +37,7 @@ public class UnitSpawner : MonoBehaviour
         GameObject go = Instantiate(unitPrefab);
         var unit = go.GetComponent<UnitController>();
         unit.SetTeam(team);
+        
         if (tile.TryEnter(unit))
         {
             return unit;
@@ -49,5 +70,22 @@ public class UnitSpawner : MonoBehaviour
         }
 
         return null;
+    }
+
+    private GameObject GetPrefabForType(TagUnitType unitType)
+    {
+        switch (unitType)
+        {
+            case TagUnitType.Knight:
+                return knightPrefab != null ? knightPrefab : unitPrefab;
+            case TagUnitType.Archer:
+                return archerPrefab != null ? archerPrefab : unitPrefab;
+            case TagUnitType.Cleric:
+                return clericPrefab != null ? clericPrefab : unitPrefab;
+            case TagUnitType.Spearman:
+                return spearmanPrefab != null ? spearmanPrefab : unitPrefab;
+            default:
+                return unitPrefab;
+        }
     }
 }

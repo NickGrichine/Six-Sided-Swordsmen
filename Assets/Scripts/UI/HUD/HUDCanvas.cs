@@ -14,12 +14,34 @@ public class HUDCanvas : Singleton<HUDCanvas>
     {
         // Initialize PassTurnButton:
         if (GameManager.Instance) passTurnButton.onClick += EndTurn;
-        passTurnButton.onClick += UpdateUnitConsole;
+        passTurnButton.onClick += (button) => { UpdateUnitConsole(); };
         passTurnButton.SetText("Pass Turn");
         passTurnButton.SetState(Button.BUTTON_STATE.ACTIVE);
+
+        StartCoroutine(DelayedStart());
     }
 
-    private void UpdateUnitConsole(Button button)
+    private IEnumerator DelayedStart()
+    {
+        yield return null;
+        SubscribeAllHealthManagersToUnitConsole();
+    }
+
+    private void SubscribeAllHealthManagersToUnitConsole()
+    {
+        HealthManager[] allHealthManagers = UnityEngine.Object.FindObjectsByType<HealthManager>(FindObjectsSortMode.None);
+        foreach (HealthManager manager in allHealthManagers)
+        {
+            manager.onDamage += (int i) => { UpdateUnitConsole(); };
+            manager.onPermanentDamage += (int i) => { UpdateUnitConsole(); };
+            manager.onCrit += (int i) => { UpdateUnitConsole(); };
+            manager.onDodge += () => { UpdateUnitConsole(); };
+            manager.onHeal += (int i) => { UpdateUnitConsole(); };
+            manager.onDeath += () => { UpdateUnitConsole(); };
+        }
+    }
+
+    private void UpdateUnitConsole()
     {
         Tile selected_tile = GridEventHandler.Instance.SelectedTile;
         UnitConsole.Instance.UpdateUnitConsole(selected_tile);

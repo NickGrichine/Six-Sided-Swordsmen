@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b206e5188d8b9f04f8ae108dcd38bcc2, type: 3}
-  m_Name: Peasant
+  m_Name: Archer
   m_EditorClassIdentifier: 
-  maxHealth: 2
-  attackStr: 1
-  maxMovesPerTurn: 2
-  attackRange: 2
+  maxHealth: 8
+  attackStr: 2
+  maxMovesPerTurn: 1
+  attackRange: 5

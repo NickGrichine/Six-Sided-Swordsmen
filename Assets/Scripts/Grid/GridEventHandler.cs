@@ -50,7 +50,8 @@ public class GridEventHandler : Singleton<GridEventHandler>
 
         if (worldCamera == null)
             return;
-
+    
+        // Screen space to world space
         Vector3 world = worldCamera.ScreenToWorldPoint(Input.mousePosition);
         Vector2 world2 = new Vector2(world.x, world.y);
 

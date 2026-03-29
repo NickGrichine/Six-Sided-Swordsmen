@@ -5,7 +5,7 @@ public class Tile : MonoBehaviour
 {
     // Null-object pattern
     private static Tile _nullTile;
-    public static Tile NullTile
+    public static Tile NullTile // Creates hidden placeholder tile 
     {
         get
         {
