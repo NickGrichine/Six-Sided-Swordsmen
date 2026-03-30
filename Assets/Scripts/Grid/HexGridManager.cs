@@ -46,9 +46,8 @@ public class HexGridManager : MonoBehaviour
     [Range(0f, 1f)] public float oceanChance = 0.18f; // chance for tile to become ocean
     [Range(0f, 1f)] public float purpleChance = 0.32f; // chance for title to become purple
     [Range(0f, 0.5f)] public float grassVariantChance = 0.08f; // chance for grass tile to use flower variant
-    [Range(0f, 0.5f)] public float purpleVariantChance = 0.08f; // tuning value for purple variation
 
-    public Tile[,] grid;
+    private Tile[,] grid;
 
     // public Fields
 
@@ -321,14 +320,14 @@ public class HexGridManager : MonoBehaviour
         Tile tile = Instantiate(tilePrefab, transform);
 
         // Store grid coordinates
-        tile.axialPos = new Vector2Int(q, r);
+        tile.gridPos = new Vector2Int(q, r);
 
         // Assign tile ID
         tile.tileId = GetTileId(q, r);
 
         // Convert hex grid coordinates to world-space position
         float xPos = hexSize * 1.5f * q; // shifts right by 1.5 hex radii
-        float yPos = hexSize * Mathf.Sqrt(3) * (r + 0.5f * (q % 2)); // shifts up by 0.5 hex heights
+        float yPos = hexSize * Mathf.Sqrt(3f) * (r + 0.5f * (q & 1));        
         
         // Position tile in the scene
         tile.transform.localPosition = new Vector3(xPos, yPos, 0);
@@ -512,7 +511,7 @@ public class HexGridManager : MonoBehaviour
     {
         if (tile.spriteRenderer == null)
         {
-            Debug.LogError($"Tile({tile.axialPos.x},{tile.axialPos.y}): No SpriteRenderer!");
+            Debug.LogError($"Tile({tile.gridPos.x},{tile.gridPos.y}): No SpriteRenderer!");
             return;
         }
 
@@ -580,21 +579,20 @@ public class HexGridManager : MonoBehaviour
 
     private void LinkNeighbors()
     {
-        Vector2Int[] directions =
-        {
-            new Vector2Int(1, 0), new Vector2Int(1, -1), new Vector2Int(0, -1),
-            new Vector2Int(-1, 0), new Vector2Int(-1, 1), new Vector2Int(0, 1)
-        };
-
         for (int q = 0; q < totalWidth; q++)
         {
             for (int r = 0; r < totalHeight; r++)
             {
                 Tile tile = grid[q, r];
-                foreach (Vector2Int dir in directions)
+                if (tile == null) continue;
+
+                tile.ClearNeighbors();
+
+                foreach (Vector2Int dir in HexMath.GetNeighborDirections(q))
                 {
                     int nq = q + dir.x;
                     int nr = r + dir.y;
+
                     if (nq >= 0 && nq < totalWidth && nr >= 0 && nr < totalHeight)
                     {
                         tile.AddNeighbor(grid[nq, nr]);

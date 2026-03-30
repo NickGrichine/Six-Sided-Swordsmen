@@ -15,22 +15,22 @@ public class UnitSpawner : MonoBehaviour
         Knight, Archer, Cleric, Spearman
     }
 
-    public UnitController SpawnUnit(Player team, Vector2Int axialPos, TagUnitType unitType)
+    public UnitController SpawnUnit(Player team, Vector2Int gridPos, TagUnitType unitType)
     {
         GameObject previousPrefab = unitPrefab;
         unitPrefab = GetPrefabForType(unitType);
-        UnitController spawned = SpawnUnit(team, axialPos);
+        UnitController spawned = SpawnUnit(team, gridPos);
         unitPrefab = previousPrefab;
         return spawned;
     }
 
 
-    public UnitController SpawnUnit(Player team, Vector2Int axialPos)
+    public UnitController SpawnUnit(Player team, Vector2Int gridPos)
     {
-        Tile tile = FindPassableTileNear(axialPos);
+        Tile tile = FindPassableTileNear(gridPos);
         if (tile == null)
         {
-            Debug.LogError($"No passable tile found near {axialPos}");
+            Debug.LogError($"No passable tile found near {gridPos}");
             return null;
         }
 
@@ -44,7 +44,7 @@ public class UnitSpawner : MonoBehaviour
         }
 
         Destroy(go);
-        Debug.LogError($"TryEnter failed for tile at {tile.axialPos}");
+        Debug.LogError($"TryEnter failed for tile at {tile.gridPos}");
         return null;
     }
 

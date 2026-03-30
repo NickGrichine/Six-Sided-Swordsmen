@@ -19,7 +19,8 @@ public class Tile : MonoBehaviour
             _nullTile.enabled = false; // never runs Update; Start won't run when disabled
             _nullTile.passable = false;
             _nullTile.moveCost = int.MaxValue;
-            _nullTile.axialPos = new Vector2Int(int.MinValue, int.MinValue);
+            _nullTile.gridPos = new Vector2Int(int.MinValue, int.MinValue);
+            _nullTile.tileId = -1;
 
             return _nullTile;
         }
@@ -33,7 +34,7 @@ public class Tile : MonoBehaviour
     public GameObject selectionOutline;
 
     public List<Tile> neighbors = new List<Tile>(6); // 6 hex neighbors
-    public Vector2Int axialPos; // q (col), r (row) for axial coords
+    public Vector2Int gridPos; // q column, r row in flat-top odd-q offset coords
     public int tileId = -1; // tile id
 
     public bool passable = true; // Checks whether tile is water / unmovable    
@@ -75,12 +76,9 @@ public class Tile : MonoBehaviour
     }
 
     // Static method for distance 
-    public static int GetDistance(Tile a, Tile b)
+   public static int GetDistance(Tile a, Tile b)
     {
-        int dq = a.axialPos.x - b.axialPos.x;
-        int dr = a.axialPos.y - b.axialPos.y;
-        int ds = -dq - dr;
-        return (Mathf.Abs(dq) + Mathf.Abs(dr) + Mathf.Abs(ds)) / 2;
+       return HexMath.Distance(a.gridPos, b.gridPos);
     }
 
     public bool CanClimbFrom(Tile from)
@@ -89,11 +87,20 @@ public class Tile : MonoBehaviour
         return heightDiff < 2;
     }
 
+    public void ClearNeighbors()
+    {
+        neighbors.Clear();
+    }
+
     // Add neighbor if not included in neighbors
     public void AddNeighbor(Tile neighbor)
     {
-        if (!neighbors.Contains(neighbor)) neighbors.Add(neighbor);
-    }
+        if (neighbor == null || neighbor.IsNull || neighbor == this)
+            return;
+
+        if (!neighbors.Contains(neighbor))
+            neighbors.Add(neighbor);    
+        }
 
     // Checks about occupied
     public bool TryEnter(IOccupant unit)
