@@ -282,6 +282,7 @@ GameObject:
   - component: {fileID: 1446639556}
   - component: {fileID: 1446639555}
   - component: {fileID: 1446639554}
+  - component: {fileID: 1446639557}
   m_Layer: 0
   m_Name: CombatTester
   m_TagString: Untagged
@@ -334,6 +335,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1446639557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1446639553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b31bbe59b7c0ed4893508c7baa3c5f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grid: {fileID: 1083728395}
+  unitPrefab: {fileID: 0}
+  knightPrefab: {fileID: 5932810274771392416, guid: 92a664a41c097064980ff6daeebea221, type: 3}
+  archerPrefab: {fileID: 5932810274771392416, guid: c0ba2819ea1ea894aab70e201dfeffd4, type: 3}
+  clericPrefab: {fileID: 5932810274771392416, guid: 62946516ca92c8a43ae5170058c95ff0, type: 3}
+  spearmanPrefab: {fileID: 5932810274771392416, guid: 266d5473012f946478397272c8235bd0, type: 3}
 --- !u!1001 &2057721467
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -439,25 +458,9 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4980123793794333555, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4980123793794333555, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
-      propertyPath: m_BlockingMask.m_Bits
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4980123793794333555, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
-      propertyPath: m_IgnoreReversedGraphics
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 6888908768397511165, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
       propertyPath: m_Name
       value: HUD Canvas
-      objectReference: {fileID: 0}
-    - target: {fileID: 6888908768397511165, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7116295041427414866, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
       propertyPath: m_AnchorMax.y

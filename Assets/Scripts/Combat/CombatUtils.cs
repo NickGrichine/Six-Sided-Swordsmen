@@ -6,15 +6,7 @@ public static class CombatUtils
     {
         if (a.position == null || b.position == null) return false;
         int distance = Tile.GetDistance(a.position, b.position);
-        if (distance > 5) return false; // arbitrary range
-
-        // Simple LOS: check if any tile in between blocks sight
-        // For now, just check direct distance and blocking tiles
-        foreach (Tile neighbor in a.position.neighbors)
-        {
-            if (neighbor.BlockSight && Tile.GetDistance(neighbor, b.position) < distance)
-                return false;
-        }
+        if (distance > 5) return false; // arbitrary range. will need to factor in terrain and line of sight blockers later.
         return true;
     }
 
@@ -35,6 +27,6 @@ public static class CombatUtils
 
     public static bool CanControl(UnitController controller, UnitController targetUnit)
     {
-        return IsFriendly(controller, targetUnit);
+        return IsFriendly(controller, targetUnit); // currently useless unless the turn-based system is done.
     }
 }

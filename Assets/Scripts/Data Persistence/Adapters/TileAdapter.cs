@@ -8,11 +8,12 @@ public static class TileAdapter{
             //isNull = tile.IsNull,
             type = tile.type,
             altitude = tile.altitude,
-            axialPos = tile.axialPos,
+            gridPos = tile.gridPos,
             moveCost = tile.moveCost,
-            occupant = tile.occupant
+            passable = tile.passable,
 
         };
+        //foreach(var tileId in tile.tiles)
         return data;
         
     }
@@ -21,11 +22,11 @@ public static class TileAdapter{
         //tile.IsNull = tileData.isNull;
         tile.type = tileData.type;
         tile.altitude = tileData.altitude;
-        tile.axialPos = tileData.axialPos;
+        tile.gridPos = tileData.gridPos;
         tile.moveCost = tileData.moveCost;
-        tile.occupant = tileData.occupant;
-        //tile.IsOccupied = tileData.IsOccupied;
-        //tile.BlockSight = tile.BlockSight;
+        //tile.occupant = tileData.occupant;
+        tile.passable = tileData.passable;
+        
 
     }
 }

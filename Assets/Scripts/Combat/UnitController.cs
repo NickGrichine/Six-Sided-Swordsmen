@@ -5,8 +5,8 @@ public enum Team { Player1 = 1, Player2 = 2 }
 
 public class UnitController : MonoBehaviour, IOccupant
 {
-    public int UnitID;
-    public Team teamID;
+    // public Team teamID;
+    public Player teamID;
     public Tile position;
     public UnitDataSO refData;
     public HealthManager healthManager;    
@@ -136,7 +136,7 @@ public class UnitController : MonoBehaviour, IOccupant
         var record = command.Execute(ctx, this, cmdTarget);
         if (record != null)
         {
-            // Optionally store record for undo
+            // Optionally store record for undo. done later.
             return true;
         }
         return false;
@@ -168,6 +168,7 @@ public class UnitController : MonoBehaviour, IOccupant
         return false;
     }
 
+/*
     public bool MoveToTile(Tile destination)
     {
         if (destination == null || destination.IsOccupied || !destination.passable)
@@ -176,17 +177,14 @@ public class UnitController : MonoBehaviour, IOccupant
         var path = HexPathfinder.FindPath(position, destination);
         if (path.Count == 0) return false;
 
-        // For now, move directly to destination if adjacent or simple path
-        // TODO: handle multi-step movement with movement points
         if (path.Count == 2) // Adjacent
         {
             return MoveToAdjacentTile(destination);
         }
 
-        // For longer paths, move to next tile
         var nextTile = path[1];
         return MoveToAdjacentTile(nextTile);
-    }
+    } */
     public int OwnerId => (int)teamID;
     public Tile CurrentTile { get => position; set { position = value; UpdatePosition(); } }
 
