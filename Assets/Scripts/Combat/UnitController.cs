@@ -87,7 +87,7 @@ public class UnitController : MonoBehaviour, IOccupant
 
     public void SetTeam(Team team)
     {
-        teamID = team;
+        teamID = (Player)team;
         if (spriteRenderer != null)
         {
             spriteRenderer.color = team == Team.Player1 ? Color.blue : Color.red;
