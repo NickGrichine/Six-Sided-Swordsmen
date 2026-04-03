@@ -6,12 +6,13 @@ public static class TileAdapter{
         //todo
         var data = new TileData{
             //isNull = tile.IsNull,
+            tileId = tile.tileId,
             type = tile.type,
             altitude = tile.altitude,
             gridPos = tile.gridPos,
             moveCost = tile.moveCost,
             passable = tile.passable,
-
+            neighborIds = new List<int>(tile.neighborIds)
         };
         //foreach(var tileId in tile.tiles)
         return data;

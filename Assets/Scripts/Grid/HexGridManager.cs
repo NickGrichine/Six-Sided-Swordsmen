@@ -664,6 +664,28 @@ public class HexGridManager : MonoBehaviour
         return ids;
     }
 
+    public void RebuildNeighborsFromIds()
+    {
+        foreach (Tile tile in GetAllTiles())
+        {
+            if (tile == null || tile.IsNull) continue;
+        
+            tile.neighbors.Clear();
+
+            foreach (int neighborId in tile.neighborIds)
+            {
+                Tile neighbor = GetTileById(neighborId);
+                if (neighbor != null && !neighbor.IsNull && neighbor != tile)
+                {
+                    if (!tile.neighbors.Contains(neighbor))
+                    {
+                        tile.neighbors.Add(neighbor);
+                    }
+                }
+            }
+        }
+    }
+
     public Tile GetTileAt(Vector2Int coord)
     {
         int q = coord.x + playableOffsetQ;

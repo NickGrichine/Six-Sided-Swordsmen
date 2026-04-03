@@ -34,6 +34,7 @@ public class Tile : MonoBehaviour
     public GameObject selectionOutline;
 
     public List<Tile> neighbors = new List<Tile>(6); // 6 hex neighbors
+    public List<int> neighborIds = new List<int>(6); // for saving/loading neighbors by id
     public Vector2Int gridPos; // q column, r row in flat-top odd-q offset coords
     public int tileId = -1; // tile id
 
@@ -90,6 +91,7 @@ public class Tile : MonoBehaviour
     public void ClearNeighbors()
     {
         neighbors.Clear();
+        neighborIds.Clear();
     }
 
     // Add neighbor if not included in neighbors
@@ -99,8 +101,11 @@ public class Tile : MonoBehaviour
             return;
 
         if (!neighbors.Contains(neighbor))
-            neighbors.Add(neighbor);    
+        {
+            neighbors.Add(neighbor); 
+            neighborIds.Add(neighbor.tileId); 
         }
+    }
 
     // Checks about occupied
     public bool TryEnter(IOccupant unit)
