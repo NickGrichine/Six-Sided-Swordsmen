@@ -57,12 +57,12 @@ public class UnitController : MonoBehaviour, IOccupant
 
             Debug.Log("UNIT GAINED HEALTH! New health: " + healthManager.health);
         }
-        if (Input.GetKeyDown(KeyCode.I))
-        {
-            healthManager.SetMaxHealth(10);
+        // if (Input.GetKeyDown(KeyCode.I))
+        // {
+        //     healthManager.SetMaxHealth(10);
 
-            Debug.Log("UNIT HEALTH RESET! New health: " + healthManager.health);
-        }
+        //     Debug.Log("UNIT HEALTH RESET! New health: " + healthManager.health);
+        // }
     }
 
     // This function is for making sure that only the unit that is currently selected (highlighted tile) will be affected

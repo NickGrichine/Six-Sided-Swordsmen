@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class HealthManager : MonoBehaviour
 {
-    //[SerializeField] private int maxHealth;
-    public int maxHealth;
+    [SerializeField] private int maxHealth;
+    //public int maxHealth;
 
     //private int health;
     public int health;
