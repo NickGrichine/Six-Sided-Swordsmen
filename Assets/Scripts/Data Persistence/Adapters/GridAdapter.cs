@@ -15,7 +15,7 @@ public static class GridAdapter{
         };
 
         //TODO: NEED GRID TO BE PUBLIC FIELD
-        foreach (var tile in grid.getAllTiles())
+        foreach (var tile in grid.Grid)
         {
             TileAdapter.ToData(tile);
         }
