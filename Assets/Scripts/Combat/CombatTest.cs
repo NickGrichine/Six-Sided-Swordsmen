@@ -32,7 +32,7 @@ public class CombatTest : MonoBehaviour
         Move,
     }
 
-    private CommandMode commandMode = CommandMode.Move;
+    private CommandMode commandMode = CommandMode.None;
 
     private enum SelectionMode
     {
@@ -68,8 +68,8 @@ public class CombatTest : MonoBehaviour
         spawner.grid = grid;
         spawner.unitPrefab = unitPrefab;
 
-        unitA = spawner.SpawnUnit(Player.PLAYER_1, new Vector2Int(0, 0), UnitSpawner.TagUnitType.Knight);
-        unitB = spawner.SpawnUnit(Player.PLAYER_1, new Vector2Int(2, 1), UnitSpawner.TagUnitType.Archer);
+        spawner.SpawnUnit(Player.PLAYER_1, new Vector2Int(0, 0), UnitSpawner.TagUnitType.Knight);
+        spawner.SpawnUnit(Player.PLAYER_1, new Vector2Int(2, 1), UnitSpawner.TagUnitType.Archer);
         unitC = spawner.SpawnUnit(Player.PLAYER_1, new Vector2Int(0, 2), UnitSpawner.TagUnitType.Cleric);
         unitD = spawner.SpawnUnit(Player.PLAYER_1, new Vector2Int(1, 3), UnitSpawner.TagUnitType.Spearman);
         unitE = spawner.SpawnUnit(Player.PLAYER_1, new Vector2Int(0, 4), UnitSpawner.TagUnitType.Knight);
@@ -90,6 +90,15 @@ public class CombatTest : MonoBehaviour
         {
             Debug.LogWarning("CombatTest: GridEventHandler.Instance is missing, click movement prototype will not run.");
         }
+
+        if (UnitConsole.Instance != null)
+        {
+            UnitConsole.Instance.onCommandSelected += OnUnitCommandSelected;
+        }
+        else
+        {
+            Debug.LogWarning("CombatTest: UnitConsole.Instance is missing, command button mapping is disabled.");
+        }
     }
 
     private void OnDestroy()
@@ -97,6 +106,11 @@ public class CombatTest : MonoBehaviour
         if (GridEventHandler.Instance != null)
         {
             GridEventHandler.Instance.onTileClicked -= OnTileClicked;
+        }
+
+        if (UnitConsole.Instance != null)
+        {
+            UnitConsole.Instance.onCommandSelected -= OnUnitCommandSelected;
         }
     }
 
@@ -128,9 +142,7 @@ public class CombatTest : MonoBehaviour
         if (clickedTile.occupant is UnitController occupantUnit)
         {
             selectedUnit = occupantUnit;
-            selectionMode = SelectionMode.UnitSelected;
-            if (commandMode == CommandMode.Move)
-                selectionMode = SelectionMode.AwaitingMoveTarget;
+            RefreshSelectionModeForCurrentCommand();
 
             Debug.Log($"CombatTest: selected unit '{selectedUnit.name}' at {selectedUnit.position?.gridPos}. Mode={selectionMode}, Command={commandMode}");
             return;
@@ -160,10 +172,7 @@ public class CombatTest : MonoBehaviour
         }
 
         selectedUnit = unit;
-        selectionMode = SelectionMode.UnitSelected;
-
-        if (commandMode == CommandMode.Move)
-            selectionMode = SelectionMode.AwaitingMoveTarget;
+        RefreshSelectionModeForCurrentCommand();
 
         Debug.Log($"CombatTest: selected unit '{selectedUnit.name}' at {selectedUnit.position?.gridPos}. Mode={selectionMode}, Command={commandMode}");
     }
@@ -219,6 +228,49 @@ public class CombatTest : MonoBehaviour
         Debug.Log($"CombatTest: '{unit.name}' arrived at {unit.position.gridPos}. Movement complete.");
         selectionMode = SelectionMode.AwaitingMoveTarget;
         activeMoveRoutine = null;
+    }
+
+    private void OnUnitCommandSelected(UnitCommandSO command)
+    {
+        if (command == null)
+        {
+            Debug.LogWarning("CombatTest: received null command from UnitConsole.");
+            return;
+        }
+
+        switch (command.category)
+        {
+            case CommandCategory.Move:
+                commandMode = CommandMode.Move;
+                break;
+            default:
+                commandMode = CommandMode.None;
+                Debug.Log($"CombatTest: command '{command.category}' not implemented yet. Falling back to None.");
+                break;
+        }
+
+        RefreshSelectionModeForCurrentCommand();
+        Debug.Log($"CombatTest: command selected '{command.category}'. Mode={selectionMode}, Command={commandMode}.");
+    }
+
+    private void RefreshSelectionModeForCurrentCommand()
+    {
+        if (selectionMode == SelectionMode.Moving)
+        {
+            return;
+        }
+
+        if (selectedUnit == null)
+        {
+            selectionMode = SelectionMode.Idle;
+            return;
+        }
+
+        selectionMode = SelectionMode.UnitSelected;
+        if (commandMode == CommandMode.Move)
+        {
+            selectionMode = SelectionMode.AwaitingMoveTarget;
+        }
     }
 
     private void CancelSelectionMode()
