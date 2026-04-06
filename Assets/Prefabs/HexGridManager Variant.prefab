@@ -65,6 +65,10 @@ PrefabInstance:
       value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
+      propertyPath: generationMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: mountainChance
       value: 0.82
       objectReference: {fileID: 0}
@@ -72,6 +76,10 @@ PrefabInstance:
       propertyPath: deepOceanSprite
       value: 
       objectReference: {fileID: 584785962, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
+    - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
+      propertyPath: biomeControlMask
+      value: 
+      objectReference: {fileID: 2800000, guid: f32e747f1c16249aca89bd73a368f724, type: 3}
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: grassRock2Chance
       value: 0.118
