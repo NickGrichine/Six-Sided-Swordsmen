@@ -12,6 +12,8 @@ public class GridData{
     public int oceanBorderThickness;
     public int cameraBorderTiles;
 
+    public List<TileData> tiles = new List<TileData>();
+
     // Sprites can be disregarded from data persistence as they are retrievable
     // public Sprite floorSprite;
     // public Sprite wallSprite;

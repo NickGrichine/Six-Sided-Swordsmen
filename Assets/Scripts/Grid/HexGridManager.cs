@@ -373,7 +373,7 @@ public class HexGridManager : MonoBehaviour
                 break;
 
             case TileType.MOUNTAIN:
-                tile.altitude = 3;
+                tile.altitude = 5;
                 tile.passable = false;
                 tile.moveCost = 999;
                 break;
@@ -662,6 +662,28 @@ public class HexGridManager : MonoBehaviour
         }
 
         return ids;
+    }
+
+    public void RebuildNeighborsFromIds()
+    {
+        foreach (Tile tile in GetAllTiles())
+        {
+            if (tile == null || tile.IsNull) continue;
+        
+            tile.neighbors.Clear();
+
+            foreach (int neighborId in tile.neighborIds)
+            {
+                Tile neighbor = GetTileById(neighborId);
+                if (neighbor != null && !neighbor.IsNull && neighbor != tile)
+                {
+                    if (!tile.neighbors.Contains(neighbor))
+                    {
+                        tile.neighbors.Add(neighbor);
+                    }
+                }
+            }
+        }
     }
 
     public Tile GetTileAt(Vector2Int coord)

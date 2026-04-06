@@ -10,7 +10,7 @@ public class DataManager : Singleton <DataManager> {
     private SaveSlot activeSlot;
     private SaveSlot[] slots = new SaveSlot[3]; //todo Assign slots 
 
-    public void Load(SaveSlot slot) {
+    public void Load(int game) {
         //get game from Unity Engine and read data before saving to object
         //SaveData data = data.getData();
         //SaveData data = JsonUtility.FromJson<SaveData>();
@@ -20,15 +20,11 @@ public class DataManager : Singleton <DataManager> {
         // open and read it with a file reader
         // turn the contents of the file into a string; this string has the json contents of SaveData
         // pass that string into FromJsons
-        string path = slot.Path;
+        activeSlot = slots[game];
+        string path = activeSlot.Path;
         string json = File.ReadAllText(path);
         SaveData obj = JsonUtility.FromJson<SaveData>(json);
-        slot.Data = obj;
-
-        activeSlot = slot;
-
-        //todo: add debug-log statements
-        
+        activeSlot.Data = obj;
     }
     //Create Save Data as an argument
     public void Save(HexGridManager grid, GridData gridData, int gameId) { //*CALLED IN START AT END OF GAME
@@ -36,6 +32,16 @@ public class DataManager : Singleton <DataManager> {
         string json = JsonUtility.ToJson(gridData, true); //Data record for save data
         string path = Path.Combine(Application.persistentDataPath, "Game" + gameId + ".json");
         activeSlot = new SaveSlot(new SaveData("Game " + gameId, gameId, grid), path);
+
+        //Assumes there exists some vacant slot --> slot container is not full
+        for(int i = 0; i < 3; i++)
+        {
+            if(slots[i] != null)
+            {
+                slots[i] = activeSlot;
+            }
+        }
+
         File.WriteAllText(path, json);
 
         Debug.Log("Saved JSON to: " + path);
@@ -84,14 +90,14 @@ public class DataManager : Singleton <DataManager> {
     }
 
 
-    public void Start()
-    {
+    // public void Start()
+    // {
         
-    }
+    // }
 
-    public void OnApplicationQuit()
-    {
+    // public void OnApplicationQuit()
+    // {
         
-    }
+    // }
 
 }

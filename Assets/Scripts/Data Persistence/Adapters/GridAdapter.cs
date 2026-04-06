@@ -13,11 +13,12 @@ public static class GridAdapter{
             oceanBorderThickness = grid.OceanBorderThickness,
             cameraBorderTiles = grid.CameraBorderTiles,
         };
+
         //TODO: NEED GRID TO BE PUBLIC FIELD
-        // foreach (var tile in grid.grid)
-        // {
-        //     TileAdapter.ToData(tile);
-        // }
+        foreach (var tile in grid.Grid)
+        {
+            TileAdapter.ToData(tile);
+        }
         return data;
     }
 

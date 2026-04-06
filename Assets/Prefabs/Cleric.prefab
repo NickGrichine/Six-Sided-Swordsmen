@@ -46,12 +46,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e78ea29473e79d6489b09d04ee5d4c1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UnitID: 0
   teamID: 0
   position: {fileID: 0}
   refData: {fileID: 11400000, guid: a31f448e57447bc4e9fc8cabb850f5df, type: 2}
   healthManager: {fileID: 5852851653461846090}
-  commands: []
+  commands:
+  - {fileID: 11400000, guid: bb5d824c83e61374d884dad29993341e, type: 2}
+  - {fileID: 11400000, guid: baca70979cf89da41bde30187bf10ff8, type: 2}
   movesRemaining: 0
   spriteRenderer: {fileID: -3586668808884303377}
 --- !u!114 &5852851653461846090
