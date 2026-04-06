@@ -158,7 +158,7 @@ MonoBehaviour:
   teamID: 0
   position: {fileID: 0}
   refData: {fileID: 11400000, guid: 34dbeaf81524f9145a8b7707d0dca66a, type: 2}
-  healthManager: {fileID: 5852851653461846090}
+  healthManager: {fileID: 4716744645374018364}
   commands: []
   movesRemaining: 0
   spriteRenderer: {fileID: -3586668808884303377}
