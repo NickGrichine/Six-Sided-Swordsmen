@@ -46,6 +46,10 @@ public class HexGridManager : MonoBehaviour
     [Range(0f, 1f)] public float oceanChance = 0.18f; // chance for tile to become ocean
     [Range(0f, 1f)] public float purpleChance = 0.32f; // chance for title to become purple
     [Range(0f, 0.5f)] public float grassVariantChance = 0.08f; // chance for grass tile to use flower variant
+    [Range(0f, 1f)] public float mountainChance = 0.72f; // chance for tile to turn into mountain
+    [Range(0.01f, 0.3f)] public float mountainScale = 0.09f; // Size of the noise pattern
+    [Range(0f, 1f)] public float mountainBlendChance = 0.35f; // Chance for blending between mountain types 
+
 
     private Tile[,] grid;
 
@@ -98,59 +102,63 @@ public class HexGridManager : MonoBehaviour
 
     private void GenerateBiomePlan(TileType[,] plannedTypes)
     {
-        // Creates random starting offsets for Perlin noise (for smooth patterns)
         float purpleNoiseOffsetX = Random.Range(0f, 999f);
         float purpleNoiseOffsetY = Random.Range(0f, 999f);
         float oceanNoiseOffsetX = Random.Range(0f, 999f);
         float oceanNoiseOffsetY = Random.Range(0f, 999f);
+        float mountainNoiseOffsetX = Random.Range(0f, 999f);
+        float mountainNoiseOffsetY = Random.Range(0f, 999f);
 
-        // How stretched or clumpy the noise is
         float biomeScale = 0.18f;
         float oceanScale = 0.14f;
+        float mountainScaleLocal = mountainScale; // use inspector value
 
-        // Define rectangular bounds of the playable area inside full bordered map
         int playableMinQ = playableOffsetQ;
         int playableMaxQ = playableOffsetQ + width - 1;
         int playableMinR = playableOffsetR;
         int playableMaxR = playableOffsetR + height - 1;
 
-        // Loops through entire map
         for (int q = 0; q < totalWidth; q++)
         {
             for (int r = 0; r < totalHeight; r++)
             {
-                // Checks if the coordinate is outside the playable rectangle
                 bool outsidePlayableArea =
                     q < playableMinQ ||
                     q > playableMaxQ ||
                     r < playableMinR ||
                     r > playableMaxR;
 
-                // Entire outer border area is forced ocean
                 if (outsidePlayableArea)
                 {
                     plannedTypes[q, r] = TileType.OCEAN_DEEP;
                     continue;
                 }
 
-                // Local coordinates inside the playable area
                 int localQ = q - playableOffsetQ;
                 int localR = r - playableOffsetR;
 
-                // Checks if the tile is in the outer 2 rings of the playable area
                 bool isNearInnerBorder =
                     localQ <= 1 ||
                     localR <= 1 ||
                     localQ >= width - 2 ||
                     localR >= height - 2;
 
-                // Compute a smooth purple-biome noise value
                 float purpleNoise = Mathf.PerlinNoise(
                     purpleNoiseOffsetX + localQ * biomeScale,
                     purpleNoiseOffsetY + localR * biomeScale
                 );
 
-                // Keep outer 2 rings of the playable area as land
+                float oceanNoise = Mathf.PerlinNoise(
+                    oceanNoiseOffsetX + localQ * oceanScale,
+                    oceanNoiseOffsetY + localR * oceanScale
+                );
+
+                float mountainNoise = Mathf.PerlinNoise(
+                    mountainNoiseOffsetX + localQ * mountainScaleLocal,
+                    mountainNoiseOffsetY + localR * mountainScaleLocal
+                );
+
+                // keep outer 2 rings as land and avoid mountains there
                 if (isNearInnerBorder)
                 {
                     plannedTypes[q, r] = purpleNoise < purpleChance
@@ -159,20 +167,27 @@ public class HexGridManager : MonoBehaviour
                     continue;
                 }
 
-                // Compute ocean noise for inner playable areas
-                float oceanNoise = Mathf.PerlinNoise(
-                    oceanNoiseOffsetX + localQ * oceanScale,
-                    oceanNoiseOffsetY + localR * oceanScale
-                );
-
-                // If ocean nosie is low enough, turn tile into deep ocean
+                // ocean first
                 if (oceanNoise < oceanChance)
                 {
                     plannedTypes[q, r] = TileType.OCEAN_DEEP;
                     continue;
                 }
 
-                // If tile is not ocean, it becomes land (grassland/purpleland)
+                // mountain ranges / clumps
+                if (mountainNoise > mountainChance)
+                {
+                    plannedTypes[q, r] = TileType.MOUNTAIN;
+                    continue;
+                }
+
+                // optional fuzzy foothills around mountain ranges
+                if (mountainNoise > mountainChance - 0.08f && Random.value < mountainBlendChance)
+                {
+                    plannedTypes[q, r] = TileType.MOUNTAIN;
+                    continue;
+                }
+
                 plannedTypes[q, r] = purpleNoise < purpleChance
                     ? TileType.PURPLELAND
                     : TileType.GRASSLAND;
@@ -349,7 +364,7 @@ public class HexGridManager : MonoBehaviour
         switch (tile.type)
         {
             case TileType.GRASSLAND:
-                tile.altitude = Random.value < 0.70f ? 0 : (Random.value < 0.85f ? 1 : 2);
+                tile.altitude = Random.value < 0.82f ? 0 : 1;
                 tile.passable = true;
                 tile.moveCost = 1;
                 break;
