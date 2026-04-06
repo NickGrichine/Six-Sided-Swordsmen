@@ -19,7 +19,10 @@ public class HexGridManager : MonoBehaviour
     public enum GenerationMode { Procedural, Static }
 
     [Header("Map Generation")]
-    public GenerationMode generationMode = GenerationMode.Procedural;
+    public GenerationMode generationMode = GenerationMode.Static;
+
+    [Header("Procedural Control")]
+    public Texture2D biomeControlMask;
 
     [Header("Biome Sprites")]
     public Sprite grassFlatSprite;      // Grass, no rocks
@@ -56,15 +59,11 @@ public class HexGridManager : MonoBehaviour
     [Range(0f, 1f)] public float grassRock1Chance = 0.18f;
     [Range(0f, 1f)] public float grassRock2Chance = 0.07f;
 
-
     [Range(0f, 1f)] public float mountainChance = 0.82f; // chance for tile to turn into mountain
     [Range(0.01f, 0.3f)] public float mountainScale = 0.09f; // Size of the noise pattern
     [Range(0f, 1f)] public float mountainBlendChance = 0.10f; // Chance for blending between mountain types 
 
-
     private Tile[,] grid;
-
-    // public Fields
 
     public Tile[,] Grid => grid;
 
@@ -73,29 +72,24 @@ public class HexGridManager : MonoBehaviour
     public int PlayableOffsetQ => playableOffsetQ;
     public int PlayableOffsetR => playableOffsetR;
     public int OceanBorderThickness => oceanBorderThickness;
-    public int CameraBorderTiles => cameraBorderTiles; 
+    public int CameraBorderTiles => cameraBorderTiles;
 
     [ContextMenu("Generate Grid")]
     public void GenerateGrid()
     {
-        ClearGrid(); // Clear old tiles
+        ClearGrid();
 
-        // Outer ring offset for ocean border
         playableOffsetQ = oceanBorderThickness;
         playableOffsetR = oceanBorderThickness;
 
-        // compute the size of the whole map
         totalWidth = width + oceanBorderThickness * 2;
         totalHeight = height + oceanBorderThickness * 2;
 
-        // Stores tile & types for the grid
         grid = new Tile[totalWidth, totalHeight];
         TileType[,] plannedTypes = new TileType[totalWidth, totalHeight];
 
-        // Fill plannedTypes with grassland/purpleland/deep ocean depending on rule & noise
-        GenerateBiomePlan(plannedTypes);
+        GenerateBiomePlanByMode(plannedTypes);
 
-        // Loops through every coordinate and create a tile there
         for (int q = 0; q < totalWidth; q++)
         {
             for (int r = 0; r < totalHeight; r++)
@@ -104,226 +98,60 @@ public class HexGridManager : MonoBehaviour
             }
         }
 
-        LinkNeighbors(); // Connect each tile to its adjacent hexes
-        ApplyShorelines(); // Apply shoreline rules to deep ocean tiles touching land
-        RefreshAllTileVisuals(); // Assign sprites to all tiles
-        CenterCameraOnPlayableArea(); // Moves the camera to the middle of the playable region
-        UpdateCameraBoundsToPlayableArea(); // Sets the camera bounds
+        LinkNeighbors();
+        ApplyShorelines();
+        RefreshAllTileVisuals();
+        CenterCameraOnPlayableArea();
+        UpdateCameraBoundsToPlayableArea();
     }
 
-    private void GenerateBiomePlan(TileType[,] plannedTypes)
+    private void GenerateBiomePlanByMode(TileType[,] plannedTypes)
     {
-        float purpleNoiseOffsetX = Random.Range(0f, 999f);
-        float purpleNoiseOffsetY = Random.Range(0f, 999f);
-        float oceanNoiseOffsetX = Random.Range(0f, 999f);
-        float oceanNoiseOffsetY = Random.Range(0f, 999f);
-        float mountainNoiseOffsetX = Random.Range(0f, 999f);
-        float mountainNoiseOffsetY = Random.Range(0f, 999f);
-
-        float biomeScale = 0.18f;
-        float oceanScale = 0.14f;
-        float mountainScaleLocal = mountainScale; // use inspector value
-
-        int playableMinQ = playableOffsetQ;
-        int playableMaxQ = playableOffsetQ + width - 1;
-        int playableMinR = playableOffsetR;
-        int playableMaxR = playableOffsetR + height - 1;
-
-        for (int q = 0; q < totalWidth; q++)
+        switch (generationMode)
         {
-            for (int r = 0; r < totalHeight; r++)
-            {
-                bool outsidePlayableArea =
-                    q < playableMinQ ||
-                    q > playableMaxQ ||
-                    r < playableMinR ||
-                    r > playableMaxR;
+            case GenerationMode.Static:
+                StaticBiomeGenerator.Generate(this, plannedTypes);
+                break;
 
-                if (outsidePlayableArea)
-                {
-                    plannedTypes[q, r] = TileType.OCEAN_DEEP;
-                    continue;
-                }
+            case GenerationMode.Procedural:
+                // TODO: implement WFC biome generation
+                WFCBiomeGenerator.Generate(this, plannedTypes);
+                break;
 
-                int localQ = q - playableOffsetQ;
-                int localR = r - playableOffsetR;
-
-                bool isNearInnerBorder =
-                    localQ <= 1 ||
-                    localR <= 1 ||
-                    localQ >= width - 2 ||
-                    localR >= height - 2;
-
-                float purpleNoise = Mathf.PerlinNoise(
-                    purpleNoiseOffsetX + localQ * biomeScale,
-                    purpleNoiseOffsetY + localR * biomeScale
-                );
-
-                float oceanNoise = Mathf.PerlinNoise(
-                    oceanNoiseOffsetX + localQ * oceanScale,
-                    oceanNoiseOffsetY + localR * oceanScale
-                );
-
-                float mountainNoise = Mathf.PerlinNoise(
-                    mountainNoiseOffsetX + localQ * mountainScaleLocal,
-                    mountainNoiseOffsetY + localR * mountainScaleLocal
-                );
-
-                // keep outer 2 rings as land and avoid mountains there
-                if (isNearInnerBorder)
-                {
-                    plannedTypes[q, r] = purpleNoise < purpleChance
-                        ? TileType.PURPLELAND
-                        : TileType.GRASSLAND;
-                    continue;
-                }
-
-                // ocean first
-                if (oceanNoise < oceanChance)
-                {
-                    plannedTypes[q, r] = TileType.OCEAN_DEEP;
-                    continue;
-                }
-
-                // mountain ranges / clumps
-                if (mountainNoise > mountainChance)
-                {
-                    plannedTypes[q, r] = TileType.MOUNTAIN;
-                    continue;
-                }
-
-                // optional fuzzy foothills around mountain ranges
-                if (mountainNoise > mountainChance - 0.03f && Random.value < mountainBlendChance)
-                {
-                    plannedTypes[q, r] = TileType.MOUNTAIN;
-                    continue;
-                }
-
-                plannedTypes[q, r] = purpleNoise < purpleChance
-                    ? TileType.PURPLELAND
-                    : TileType.GRASSLAND;
-            }
-        }
-    }
-
-    private void GenerateBiomePlan2(TileType[,] plannedTypes)
-    {
-        float oceanNoiseOffsetX = Random.Range(0f, 999f);
-        float oceanNoiseOffsetY = Random.Range(0f, 999f);
-        float regionNoiseOffsetX = Random.Range(0f, 999f);
-        float regionNoiseOffsetY = Random.Range(0f, 999f);
-
-        float oceanScale = 0.14f;
-        float regionScale = 0.05f; // lower = larger biome regions
-
-        int playableMinQ = playableOffsetQ;
-        int playableMaxQ = playableOffsetQ + width - 1;
-        int playableMinR = playableOffsetR;
-        int playableMaxR = playableOffsetR + height - 1;
-
-        for (int q = 0; q < totalWidth; q++)
-        {
-            for (int r = 0; r < totalHeight; r++)
-            {
-                bool outsidePlayableArea =
-                    q < playableMinQ ||
-                    q > playableMaxQ ||
-                    r < playableMinR ||
-                    r > playableMaxR;
-
-                if (outsidePlayableArea)
-                {
-                    plannedTypes[q, r] = TileType.OCEAN_DEEP;
-                    continue;
-                }
-
-                int localQ = q - playableOffsetQ;
-                int localR = r - playableOffsetR;
-
-                bool isNearInnerBorder =
-                    localQ <= 1 ||
-                    localR <= 1 ||
-                    localQ >= width - 2 ||
-                    localR >= height - 2;
-
-                float oceanNoise = Mathf.PerlinNoise(
-                    oceanNoiseOffsetX + localQ * oceanScale,
-                    oceanNoiseOffsetY + localR * oceanScale
-                );
-
-                float regionNoise = Mathf.PerlinNoise(
-                    regionNoiseOffsetX + localQ * regionScale,
-                    regionNoiseOffsetY + localR * regionScale
-                );
-
-                // protect the playable inner border from water/mountains
-                if (isNearInnerBorder)
-                {
-                    plannedTypes[q, r] = regionNoise < 0.35f
-                        ? TileType.PURPLELAND
-                        : TileType.GRASSLAND;
-                    continue;
-                }
-
-                // water first
-                if (oceanNoise < oceanChance)
-                {
-                    plannedTypes[q, r] = TileType.OCEAN_DEEP;
-                    continue;
-                }
-
-                // land biome regions
-                if (regionNoise < 0.28f)
-                {
-                    plannedTypes[q, r] = TileType.PURPLELAND;
-                }
-                else if (regionNoise < 0.78f)
-                {
-                    plannedTypes[q, r] = TileType.GRASSLAND;
-                }
-                else
-                {
-                    plannedTypes[q, r] = TileType.MOUNTAIN;
-                }
-            }
+            default:
+                StaticBiomeGenerator.Generate(this, plannedTypes);
+                break;
         }
     }
 
     private void UpdateCameraBoundsToPlayableArea()
     {
-        // Checks for camera instance
         if (CameraController.Instance == null)
             return;
 
-        // Get the main camera
         Camera cam = Camera.main;
         if (cam == null || !cam.orthographic)
             return;
 
-        // Track world-space bounding box
         float minWorldX = float.MaxValue;
         float maxWorldX = float.MinValue;
         float minWorldY = float.MaxValue;
         float maxWorldY = float.MinValue;
 
-        // Define rectangular bounds of the playable area inside full bordered map
         int boundedMinQ = Mathf.Max(0, playableOffsetQ - cameraBorderTiles);
         int boundedMaxQ = Mathf.Min(totalWidth - 1, playableOffsetQ + width - 1 + cameraBorderTiles);
         int boundedMinR = Mathf.Max(0, playableOffsetR - cameraBorderTiles);
         int boundedMaxR = Mathf.Min(totalHeight - 1, playableOffsetR + height - 1 + cameraBorderTiles);
 
-        // Loops through only bounded region
         for (int q = boundedMinQ; q <= boundedMaxQ; q++)
         {
             for (int r = boundedMinR; r <= boundedMaxR; r++)
             {
-                // Get each tile and its world-space position
                 Tile tile = grid[q, r];
                 if (tile == null) continue;
 
                 Vector3 pos = tile.transform.position;
 
-                // Track the extreme edges of the region
                 if (pos.x < minWorldX) minWorldX = pos.x;
                 if (pos.x > maxWorldX) maxWorldX = pos.x;
                 if (pos.y < minWorldY) minWorldY = pos.y;
@@ -331,29 +159,24 @@ public class HexGridManager : MonoBehaviour
             }
         }
 
-        // Define extra edge padding
         float tilePaddingLeft   = hexSize * 1.0f;
         float tilePaddingRight  = hexSize * 1.0f;
         float tilePaddingBottom = hexSize * 0.7f;
         float tilePaddingTop    = hexSize * 0.25f;
 
-        // Expand raw bounds outwards
         minWorldX -= tilePaddingLeft;
         maxWorldX += tilePaddingRight;
         minWorldY -= tilePaddingBottom;
         maxWorldY += tilePaddingTop;
 
-        // Half the visible size of the camera view
         float halfCameraHeight = cam.orthographicSize;
         float halfCameraWidth = cam.orthographicSize * cam.aspect;
 
-        // Convert map-edge bounds into camera-center bounds
         float clampedMinX = minWorldX + halfCameraWidth;
         float clampedMaxX = maxWorldX - halfCameraWidth;
         float clampedMinY = minWorldY + halfCameraHeight;
         float clampedMaxY = maxWorldY - halfCameraHeight;
 
-        // If the camera view is wider than allowed map region, collpase bounds to the center
         if (clampedMinX > clampedMaxX)
         {
             float centerX = (minWorldX + maxWorldX) * 0.5f;
@@ -368,7 +191,6 @@ public class HexGridManager : MonoBehaviour
             clampedMaxY = centerY;
         }
 
-        // Send the computed bounds to the camera controller
         CameraController.Instance.SetBounds(
             clampedMinX,
             clampedMaxX,
@@ -376,7 +198,6 @@ public class HexGridManager : MonoBehaviour
             clampedMaxY
         );
 
-        // Clamp the current camera position
         Vector3 camPos = cam.transform.position;
         camPos.x = Mathf.Clamp(camPos.x, clampedMinX, clampedMaxX);
         camPos.y = Mathf.Clamp(camPos.y, clampedMinY, clampedMaxY);
@@ -408,7 +229,6 @@ public class HexGridManager : MonoBehaviour
 
                 Vector3 pos = tile.transform.position;
 
-                // Find world bounds
                 if (pos.x < minWorldX) minWorldX = pos.x;
                 if (pos.x > maxWorldX) maxWorldX = pos.x;
                 if (pos.y < minWorldY) minWorldY = pos.y;
@@ -416,7 +236,6 @@ public class HexGridManager : MonoBehaviour
             }
         }
 
-        // Set the camera position to the center of the bounds
         Vector3 camPos = cam.transform.position;
         camPos.x = (minWorldX + maxWorldX) * 0.5f;
         camPos.y = (minWorldY + maxWorldY) * 0.5f;
@@ -430,7 +249,6 @@ public class HexGridManager : MonoBehaviour
         tile.gridPos = new Vector2Int(q, r);
         tile.tileId = GetTileId(q, r);
 
-        // Flat-top odd-q layout using hex math, not sprite bounds
         float xPos = hexSize * horizontalStepMultiplier * q + horizontalNudge;
         float yPos = hexSize * verticalStepMultiplier * (r + oddColumnOffsetMultiplier * (q & 1)) + verticalNudge;
 
@@ -489,19 +307,19 @@ public class HexGridManager : MonoBehaviour
         float roll = Random.value;
 
         if (roll < grassFlowerChance)
-            return 3; // flower
+            return 3;
 
         roll -= grassFlowerChance;
 
         if (roll < grassRock2Chance)
-            return 2; // more rocks
+            return 2;
 
         roll -= grassRock2Chance;
 
         if (roll < grassRock1Chance)
-            return 1; // one rock
+            return 1;
 
-        return 0; // flat grass    
+        return 0;
     }
 
     private void EnsureSelectionOutline(Tile tile)
@@ -512,43 +330,36 @@ public class HexGridManager : MonoBehaviour
 
     private void EnsureBaseOutline(Tile tile)
     {
-        // Looks under tile GameObject for "BaseOutline"
         Transform existing = tile.transform.Find("BaseOutline");
         GameObject outlineObj;
 
-        // If outline exist, use it
         if (existing != null)
         {
             outlineObj = existing.gameObject;
         }
-        else // create new "BaseOutline" and make it a child of the tile
+        else
         {
             outlineObj = new GameObject("BaseOutline");
             outlineObj.transform.SetParent(tile.transform, false);
         }
 
-        // Checks whether the outline object already has a SpriteRenderer
         SpriteRenderer outlineRenderer = outlineObj.GetComponent<SpriteRenderer>();
         if (outlineRenderer == null)
             outlineRenderer = outlineObj.AddComponent<SpriteRenderer>();
 
-        // Assign the base outline sprite
         outlineRenderer.sprite = baseOutlineSprite;
         outlineRenderer.color = Color.white;
 
-        // Match the outline's sorting layer and order to the tile's
         if (tile.spriteRenderer != null)
         {
             outlineRenderer.sortingLayerID = tile.spriteRenderer.sortingLayerID;
             outlineRenderer.sortingOrder = tile.spriteRenderer.sortingOrder + 1;
         }
 
-        // Ensure it matches the tile's center
         outlineObj.transform.localPosition = Vector3.zero;
         outlineObj.transform.localRotation = Quaternion.identity;
         outlineObj.transform.localScale = Vector3.one;
 
-        // Turn base outline on
         outlineObj.SetActive(true);
     }
 
@@ -580,14 +391,13 @@ public class HexGridManager : MonoBehaviour
         if (tile.spriteRenderer != null)
         {
             outlineRenderer.sortingLayerID = tile.spriteRenderer.sortingLayerID;
-            outlineRenderer.sortingOrder = tile.spriteRenderer.sortingOrder + 2; // Make sure it on top of the base outline
+            outlineRenderer.sortingOrder = tile.spriteRenderer.sortingOrder + 2;
         }
 
         outlineObj.transform.localPosition = Vector3.zero;
         outlineObj.transform.localRotation = Quaternion.identity;
         outlineObj.transform.localScale = Vector3.one;
 
-        // Turn selection outline off
         outlineObj.SetActive(false);
         tile.selectionOutline = outlineObj;
     }
