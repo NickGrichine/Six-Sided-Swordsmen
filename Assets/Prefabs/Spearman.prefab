@@ -154,6 +154,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e78ea29473e79d6489b09d04ee5d4c1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UnitID: 0
   teamID: 0
   position: {fileID: 0}
   refData: {fileID: 11400000, guid: 34dbeaf81524f9145a8b7707d0dca66a, type: 2}

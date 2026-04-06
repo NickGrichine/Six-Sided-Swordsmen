@@ -10,8 +10,6 @@ public class UnitConsole : Singleton<UnitConsole>
 {
     private const int _command_size = 5;
 
-    public event Action<UnitCommandSO> onCommandSelected;
-
     public CustomButton[] commandButtons = new CustomButton[_command_size];
     [SerializeField] private CustomButton unitIcon;
 
@@ -32,12 +30,6 @@ public class UnitConsole : Singleton<UnitConsole>
         ClearUnitConsole();
         if (GridEventHandler.Instance)
             GridEventHandler.Instance.onTileClicked += UpdateUnitConsole;
-    }
-
-    private void OnDestroy()
-    {
-        if (GridEventHandler.Instance)
-            GridEventHandler.Instance.onTileClicked -= UpdateUnitConsole;
     }
 
     public void UpdateUnitConsole(Tile tile)
@@ -81,7 +73,8 @@ public class UnitConsole : Singleton<UnitConsole>
         // Set command buttons:
         foreach (UnitCommandSO command in unitController.commands)
         {
-            SetCommandButton(OnCommandClicked, null, command);
+            // TODO: add onClick/onHover Actions:
+            SetCommandButton(null, null, command);
         }
 
         // TODO: Set unit icon:
@@ -142,17 +135,6 @@ public class UnitConsole : Singleton<UnitConsole>
             command.ClearIcon();
             command.SetState(Button.BUTTON_STATE.INACTIVE);
         }
-    }
-
-    private void OnCommandClicked(Button button)
-    {
-        if (!(button is CustomButton customButton))
-            return;
-
-        if (!(customButton.displayedObject is UnitCommandSO unitCommand))
-            return;
-
-        onCommandSelected?.Invoke(unitCommand);
     }
 
     /// ------------------

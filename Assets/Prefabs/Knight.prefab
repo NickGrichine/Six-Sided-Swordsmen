@@ -53,6 +53,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e78ea29473e79d6489b09d04ee5d4c1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UnitID: 0
   teamID: 0
   position: {fileID: 0}
   refData: {fileID: 11400000, guid: b0b42cdd824572b4d8afaaa1487f9c27, type: 2}
