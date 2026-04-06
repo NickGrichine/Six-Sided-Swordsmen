@@ -9,6 +9,13 @@ public class HexGridManager : MonoBehaviour
     public int height = 10;  // r rows
     public float hexSize = 1f; // Base Spacing factor for hex layout
 
+    [Header("Hex Layout Tuning")]
+    [SerializeField] private float horizontalStepMultiplier = 1.48f;
+    [SerializeField] private float verticalStepMultiplier = 1.73205f; // Mathf.Sqrt(3f)
+    [SerializeField] private float oddColumnOffsetMultiplier = 0.50f;
+    [SerializeField] private float horizontalNudge = 0f;
+    [SerializeField] private float verticalNudge = 0f;
+
     public enum GenerationMode { Procedural, Static }
 
     [Header("Map Generation")]
@@ -45,10 +52,14 @@ public class HexGridManager : MonoBehaviour
     [Header("Generation Tuning")]
     [Range(0f, 1f)] public float oceanChance = 0.18f; // chance for tile to become ocean
     [Range(0f, 1f)] public float purpleChance = 0.32f; // chance for title to become purple
-    [Range(0f, 0.5f)] public float grassVariantChance = 0.08f; // chance for grass tile to use flower variant
-    [Range(0f, 1f)] public float mountainChance = 0.72f; // chance for tile to turn into mountain
+    [Range(0f, 1f)] public float grassFlowerChance = 0.08f;
+    [Range(0f, 1f)] public float grassRock1Chance = 0.18f;
+    [Range(0f, 1f)] public float grassRock2Chance = 0.07f;
+
+
+    [Range(0f, 1f)] public float mountainChance = 0.82f; // chance for tile to turn into mountain
     [Range(0.01f, 0.3f)] public float mountainScale = 0.09f; // Size of the noise pattern
-    [Range(0f, 1f)] public float mountainBlendChance = 0.35f; // Chance for blending between mountain types 
+    [Range(0f, 1f)] public float mountainBlendChance = 0.10f; // Chance for blending between mountain types 
 
 
     private Tile[,] grid;
@@ -182,7 +193,7 @@ public class HexGridManager : MonoBehaviour
                 }
 
                 // optional fuzzy foothills around mountain ranges
-                if (mountainNoise > mountainChance - 0.08f && Random.value < mountainBlendChance)
+                if (mountainNoise > mountainChance - 0.03f && Random.value < mountainBlendChance)
                 {
                     plannedTypes[q, r] = TileType.MOUNTAIN;
                     continue;
@@ -191,6 +202,89 @@ public class HexGridManager : MonoBehaviour
                 plannedTypes[q, r] = purpleNoise < purpleChance
                     ? TileType.PURPLELAND
                     : TileType.GRASSLAND;
+            }
+        }
+    }
+
+    private void GenerateBiomePlan2(TileType[,] plannedTypes)
+    {
+        float oceanNoiseOffsetX = Random.Range(0f, 999f);
+        float oceanNoiseOffsetY = Random.Range(0f, 999f);
+        float regionNoiseOffsetX = Random.Range(0f, 999f);
+        float regionNoiseOffsetY = Random.Range(0f, 999f);
+
+        float oceanScale = 0.14f;
+        float regionScale = 0.05f; // lower = larger biome regions
+
+        int playableMinQ = playableOffsetQ;
+        int playableMaxQ = playableOffsetQ + width - 1;
+        int playableMinR = playableOffsetR;
+        int playableMaxR = playableOffsetR + height - 1;
+
+        for (int q = 0; q < totalWidth; q++)
+        {
+            for (int r = 0; r < totalHeight; r++)
+            {
+                bool outsidePlayableArea =
+                    q < playableMinQ ||
+                    q > playableMaxQ ||
+                    r < playableMinR ||
+                    r > playableMaxR;
+
+                if (outsidePlayableArea)
+                {
+                    plannedTypes[q, r] = TileType.OCEAN_DEEP;
+                    continue;
+                }
+
+                int localQ = q - playableOffsetQ;
+                int localR = r - playableOffsetR;
+
+                bool isNearInnerBorder =
+                    localQ <= 1 ||
+                    localR <= 1 ||
+                    localQ >= width - 2 ||
+                    localR >= height - 2;
+
+                float oceanNoise = Mathf.PerlinNoise(
+                    oceanNoiseOffsetX + localQ * oceanScale,
+                    oceanNoiseOffsetY + localR * oceanScale
+                );
+
+                float regionNoise = Mathf.PerlinNoise(
+                    regionNoiseOffsetX + localQ * regionScale,
+                    regionNoiseOffsetY + localR * regionScale
+                );
+
+                // protect the playable inner border from water/mountains
+                if (isNearInnerBorder)
+                {
+                    plannedTypes[q, r] = regionNoise < 0.35f
+                        ? TileType.PURPLELAND
+                        : TileType.GRASSLAND;
+                    continue;
+                }
+
+                // water first
+                if (oceanNoise < oceanChance)
+                {
+                    plannedTypes[q, r] = TileType.OCEAN_DEEP;
+                    continue;
+                }
+
+                // land biome regions
+                if (regionNoise < 0.28f)
+                {
+                    plannedTypes[q, r] = TileType.PURPLELAND;
+                }
+                else if (regionNoise < 0.78f)
+                {
+                    plannedTypes[q, r] = TileType.GRASSLAND;
+                }
+                else
+                {
+                    plannedTypes[q, r] = TileType.MOUNTAIN;
+                }
             }
         }
     }
@@ -331,29 +425,19 @@ public class HexGridManager : MonoBehaviour
 
     private Tile CreateTile(int q, int r, TileType plannedType)
     {
-        // Clone the tile prefab as a child of the grid manager
         Tile tile = Instantiate(tilePrefab, transform);
 
-        // Store grid coordinates
         tile.gridPos = new Vector2Int(q, r);
-
-        // Assign tile ID
         tile.tileId = GetTileId(q, r);
 
-        // Convert hex grid coordinates to world-space position
-        float xPos = hexSize * 1.5f * q; // shifts right by 1.5 hex radii
-        float yPos = hexSize * Mathf.Sqrt(3f) * (r + 0.5f * (q & 1));        
-        
-        // Position tile in the scene
-        tile.transform.localPosition = new Vector3(xPos, yPos, 0);
+        // Flat-top odd-q layout using hex math, not sprite bounds
+        float xPos = hexSize * horizontalStepMultiplier * q + horizontalNudge;
+        float yPos = hexSize * verticalStepMultiplier * (r + oddColumnOffsetMultiplier * (q & 1)) + verticalNudge;
 
-        // Assign terrain type
+        tile.transform.localPosition = new Vector3(xPos, yPos, 0f);
+
         tile.type = plannedType;
-
-        // Set altitude, passable, and move cost
         ConfigureTileGameplay(tile);
-
-        // Ensure thin outline and selection outline
         EnsureSelectionOutline(tile);
 
         return tile;
@@ -364,35 +448,60 @@ public class HexGridManager : MonoBehaviour
         switch (tile.type)
         {
             case TileType.GRASSLAND:
-                tile.altitude = Random.value < 0.82f ? 0 : 1;
+                tile.altitude = 0;
                 tile.passable = true;
                 tile.moveCost = 1;
+                tile.grassVariant = RollGrassVariant();
                 break;
 
             case TileType.PURPLELAND:
                 tile.altitude = Random.value < 0.70f ? 0 : (Random.value < 0.85f ? 1 : 2);
                 tile.passable = true;
                 tile.moveCost = 1;
+                tile.grassVariant = 0;
                 break;
 
             case TileType.SHORE:
                 tile.altitude = 0;
                 tile.passable = false;
                 tile.moveCost = 999;
+                tile.grassVariant = 0;
                 break;
 
             case TileType.OCEAN_DEEP:
                 tile.altitude = 0;
                 tile.passable = false;
                 tile.moveCost = 999;
+                tile.grassVariant = 0;
                 break;
 
             case TileType.MOUNTAIN:
                 tile.altitude = 5;
                 tile.passable = false;
                 tile.moveCost = 999;
+                tile.grassVariant = 0;
                 break;
         }
+    }
+
+    private int RollGrassVariant()
+    {
+        float roll = Random.value;
+
+        if (roll < grassFlowerChance)
+            return 3; // flower
+
+        roll -= grassFlowerChance;
+
+        if (roll < grassRock2Chance)
+            return 2; // more rocks
+
+        roll -= grassRock2Chance;
+
+        if (roll < grassRock1Chance)
+            return 1; // one rock
+
+        return 0; // flat grass    
     }
 
     private void EnsureSelectionOutline(Tile tile)
@@ -539,7 +648,7 @@ public class HexGridManager : MonoBehaviour
         switch (tile.type)
         {
             case TileType.GRASSLAND:
-                return GetGrassSprite(tile.altitude);
+                return GetGrassSprite(tile);
 
             case TileType.PURPLELAND:
                 return GetPurpleSprite();
@@ -558,20 +667,22 @@ public class HexGridManager : MonoBehaviour
         }
     }
 
-    private Sprite GetGrassSprite(int altitude)
+    private Sprite GetGrassSprite(Tile tile)
     {
-        if (altitude <= 0)
+        switch (tile.grassVariant)
         {
-            if (grassFlowerSprite != null && Random.value < grassVariantChance)
-                return grassFlowerSprite;
+            case 1:
+                return grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite;
 
-            return grassFlatSprite;
+            case 2:
+                return grassRock2Sprite != null ? grassRock2Sprite : grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite;
+
+            case 3:
+                return grassFlowerSprite != null ? grassFlowerSprite : grassFlatSprite;
+
+            default:
+                return grassFlatSprite;
         }
-
-        if (altitude == 1)
-            return grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite;
-
-        return grassRock2Sprite != null ? grassRock2Sprite : grassRock1Sprite;
     }
 
     private Sprite GetPurpleSprite()
