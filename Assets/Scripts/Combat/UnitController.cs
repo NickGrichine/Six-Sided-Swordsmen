@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// public enum Team { Player1 = 1, Player2 = 2 }
+public enum Team { Player1 = 1, Player2 = 2 }
 
 public class UnitController : MonoBehaviour, IOccupant
 {
@@ -9,17 +9,11 @@ public class UnitController : MonoBehaviour, IOccupant
     public Player teamID;
     public Tile position;
     public UnitDataSO refData;
-    public HealthManager healthManager;
+    public HealthManager healthManager;    
     public List<UnitCommandSO> commands = new List<UnitCommandSO>();
     public int movesRemaining;
 
     [SerializeField] private SpriteRenderer spriteRenderer;
-
-    private Dictionary<Player, Color> playerColors = new Dictionary<Player, Color>()
-    {
-        { Player.PLAYER_1, Color.blue },
-        { Player.PLAYER_2, Color.red }, // NOTE: Add more as needed.
-    };
 
     private void Awake()
     {
@@ -33,21 +27,70 @@ public class UnitController : MonoBehaviour, IOccupant
         {
             healthManager.onDeath += OnDeath;
         }
+
+        //healthManager.SetMaxHealth(healthManager.maxHealth);
     }
 
-    public void SetTeam(Player team)
+    private void Update()
     {
-        teamID = team;
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            healthManager.TakeDamage(5);
+        }
+
+
+        // TESTING HEALTH BAR
+        if (!IsCurrentlySelected())
+        {
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            healthManager.TakeDamage(1);
+
+            Debug.Log("UNIT TOOK DAMAGE! New health: " + healthManager.health);
+        }
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            healthManager.GainHealth(1);
+
+            Debug.Log("UNIT GAINED HEALTH! New health: " + healthManager.health);
+        }
+        // if (Input.GetKeyDown(KeyCode.I))
+        // {
+        //     healthManager.SetMaxHealth(10);
+
+        //     Debug.Log("UNIT HEALTH RESET! New health: " + healthManager.health);
+        // }
+    }
+
+    // This function is for making sure that only the unit that is currently selected (highlighted tile) will be affected
+    // ie. making sure that any changes in Health status only applies to this selected unit, rather than ALL units
+    private bool IsCurrentlySelected()
+    {
+        if (position == null || position.occupant != this)
+        {
+            return false;
+        }
+
+        GridEventHandler gridEventHandler = GridEventHandler.Instance;
+        if (gridEventHandler == null)
+        {
+            return false;
+        }
+
+        return gridEventHandler.SelectedTile == position;
+    }
+
+
+
+    public void SetTeam(Team team)
+    {
+        teamID = (Player)team;
         if (spriteRenderer != null)
         {
-            // spriteRenderer.color = team == Player.PLAYER_1 ? Color.blue : Color.red;
-            if (playerColors.TryGetValue(team, out Color teamColor))
-                spriteRenderer.color = teamColor;
-            else
-            {
-                Debug.LogError($"No color defined for player: {team}.");
-                spriteRenderer.color = Color.magenta;
-            }
+            spriteRenderer.color = team == Team.Player1 ? Color.blue : Color.red;
         }
     }
 

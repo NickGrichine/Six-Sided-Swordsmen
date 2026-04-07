@@ -294,7 +294,7 @@ public class HexGridManager : MonoBehaviour
                 break;
 
             case TileType.MOUNTAIN:
-                tile.altitude = 5;
+                tile.altitude = 3;
                 tile.passable = false;
                 tile.moveCost = 999;
                 tile.grassVariant = 0;
