@@ -1,35 +1,11 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class Tile : MonoBehaviour  
+public class Tile : MonoBehaviour
 {
-    // Null-object pattern
-    private static Tile _nullTile;
-    public static Tile NullTile // Creates hidden placeholder tile 
-    {
-        get
-        {
-            if (_nullTile != null) return _nullTile;
-
-            var go = new GameObject("[NullTile]");
-            go.hideFlags = HideFlags.HideAndDontSave;
-            DontDestroyOnLoad(go);
-
-            _nullTile = go.AddComponent<Tile>();
-            _nullTile.enabled = false; // never runs Update; Start won't run when disabled
-            _nullTile.passable = false;
-            _nullTile.moveCost = int.MaxValue;
-            _nullTile.gridPos = new Vector2Int(int.MinValue, int.MinValue);
-            _nullTile.tileId = -1;
-
-            return _nullTile;
-        }
-    }
-
-    public bool IsNull => this == NullTile;
     public TileType type;
     public int altitude = 0;
-    public int grassVariant = 0; 
+    public int grassVariant = 0;
     // 0 = flat, 1 = rock1, 2 = rock2, 3 = flower
 
     public SpriteRenderer spriteRenderer;
@@ -40,7 +16,7 @@ public class Tile : MonoBehaviour
     public Vector2Int gridPos; // q column, r row in flat-top odd-q offset coords
     public int tileId = -1; // tile id
 
-    public bool passable = true; // Checks whether tile is water / unmovable    
+    public bool passable = true; // Checks whether tile is water / unmovable
     public int moveCost = 1; // Cost to travel to current tile
 
     public IOccupant occupant;
@@ -78,10 +54,10 @@ public class Tile : MonoBehaviour
         }
     }
 
-    // Static method for distance 
-   public static int GetDistance(Tile a, Tile b)
+    // Static method for distance
+    public static int GetDistance(Tile a, Tile b)
     {
-       return HexMath.Distance(a.gridPos, b.gridPos);
+        return HexMath.Distance(a.gridPos, b.gridPos);
     }
 
     public bool CanClimbFrom(Tile from)
@@ -99,13 +75,13 @@ public class Tile : MonoBehaviour
     // Add neighbor if not included in neighbors
     public void AddNeighbor(Tile neighbor)
     {
-        if (neighbor == null || neighbor.IsNull || neighbor == this)
+        if (neighbor == null || neighbor == this)
             return;
 
         if (!neighbors.Contains(neighbor))
         {
-            neighbors.Add(neighbor); 
-            neighborIds.Add(neighbor.tileId); 
+            neighbors.Add(neighbor);
+            neighborIds.Add(neighbor.tileId);
         }
     }
 
