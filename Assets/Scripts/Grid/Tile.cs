@@ -29,6 +29,8 @@ public class Tile : MonoBehaviour
     public bool IsNull => this == NullTile;
     public TileType type;
     public int altitude = 0;
+    public int grassVariant = 0; 
+    // 0 = flat, 1 = rock1, 2 = rock2, 3 = flower
 
     public SpriteRenderer spriteRenderer;
     public GameObject selectionOutline;
