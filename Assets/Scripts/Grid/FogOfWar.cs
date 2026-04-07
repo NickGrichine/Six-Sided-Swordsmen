@@ -42,7 +42,7 @@ public class FogOfWar : MonoBehaviour
 
             foreach (Tile tile in unitVisibleTiles)
             {
-                if (tile != null && !tile.IsNull)
+                if (tile != null)
                     visibleTiles.Add(tile);
             }
         }

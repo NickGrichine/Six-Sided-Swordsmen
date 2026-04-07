@@ -110,7 +110,7 @@ public class CombatTest : MonoBehaviour
 
     private void OnTileClicked(Tile clickedTile)
     {
-        if (clickedTile == null || clickedTile == Tile.NullTile)
+        if (clickedTile == null)
             return;
 
         if (selectionMode == SelectionMode.Moving)

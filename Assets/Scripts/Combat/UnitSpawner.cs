@@ -52,7 +52,7 @@ public class UnitSpawner : MonoBehaviour
     {
         // Check center first
         Tile tile = grid.GetTileAt(center);
-        if (tile != null && !tile.IsNull && tile.passable && !tile.IsOccupied)
+        if (tile != null && tile.passable && !tile.IsOccupied)
             return tile;
 
         // Check neighbors
@@ -65,7 +65,7 @@ public class UnitSpawner : MonoBehaviour
         {
             Vector2Int pos = center + dir;
             tile = grid.GetTileAt(pos);
-            if (tile != null && !tile.IsNull && tile.passable && !tile.IsOccupied)
+            if (tile != null && tile.passable && !tile.IsOccupied)
                 return tile;
         }
 

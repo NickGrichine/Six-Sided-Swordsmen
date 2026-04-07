@@ -1,40 +1,31 @@
-using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class GridEventHandler : Singleton<GridEventHandler>
 {
-    public event Action<Tile> onTileClicked;
-
-    [Header("Input")]
-    [SerializeField] private Camera worldCamera;
-    [SerializeField] private LayerMask tileLayerMask = ~0;
-    [SerializeField] private int mouseButton = 0;
+    [Header("Mouse Settings")]
+    [SerializeField] private int mouseButton = 0; // 0 = left click, 1 = right click, etc.
 
     private Tile _selectedTile;
+    public Tile SelectedTile => _selectedTile;
 
-    public Tile SelectedTile => _selectedTile != null ? _selectedTile : Tile.NullTile;
+    public event System.Action<Tile> onTileClicked;
 
     protected override void Awake()
     {
         base.Awake();
-        _selectedTile = Tile.NullTile;
+        _selectedTile = null;
     }
 
     public void ClearSelectedTile()
     {
-        if (_selectedTile != null && _selectedTile != Tile.NullTile)
+        if (_selectedTile != null)
         {
             _selectedTile.HideOutline();
         }
 
-        _selectedTile = Tile.NullTile;
-        Debug.Log("Selection cleared (SelectedTile = NullTile).");
-    }
-
-    private void Reset()
-    {
-        worldCamera = Camera.main;
+        _selectedTile = null;
+        Debug.Log("Selection cleared (SelectedTile = null).");
     }
 
     private void Update()
@@ -45,25 +36,18 @@ public class GridEventHandler : Singleton<GridEventHandler>
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             return;
 
-        if (worldCamera == null)
-            worldCamera = Camera.main;
+        Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 point = new Vector2(mouseWorld.x, mouseWorld.y);
 
-        if (worldCamera == null)
-            return;
-    
-        // Screen space to world space
-        Vector3 world = worldCamera.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 world2 = new Vector2(world.x, world.y);
-
-        Collider2D col = Physics2D.OverlapPoint(world2, tileLayerMask);
-        if (!col)
+        Collider2D hit = Physics2D.OverlapPoint(point);
+        if (hit == null)
             return;
 
-        Tile tile = col.GetComponentInParent<Tile>();
+        Tile tile = hit.GetComponent<Tile>();
         if (tile == null)
             return;
 
-        if (_selectedTile != null && _selectedTile != Tile.NullTile && _selectedTile != tile)
+        if (_selectedTile != null && _selectedTile != tile)
         {
             _selectedTile.HideOutline();
         }
@@ -71,7 +55,7 @@ public class GridEventHandler : Singleton<GridEventHandler>
         _selectedTile = tile;
         _selectedTile.ShowOutline();
 
-        Debug.Log($"Clicked tile: {tile.name} at {tile.transform.position} layer={LayerMask.LayerToName(tile.gameObject.layer)}");
+        Debug.Log($"Clicked tile: {_selectedTile.name} at {_selectedTile.gridPos}");
 
         onTileClicked?.Invoke(tile);
     }

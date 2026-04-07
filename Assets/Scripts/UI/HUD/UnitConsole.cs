@@ -34,7 +34,7 @@ public class UnitConsole : Singleton<UnitConsole>
 
     public void UpdateUnitConsole(Tile tile)
     {
-        if (tile == Tile.NullTile) return;
+        if (tile == null) return;
 
         IOccupant occupant = tile.occupant;
         if (occupant == null)

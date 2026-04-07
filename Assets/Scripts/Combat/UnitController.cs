@@ -174,7 +174,7 @@ public class UnitController : MonoBehaviour, IOccupant
     {
         HashSet<Tile> visibleTiles = new HashSet<Tile>();
 
-        if (position == null || position.IsNull)
+        if (position == null)
             return visibleTiles;
 
         Tile[,] grid = HexGridManager.Instance != null ? HexGridManager.Instance.Grid : null;
@@ -185,7 +185,7 @@ public class UnitController : MonoBehaviour, IOccupant
 
         foreach (Tile tile in grid)
         {
-            if (tile == null || tile.IsNull)
+            if (tile == null)
                 continue;
 
             if (Tile.GetDistance(position, tile) <= visionRange)

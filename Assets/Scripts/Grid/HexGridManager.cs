@@ -579,7 +579,7 @@ public class HexGridManager : Singleton<HexGridManager>
     public Tile GetTileById(int tileId)
     {
         if (!TryGetCoordFromTileId(tileId, out int q, out int r))
-            return Tile.NullTile;
+            return null;
 
         return grid[q, r];
     }
@@ -588,12 +588,12 @@ public class HexGridManager : Singleton<HexGridManager>
     {
         var ids = new List<int>();
 
-        if (tile == null || tile.IsNull)
+        if (tile == null)
             return ids;
 
         foreach (Tile neighbor in tile.neighbors)
         {
-            if (neighbor != null && !neighbor.IsNull)
+            if (neighbor != null)
                 ids.Add(neighbor.tileId);
         }
 
@@ -604,14 +604,14 @@ public class HexGridManager : Singleton<HexGridManager>
     {
         foreach (Tile tile in GetAllTiles())
         {
-            if (tile == null || tile.IsNull) continue;
-        
+            if (tile == null) continue;
+
             tile.neighbors.Clear();
 
             foreach (int neighborId in tile.neighborIds)
             {
                 Tile neighbor = GetTileById(neighborId);
-                if (neighbor != null && !neighbor.IsNull && neighbor != tile)
+                if (neighbor != null && neighbor != tile)
                 {
                     if (!tile.neighbors.Contains(neighbor))
                     {
@@ -628,7 +628,7 @@ public class HexGridManager : Singleton<HexGridManager>
         int r = coord.y + playableOffsetR;
 
         if (q < 0 || q >= totalWidth || r < 0 || r >= totalHeight)
-            return Tile.NullTile;
+            return null;
 
         return grid[q, r];
     }
