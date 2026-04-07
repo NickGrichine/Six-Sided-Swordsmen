@@ -90,7 +90,7 @@ public class UnitController : MonoBehaviour, IOccupant
         teamID = (Player)team;
         if (spriteRenderer != null)
         {
-            spriteRenderer.color = team == Team.Player1 ? Color.blue : Color.red;
+            spriteRenderer.color = team == Team.Player1 ? Colours.PLAYER_GREEN : Colours.PLAYER_YELLOW;
         }
     }
 
@@ -122,6 +122,8 @@ public class UnitController : MonoBehaviour, IOccupant
             position.occupant = null;
             position = null;
         }
+
+        GameManager.Instance?.NotifyGameStateChanged();
         Destroy(gameObject);
     }
 
@@ -168,6 +170,31 @@ public class UnitController : MonoBehaviour, IOccupant
         return false;
     }
 
+    public HashSet<Tile> CanSee()
+    {
+        HashSet<Tile> visibleTiles = new HashSet<Tile>();
+
+        if (position == null || position.IsNull)
+            return visibleTiles;
+
+        Tile[,] grid = HexGridManager.Instance != null ? HexGridManager.Instance.Grid : null;
+        if (grid == null)
+            return visibleTiles;
+
+        int visionRange = refData != null ? Mathf.Max(0, refData.visionRange) : 0;
+
+        foreach (Tile tile in grid)
+        {
+            if (tile == null || tile.IsNull)
+                continue;
+
+            if (Tile.GetDistance(position, tile) <= visionRange)
+                visibleTiles.Add(tile);
+        }
+
+        return visibleTiles;
+    }
+
 /*
     public bool MoveToTile(Tile destination)
     {
@@ -197,6 +224,10 @@ public class UnitController : MonoBehaviour, IOccupant
     }
 
     public void OnNewTurn() => StartTurn();
-    public void OnMoved(Tile from, Tile to) { UpdatePosition(); }
+    public void OnMoved(Tile from, Tile to)
+    {
+        UpdatePosition();
+        GameManager.Instance?.NotifyGameStateChanged();
+    }
     public void onDeath() => OnDeath();
 }

@@ -25,6 +25,10 @@ public class Tile : MonoBehaviour
         altitude >= 2 ||
         type == TileType.MOUNTAIN; // Mountain always blocks
 
+    [SerializeField] private Sprite[] fogSprites = new Sprite[0];
+    [SerializeField] private SpriteRenderer fogSpriteRenderer;
+
+
     private void Awake()
     {
         if (spriteRenderer == null)
@@ -35,6 +39,13 @@ public class Tile : MonoBehaviour
         if (selectionOutline != null)
         {
             selectionOutline.SetActive(false);
+        }
+
+print (fogSprites == null ? "fogSprites is null" : $"fogSprites length: {fogSprites.Length}");
+        float randomFogIndex = Random.Range(0, fogSprites.Length);
+        if (fogSpriteRenderer != null && fogSprites.Length > 0)
+        {
+            fogSpriteRenderer.sprite = fogSprites[(int)randomFogIndex];
         }
     }
 
@@ -51,6 +62,14 @@ public class Tile : MonoBehaviour
         if (selectionOutline != null)
         {
             selectionOutline.SetActive(false);
+        }
+    }
+
+    public void ShowFog(bool hasFog)
+    {
+        if (fogSpriteRenderer != null)
+        {
+            fogSpriteRenderer.enabled = hasFog;
         }
     }
 

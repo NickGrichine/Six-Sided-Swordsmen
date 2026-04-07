@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HexGridManager : MonoBehaviour
+public class HexGridManager : Singleton<HexGridManager>
 {
     [Header("Grid Settings")]
     public Tile tilePrefab; 

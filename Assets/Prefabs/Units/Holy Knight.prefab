@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5852851653461846090}
   - component: {fileID: -3586668808884303377}
   m_Layer: 0
-  m_Name: Cleric
+  m_Name: Holy Knight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
