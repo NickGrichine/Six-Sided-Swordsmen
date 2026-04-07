@@ -39,6 +39,7 @@ public class UnitSpawner : MonoBehaviour
         unit.SetTeam((Team)team);
         if (tile.TryEnter(unit))
         {
+            GameManager.Instance?.NotifyGameStateChanged();
             return unit;
         }
 

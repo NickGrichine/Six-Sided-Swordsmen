@@ -10,9 +10,16 @@ public class GameManager : Singleton<GameManager>
 
     public event Action<int> OnTurnStart;   // passes new turn
     public event Action<int> OnTurnEnd;     // passes turn that's ending
+    public event Action OnGameStateChanged;
 
     private bool gameOngoing;
 
+
+    private void Start()
+    {
+        // For testing purposes, start the game immediately
+        StartGame();
+    }
 
     public void StartGame()
     {
@@ -20,6 +27,7 @@ public class GameManager : Singleton<GameManager>
         TurnNumber = 1;
         gameOngoing = true;
         OnTurnStart?.Invoke(TurnNumber);
+        NotifyGameStateChanged();
     }
 
     public void EndTurn()
@@ -33,6 +41,13 @@ public class GameManager : Singleton<GameManager>
         TurnPlayer = NextPlayer();
 
         OnTurnStart?.Invoke(TurnNumber);
+        NotifyGameStateChanged();
+    }
+
+    public void NotifyGameStateChanged()
+    {
+        print("Game state change event invoked");
+        OnGameStateChanged?.Invoke();
     }
     
     private Player NextPlayer()
