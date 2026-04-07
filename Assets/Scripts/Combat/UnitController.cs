@@ -90,7 +90,7 @@ public class UnitController : MonoBehaviour, IOccupant
         teamID = (Player)team;
         if (spriteRenderer != null)
         {
-            spriteRenderer.color = team == Team.Player1 ? Color.blue : Color.red;
+            spriteRenderer.color = team == Team.Player1 ? Colours.PLAYER_GREEN : Colours.PLAYER_YELLOW;
         }
     }
 
