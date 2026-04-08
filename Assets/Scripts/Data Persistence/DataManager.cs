@@ -29,6 +29,8 @@ public class DataManager : Singleton <DataManager> {
         string json = File.ReadAllText(path);
         SaveData obj = JsonUtility.FromJson<SaveData>(json);
         activeSlot.Data = obj; //activeSlot now is a reference to our game when we need to save it later
+
+        //TODO NEED to reconstruct hexgrid via gridAdapter and thereby the game scene
     }
     //Create Save Data as an argument
     //new SaveData("Game " + gameId, gameId, grid)
@@ -41,6 +43,7 @@ public class DataManager : Singleton <DataManager> {
         string path = Path.Combine(Application.persistentDataPath, "Game" + gameId + ".json");
 
         //3. Handle slot Container --> possible need for UI
+        activeSlot = new SaveSlot(data, path);
         //3.1 Decide where to slot the SaveData wrapper object
         //3.1.1 User chooses which slot --> need for UI
 
