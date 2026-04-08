@@ -31,6 +31,7 @@ public class DataManager : Singleton <DataManager> {
         activeSlot.Data = obj; //activeSlot now is a reference to our game when we need to save it later
 
         //TODO NEED to reconstruct hexgrid via gridAdapter and thereby the game scene
+        GridAdapter.FromData(HexGridManager.Instance, obj.GetGridData());
     }
     //Create Save Data as an argument
     //new SaveData("Game " + gameId, gameId, grid)
