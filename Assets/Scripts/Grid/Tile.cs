@@ -24,6 +24,8 @@ public class Tile : MonoBehaviour
     public bool BlockSight =>
         altitude >= 2 ||
         type == TileType.MOUNTAIN; // Mountain always blocks
+    private bool hasFog = true;
+    public bool Visible => !hasFog;
 
     [SerializeField] private Sprite[] fogSprites = new Sprite[0];
     [SerializeField] private SpriteRenderer fogSpriteRenderer;
@@ -67,6 +69,8 @@ print (fogSprites == null ? "fogSprites is null" : $"fogSprites length: {fogSpri
 
     public void ShowFog(bool hasFog)
     {
+        this.hasFog = hasFog;
+
         if (fogSpriteRenderer != null)
         {
             fogSpriteRenderer.enabled = hasFog;

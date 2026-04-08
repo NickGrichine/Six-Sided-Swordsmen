@@ -15,4 +15,5 @@ MonoBehaviour:
   maxHealth: 12
   attackStr: 4
   maxMovesPerTurn: 1
-  attackRange: 2
+  attackRange: 1
+  visionRange: 2

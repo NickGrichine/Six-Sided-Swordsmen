@@ -69,7 +69,7 @@ public class UnitController : MonoBehaviour, IOccupant
     // ie. making sure that any changes in Health status only applies to this selected unit, rather than ALL units
     private bool IsCurrentlySelected()
     {
-        if (position == null || position.occupant != this)
+        if (position == null || !ReferenceEquals(position.occupant, this))
         {
             return false;
         }
@@ -91,6 +91,19 @@ public class UnitController : MonoBehaviour, IOccupant
         if (spriteRenderer != null)
         {
             spriteRenderer.color = team == Team.Player1 ? Colours.PLAYER_GREEN : Colours.PLAYER_YELLOW;
+        }
+    }
+
+    public void Show(bool shouldShow)
+    {
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.enabled = shouldShow;
+        }
+
+        if (healthManager != null && healthManager.healthBar != null)
+        {
+            healthManager.healthBar.Show(shouldShow);
         }
     }
 

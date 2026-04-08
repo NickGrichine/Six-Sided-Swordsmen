@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 15
   attackStr: 5
-  maxMovesPerTurn: 2
+  maxMovesPerTurn: 1
   attackRange: 1
-  visionRange: 4
+  visionRange: 2

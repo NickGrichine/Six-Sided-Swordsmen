@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b206e5188d8b9f04f8ae108dcd38bcc2, type: 3}
   m_Name: Holy Knight
   m_EditorClassIdentifier: 
-  maxHealth: 5
-  attackStr: 0
-  maxMovesPerTurn: 1
-  attackRange: 3
+  maxHealth: 20
+  attackStr: 6
+  maxMovesPerTurn: 2
+  attackRange: 1
+  visionRange: 4

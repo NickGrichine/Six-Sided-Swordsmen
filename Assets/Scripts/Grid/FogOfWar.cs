@@ -55,6 +55,11 @@ public class FogOfWar : MonoBehaviour
 
             bool hasFog = !visibleTiles.Contains(tile);
             tile.ShowFog(hasFog);
+
+            if (tile.IsOccupied && tile.occupant is UnitController unit)
+            {
+                unit.Show(tile.Visible);
+            }
         }
     }
 }

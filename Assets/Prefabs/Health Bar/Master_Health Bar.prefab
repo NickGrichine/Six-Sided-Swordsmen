@@ -141,14 +141,6 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2151334765941454215, guid: 9f3909dca2725495c9c201b7197349c3, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.050000004
-      objectReference: {fileID: 0}
-    - target: {fileID: 2151334765941454215, guid: 9f3909dca2725495c9c201b7197349c3, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.050000004
-      objectReference: {fileID: 0}
-    - target: {fileID: 2151334765941454215, guid: 9f3909dca2725495c9c201b7197349c3, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -178,11 +170,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2151334765941454215, guid: 9f3909dca2725495c9c201b7197349c3, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0.15001431
+      value: 0.125
       objectReference: {fileID: 0}
     - target: {fileID: 2151334765941454215, guid: 9f3909dca2725495c9c201b7197349c3, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.47997844
+      value: 0.375
       objectReference: {fileID: 0}
     - target: {fileID: 2151334765941454215, guid: 9f3909dca2725495c9c201b7197349c3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -200,10 +192,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Health Bar Canvas
       objectReference: {fileID: 0}
-    - target: {fileID: 2571941051921949534, guid: 9f3909dca2725495c9c201b7197349c3, type: 3}
-      propertyPath: m_PresetInfoIsWorld
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5278018787154934976, guid: 9f3909dca2725495c9c201b7197349c3, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -211,10 +199,6 @@ PrefabInstance:
     - target: {fileID: 5278018787154934976, guid: 9f3909dca2725495c9c201b7197349c3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7978983008098928265, guid: 9f3909dca2725495c9c201b7197349c3, type: 3}
-      propertyPath: m_SortingLayer
-      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
