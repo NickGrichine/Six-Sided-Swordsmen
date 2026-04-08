@@ -17,21 +17,46 @@ public class DataManager : Singleton <DataManager> {
     private SaveSlot[] slots = new SaveSlot[3]; //todo Assign slots 
 
     public void Load(int gameId) {
-        //get game from Unity Engine and read data before saving to object
-        
-        activeSlot = slots[gameId];
 
-        //Check if this game exists
-        if(activeSlot != null)
-            ReturnToMenuAfterDelay("The game you're looking for does not exist! Back to menu!", 2f);
+        // For Demo purposes
 
-        string path = activeSlot.Path;
+        // Validate slot index
+
+        if (gameId < 0 || gameId >= slots.Length)
+        {
+            StartCoroutine(ReturnToMenuAfterDelay("Invalid game slot. Back to menu!", 2f));
+            return;
+        }
+
+        // Builds the save-file path
+        string path = Path.Combine(Application.persistentDataPath, "Game" + gameId + ".json");
+
+        // Checks if the file does exist
+        if (!File.Exists(path))
+        {
+            StartCoroutine(ReturnToMenuAfterDelay("The game you're looking for does not exist! Back to menu!", 2f));
+            return;
+        }
+
+        // Read JSON and deserialize
         string json = File.ReadAllText(path);
         SaveData obj = JsonUtility.FromJson<SaveData>(json);
-        activeSlot.Data = obj; //activeSlot now is a reference to our game when we need to save it later
 
-        //TODO NEED to reconstruct hexgrid via gridAdapter and thereby the game scene
+        if (obj == null)
+        {
+            StartCoroutine(ReturnToMenuAfterDelay("The game you're looking for does not exist! Back to menu!", 2f));
+            return;
+        }
+
+        // Rebuilds active slot from loaded file
+        activeSlot = new SaveSlot(obj, path); // Set active slot to the loaded game
+        slots[gameId] = activeSlot; // Store the loaded game in the corresponding slot
+
+        // Reconstructs grid from saved data
         GridAdapter.FromData(HexGridManager.Instance, obj.GetGridData());
+
+        Debug.Log("Loaded game from: " + path);
+
     }
     //Create Save Data as an argument
     //new SaveData("Game " + gameId, gameId, grid)

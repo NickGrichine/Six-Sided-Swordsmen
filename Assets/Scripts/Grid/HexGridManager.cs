@@ -3,6 +3,10 @@ using UnityEngine;
 
 public class HexGridManager : Singleton<HexGridManager>
 {
+
+    [Header("Start Settings")]
+    [SerializeField] private bool generateOnStart = true;
+
     [Header("Grid Settings")]
     public Tile tilePrefab; 
     public int width = 10;   // q cols
@@ -546,7 +550,11 @@ public class HexGridManager : Singleton<HexGridManager>
 
     void Start()
     {
-        GenerateGrid();
+        if (generateOnStart)
+        {
+            GenerateGrid();
+
+        }
     }
 
     public IEnumerable<Tile> GetAllTiles()
