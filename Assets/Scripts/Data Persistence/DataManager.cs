@@ -37,7 +37,7 @@ public class DataManager : Singleton <DataManager> {
     //new SaveData("Game " + gameId, gameId, grid)
     public void Save(HexGridManager grid, int gameId) { //*CALLED AT END OF GAME
         //1. Grid adapter copies grid contents into GridData (done in on grid data creation --> constructor)
-        SaveData data = new SaveData("game" + gameId, gameId, grid);
+        SaveData data = new SaveData("game" + gameId, gameId, grid);    //The constructor calls adapter functions
 
         //2. create new file and write game data to json file thereby extracting file path
         string json = JsonUtility.ToJson(data, true); //Data record for save data
