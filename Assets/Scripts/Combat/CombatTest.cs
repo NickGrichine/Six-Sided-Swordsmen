@@ -192,7 +192,7 @@ public class CombatTest : MonoBehaviour
         if (activeMoveRoutine != null)
             StopCoroutine(activeMoveRoutine);
 
-        activeMoveRoutine = StartCoroutine(MoveUnitAlongPath(selectedUnit, path, 0.7f));
+        activeMoveRoutine = StartCoroutine(MoveUnitAlongPath(selectedUnit, path, 0.4f));
     }
 
     private IEnumerator MoveUnitAlongPath(UnitController unit, List<Tile> path, float secondsPerStep)
