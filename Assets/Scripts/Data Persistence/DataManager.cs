@@ -2,50 +2,99 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 [System.Serializable]
 public class DataManager : Singleton <DataManager> {
     //No read-only fields --> instead patter to mimic read-only: private + public getter
+
+    public GameObject popupPanel; //UI Panel
+    public Text popupText; //For error or confirmation messages
     
     private SaveSlot activeSlot;
     private SaveSlot[] slots = new SaveSlot[3]; //todo Assign slots 
 
-    public void Load(int game) {
+    public void Load(int gameId) {
         //get game from Unity Engine and read data before saving to object
-        //SaveData data = data.getData();
-        //SaveData data = JsonUtility.FromJson<SaveData>();
-
-
-        // first, read from the file at the filepath specified by the saveslot
-        // open and read it with a file reader
-        // turn the contents of the file into a string; this string has the json contents of SaveData
-        // pass that string into FromJsons
-        activeSlot = slots[game];
+        
+        activeSlot = slots[gameId];
         string path = activeSlot.Path;
         string json = File.ReadAllText(path);
         SaveData obj = JsonUtility.FromJson<SaveData>(json);
-        activeSlot.Data = obj;
+        activeSlot.Data = obj; //activeSlot now is a reference to our game when we need to save it later
     }
     //Create Save Data as an argument
-    public void Save(HexGridManager grid, GridData gridData, int gameId) { //*CALLED IN START AT END OF GAME
-        //create new file and write game data to json file
-        string json = JsonUtility.ToJson(gridData, true); //Data record for save data
-        string path = Path.Combine(Application.persistentDataPath, "Game" + gameId + ".json");
-        activeSlot = new SaveSlot(new SaveData("Game " + gameId, gameId, grid), path);
+    //new SaveData("Game " + gameId, gameId, grid)
+    public void Save(HexGridManager grid, int gameId) { //*CALLED AT END OF GAME
+        //1. Grid adapter copies grid contents into GridData (done in on grid data creation --> constructor)
+        SaveData data = new SaveData("game" + gameId, gameId, grid);
 
-        //Assumes there exists some vacant slot --> slot container is not full
-        for(int i = 0; i < 3; i++)
-        {
-            if(slots[i] != null)
-            {
-                slots[i] = activeSlot;
-            }
-        }
+        //2. create new file and write game data to json file thereby extracting file path
+        string json = JsonUtility.ToJson(data, true); //Data record for save data
+        string path = Path.Combine(Application.persistentDataPath, "Game" + gameId + ".json");
+
+        //3. Handle slot Container --> possible need for UI
+        //3.1 Decide where to slot the SaveData wrapper object
+
+        //-----------------------------------------
+
+        // if(activeSlot == null) //New Game
+        // {
+        //     slots[gameId] = new SaveSlot(new SaveData("Game" + gameId, gameId, grid), path);
+        //     activeSlot = slots[gameId];
+        // }
+        // else
+        // {
+        //     //activeSlot.Data = data;
+        // }
+        
+
+        // //Assumes there exists some vacant slot --> slot container is not full
+        // bool slotFilled = false;
+        // for(int i = 0; i < 3; i++)
+        // {
+        //     if(slots[i] != null)
+        //     {
+        //         slots[i] = activeSlot;
+        //         slotFilled = true;
+        //         break;
+        //     }
+        // }
+        // if (!slotFilled)
+        // {
+        //     //Throw error msg
+        //     //No available slots --> Cannot save game
+
+        //     // Show message and return to menu
+        //     StartCoroutine(ReturnToMenuAfterDelay("No available slots! Returning to menu.", 2f));
+        // }
+        //-----------------------------------------
+
+        //4. Write to json contents to object file
 
         File.WriteAllText(path, json);
 
         Debug.Log("Saved JSON to: " + path);
     }
+
+    //Helper function for slot container
+    IEnumerator ReturnToMenuAfterDelay(string message, float delay)
+    {
+    // Display the popup
+        popupText.text = message;
+        popupPanel.SetActive(true);
+
+        // Wait for delay
+        yield return new WaitForSeconds(delay);
+
+        // Hide popup and return to menu
+        //popupPanel.SetActive(false);
+        //SceneManager.LoadScene("MainMenu");
+    }
+
+    //--------------DEMO 1 -------------
 
     public DummyGame dummyLoad()
     {
@@ -68,7 +117,7 @@ public class DataManager : Singleton <DataManager> {
         Debug.Log("Dummy Game Saved");
     }
 
-
+    //------------END of DEMO 1 ---------------
 
     public SaveSlot[] GetSaveSlots() {
         return slots; 
@@ -88,16 +137,5 @@ public class DataManager : Singleton <DataManager> {
             }
         }
     }
-
-
-    // public void Start()
-    // {
-        
-    // }
-
-    // public void OnApplicationQuit()
-    // {
-        
-    // }
 
 }
