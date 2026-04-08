@@ -7,8 +7,8 @@ public class DataPersistenceDemo2 : MonoBehaviour
     {   
         //Load one game without slot capacity factored in
         //Game ID = 1 since we are operating with one game in this demo
-        int gameId = 1; //Via UI eventually
-        DataManager.Instance.Load(gameId);
+        //int gameId = 1; //Via UI eventually
+        //DataManager.Instance.Load(gameId);
     }
 
     void OnApplicationQuit()
