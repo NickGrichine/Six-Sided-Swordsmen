@@ -20,6 +20,11 @@ public class DataManager : Singleton <DataManager> {
         //get game from Unity Engine and read data before saving to object
         
         activeSlot = slots[gameId];
+
+        //Check if this game exists
+        if(activeSlot != null)
+            ReturnToMenuAfterDelay("The game you're looking for does not exist! Back to menu!", 2f);
+
         string path = activeSlot.Path;
         string json = File.ReadAllText(path);
         SaveData obj = JsonUtility.FromJson<SaveData>(json);
@@ -37,6 +42,7 @@ public class DataManager : Singleton <DataManager> {
 
         //3. Handle slot Container --> possible need for UI
         //3.1 Decide where to slot the SaveData wrapper object
+        //3.1.1 User chooses which slot --> need for UI
 
         //-----------------------------------------
 
