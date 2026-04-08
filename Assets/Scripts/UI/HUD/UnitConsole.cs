@@ -8,6 +8,8 @@ using UnityEngine.UI;
 
 public class UnitConsole : Singleton<UnitConsole>
 {
+    public event Action<UnitCommandSO> onCommandSelected;
+
     private const int _command_size = 5;
 
     public CustomButton[] commandButtons = new CustomButton[_command_size];
@@ -30,6 +32,12 @@ public class UnitConsole : Singleton<UnitConsole>
         ClearUnitConsole();
         if (GridEventHandler.Instance)
             GridEventHandler.Instance.onTileClicked += UpdateUnitConsole;
+    }
+
+    private void OnDestroy()
+    {
+        if (GridEventHandler.Instance)
+            GridEventHandler.Instance.onTileClicked -= UpdateUnitConsole;
     }
 
     public void UpdateUnitConsole(Tile tile)
@@ -73,8 +81,7 @@ public class UnitConsole : Singleton<UnitConsole>
         // Set command buttons:
         foreach (UnitCommandSO command in unitController.commands)
         {
-            // TODO: add onClick/onHover Actions:
-            SetCommandButton(null, null, command);
+            SetCommandButton(OnCommandClicked, null, command);
         }
 
         // TODO: Set unit icon:
@@ -87,6 +94,17 @@ public class UnitConsole : Singleton<UnitConsole>
         {
             SetCanvasGroupState(commandButtonArrayGroup, false);
         }
+    }
+
+    private void OnCommandClicked(Button button)
+    {
+        if (!(button is CustomButton customButton))
+            return;
+
+        if (!(customButton.displayedObject is UnitCommandSO unitCommand))
+            return;
+
+        onCommandSelected?.Invoke(unitCommand);
     }
 
     private void ClearUnitConsole()

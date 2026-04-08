@@ -51,7 +51,9 @@ MonoBehaviour:
   position: {fileID: 0}
   refData: {fileID: 11400000, guid: b0b42cdd824572b4d8afaaa1487f9c27, type: 2}
   healthManager: {fileID: 0}
-  commands: []
+  commands:
+  - {fileID: 11400000, guid: 5d082b3a1934f95449c3a067a883e236, type: 2}
+  - {fileID: 11400000, guid: e1e26134467b41d49b88e726aa445faa, type: 2}
   movesRemaining: 0
   spriteRenderer: {fileID: 218757908431768965}
 --- !u!114 &1212750771231466179

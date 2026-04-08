@@ -6,7 +6,7 @@ public class Tile : MonoBehaviour
     public TileType type;
     public int altitude = 0;
     public int grassVariant = 0;
-    // 0 = flat, 1 = rock1, 2 = rock2, 3 = flower
+    // 0 = flat, 1 = flower
 
     public SpriteRenderer spriteRenderer;
     public GameObject selectionOutline;
