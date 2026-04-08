@@ -107,6 +107,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   panSpeed: 8
   zoomSpeed: 5
-  minZoom: 5
-  maxZoom: 10
+  minZoom: 3
+  maxZoom: 6
   camera: {fileID: 5815743961294185869}

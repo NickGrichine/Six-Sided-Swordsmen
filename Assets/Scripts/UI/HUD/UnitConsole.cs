@@ -10,8 +10,6 @@ public class UnitConsole : Singleton<UnitConsole>
 {
     private const int _command_size = 5;
 
-    public event Action<UnitCommandSO> onCommandSelected;
-
     public CustomButton[] commandButtons = new CustomButton[_command_size];
     [SerializeField] private CustomButton unitIcon;
 
@@ -34,15 +32,9 @@ public class UnitConsole : Singleton<UnitConsole>
             GridEventHandler.Instance.onTileClicked += UpdateUnitConsole;
     }
 
-    private void OnDestroy()
-    {
-        if (GridEventHandler.Instance)
-            GridEventHandler.Instance.onTileClicked -= UpdateUnitConsole;
-    }
-
     public void UpdateUnitConsole(Tile tile)
     {
-        if (tile == Tile.NullTile) return;
+        if (tile == null) return;
 
         IOccupant occupant = tile.occupant;
         if (occupant == null)
@@ -81,14 +73,15 @@ public class UnitConsole : Singleton<UnitConsole>
         // Set command buttons:
         foreach (UnitCommandSO command in unitController.commands)
         {
-            SetCommandButton(OnCommandClicked, null, command);
+            // TODO: add onClick/onHover Actions:
+            SetCommandButton(null, null, command);
         }
 
         // TODO: Set unit icon:
         // unitIcon.Initialize( [sprite here] );
 
         Player current_turn_player = GameManager.Instance.TurnPlayer;
-        Player unit_belongs_to = unitController.teamID;
+        Player unit_belongs_to = (Player)unitController.teamID;
         if (unit_belongs_to == current_turn_player) SetCanvasGroupState(commandButtonArrayGroup, true);
         else
         {
@@ -142,17 +135,6 @@ public class UnitConsole : Singleton<UnitConsole>
             command.ClearIcon();
             command.SetState(Button.BUTTON_STATE.INACTIVE);
         }
-    }
-
-    private void OnCommandClicked(Button button)
-    {
-        if (!(button is CustomButton customButton))
-            return;
-
-        if (!(customButton.displayedObject is UnitCommandSO unitCommand))
-            return;
-
-        onCommandSelected?.Invoke(unitCommand);
     }
 
     /// ------------------
