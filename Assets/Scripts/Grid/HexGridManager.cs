@@ -632,4 +632,20 @@ public class HexGridManager : Singleton<HexGridManager>
 
         return grid[q, r];
     }
+
+    public void RestoreGridSettings(int width, int height, float hexSize, int oceanBorderThickness, int cameraBorderTiles)
+    {
+        this.width = width;
+        this.height = height;
+        this.hexSize = hexSize;
+        this.oceanBorderThickness = oceanBorderThickness;
+        this.cameraBorderTiles = cameraBorderTiles;
+    }
+
+    public void RefreshAfterLoad()
+    {
+        RefreshAllTileVisuals();
+        CenterCameraOnPlayableArea();
+        UpdateCameraBoundsToPlayableArea();
+    }
 }

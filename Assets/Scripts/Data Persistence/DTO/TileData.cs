@@ -8,9 +8,10 @@ public class TileData{
     public TileType type;
     public int altitude;
     //public SpriteRenderer spriteRenderer;
+    public int grassVariant;
     public Vector2Int gridPos;
     public int moveCost;
     public bool passable;
-    public List<int> neighborIds;
+    public List<int> neighborIds = new List<int>();
 
 }

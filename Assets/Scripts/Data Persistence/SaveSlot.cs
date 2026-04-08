@@ -2,20 +2,18 @@ using UnityEngine;
 
 [System.Serializable]
 public class SaveSlot {
-    [SerializeField]
-    private SaveData data; //Created when new slot is created --> need constructor
+    [SerializeField] private SaveData data; //Created when new slot is created --> need constructor
+    [SerializeField]private string path; //File path
 
-    private string path; //File path
-
-    public SaveSlot(SaveData data, string path) {
+    public SaveSlot(SaveData data, string path) 
+    {
         this.data = data;
         this.path = path;
     }
 
     public SaveData Data {
-        get{
-            return data;
-        }
+        get => data;
+
         set {
             if(value != null){
                 data = value;
@@ -27,9 +25,7 @@ public class SaveSlot {
     }
 
     public string Path{
-        get{
-            return path;
-        }
+        get => path;
         set{
             if(!string.IsNullOrEmpty(value)){
                 path = value;
@@ -40,23 +36,26 @@ public class SaveSlot {
         }
     }
 
-    public SaveData getData(){
+    public SaveData GetData(){
         return data;
     }
     
   // override object.Equals
     public override bool Equals(object obj)
     {
-        if(obj is not SaveSlot cmpdata){
+        if (obj is not SaveSlot other)
             return false;
-        }
-        return string.Compare(this.getData().getName(), cmpdata.getData().getName(), true) == 0;
+
+        if (data == null || other.data == null)
+            return false;
+
+        return string.Compare(data.GetName(), other.data.GetName(), true) == 0;
     }
     
     // override object.GetHashCode
     public override int GetHashCode()
     {
         // TODO: write implementation of GetHashCode() here
-        return getData()?.getName()?.ToLower().GetHashCode() ?? 0;
+        return data?.GetName()?.ToLower().GetHashCode() ?? 0;
     }
 }
