@@ -119,12 +119,30 @@ public class UnitController : MonoBehaviour, IOccupant
         {
             healthManager.SetMaxHealth(refData.maxHealth);
         }
+
+        // initialize moves on spawn (GameManager.OnTurnStart fires before units exist on turn 1)
+        if (refData != null)
+            movesRemaining = refData.maxMovesPerTurn;
+
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnTurnStart += OnTurnStarted;
     }
 
-    public void ConsumeMoves(int cost)
+    private void OnDestroy()
     {
-        movesRemaining -= cost;
-        if (movesRemaining < 0) movesRemaining = 0;
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnTurnStart -= OnTurnStarted;
+    }
+
+    private void OnTurnStarted(int turnNumber)
+    {
+        if ((Player)teamID == GameManager.Instance.TurnPlayer)
+            StartTurn();
+    }
+
+    public void ConsumeMoves()
+    {
+        movesRemaining = 0;
     }
 
     public void OnDeath()
@@ -138,23 +156,6 @@ public class UnitController : MonoBehaviour, IOccupant
 
         GameManager.Instance?.NotifyGameStateChanged();
         Destroy(gameObject);
-    }
-
-    public bool Attack(UnitController target)
-    {
-        var command = new AttackCommand();
-        var ctx = new CommandContext(); // no board
-        var cmdTarget = new CommandTarget(target.position, target);
-
-        if (!command.CanExecute(ctx, this, cmdTarget)) return false;
-
-        var record = command.Execute(ctx, this, cmdTarget);
-        if (record != null)
-        {
-            // Optionally store record for undo. done later.
-            return true;
-        }
-        return false;
     }
 
     public bool MoveToAdjacentTile(Tile destination)
