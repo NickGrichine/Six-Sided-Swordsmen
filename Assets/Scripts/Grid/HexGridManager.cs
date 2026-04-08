@@ -30,9 +30,11 @@ public class HexGridManager : Singleton<HexGridManager>
 
     [Header("Biome Sprites")]
     public Sprite grassFlatSprite;      // Grass, no rocks
-    public Sprite grassRock1Sprite;     // Grass, one rock
-    public Sprite grassRock2Sprite;     // Grass, more rocks
-    public Sprite grassFlowerSprite;    // Grass, flower
+    public Sprite grassFlowerSprite;    // Grass, flowers
+
+    public Sprite grassRock1Sprite;     // Grass, 1 rock
+    public Sprite grassRock2Sprite;     // Grass, 3 rocks
+    public Sprite grassRock3Sprite;     // Grass, 6 rocks
 
     public Sprite purpleFlowerSprite;   // Purple, flower
     public Sprite purpleMushroomSprite; // Purple, mushroom
@@ -40,7 +42,6 @@ public class HexGridManager : Singleton<HexGridManager>
     public Sprite shoreSprite;          // Shore
     public Sprite deepOceanSprite;      // Deep Ocean
 
-    public Sprite mountainSprite;       // Mountain
 
     [Header("Selection Outline")]
     public Sprite baseOutlineSprite; // Thin border
@@ -60,12 +61,15 @@ public class HexGridManager : Singleton<HexGridManager>
     [Range(0f, 1f)] public float oceanChance = 0.18f; // chance for tile to become ocean
     [Range(0f, 1f)] public float purpleChance = 0.32f; // chance for title to become purple
     [Range(0f, 1f)] public float grassFlowerChance = 0.08f;
-    [Range(0f, 1f)] public float grassRock1Chance = 0.18f;
-    [Range(0f, 1f)] public float grassRock2Chance = 0.07f;
 
-    [Range(0f, 1f)] public float mountainChance = 0.82f; // chance for tile to turn into mountain
-    [Range(0.01f, 0.3f)] public float mountainScale = 0.09f; // Size of the noise pattern
-    [Range(0f, 1f)] public float mountainBlendChance = 0.10f; // Chance for blending between mountain types 
+    // Mountain Altitude distribution
+    [Range(0f, 1f)] public float mountainRock1Chance = 0.45f; // Altitude 1
+    [Range(0f, 1f)] public float mountainRock2Chance = 0.35f; // Altitude 2
+
+    // Mountain biome shape
+    [Range(0f, 1f)] public float mountainChance = 0.74f; // chance for tile to turn into mountain
+    [Range(0.01f, 0.3f)] public float mountainScale = 0.07f; // Size of the noise pattern
+    [Range(0f, 1f)] public float mountainBlendChance = 0.18f; // Chance for blending between mountain types 
 
     private Tile[,] grid;
 
@@ -152,7 +156,8 @@ public class HexGridManager : Singleton<HexGridManager>
             for (int r = boundedMinR; r <= boundedMaxR; r++)
             {
                 Tile tile = grid[q, r];
-                if (tile == null) continue;
+                if (tile == null)
+                    continue;
 
                 Vector3 pos = tile.transform.position;
 
@@ -163,15 +168,13 @@ public class HexGridManager : Singleton<HexGridManager>
             }
         }
 
-        float tilePaddingLeft   = hexSize * 1.0f;
-        float tilePaddingRight  = hexSize * 1.0f;
-        float tilePaddingBottom = hexSize * 0.7f;
-        float tilePaddingTop    = hexSize * 0.25f;
+        float worldBorderX = oceanBorderThickness * hexSize * horizontalStepMultiplier;
+        float worldBorderY = oceanBorderThickness * hexSize * verticalStepMultiplier * 0.5f;
 
-        minWorldX -= tilePaddingLeft;
-        maxWorldX += tilePaddingRight;
-        minWorldY -= tilePaddingBottom;
-        maxWorldY += tilePaddingTop;
+        minWorldX -= worldBorderX;
+        maxWorldX += worldBorderX;
+        minWorldY -= worldBorderY;
+        maxWorldY += worldBorderY;
 
         float halfCameraHeight = cam.orthographicSize;
         float halfCameraWidth = cam.orthographicSize * cam.aspect;
@@ -273,11 +276,11 @@ public class HexGridManager : Singleton<HexGridManager>
                 tile.altitude = 0;
                 tile.passable = true;
                 tile.moveCost = 1;
-                tile.grassVariant = RollGrassVariant();
+                tile.grassVariant = RollGrassVariant(); // 0 = flat, 1 = flower
                 break;
 
             case TileType.PURPLELAND:
-                tile.altitude = Random.value < 0.70f ? 0 : (Random.value < 0.85f ? 1 : 2);
+                tile.altitude = 0;
                 tile.passable = true;
                 tile.moveCost = 1;
                 tile.grassVariant = 0;
@@ -298,9 +301,9 @@ public class HexGridManager : Singleton<HexGridManager>
                 break;
 
             case TileType.MOUNTAIN:
-                tile.altitude = 3;
-                tile.passable = false;
-                tile.moveCost = 999;
+                tile.altitude = RollMountainAltitude();
+                tile.passable = true;
+                tile.moveCost = tile.altitude + 1;
                 tile.grassVariant = 0;
                 break;
         }
@@ -308,22 +311,22 @@ public class HexGridManager : Singleton<HexGridManager>
 
     private int RollGrassVariant()
     {
+        return Random.value < grassFlowerChance ? 1 : 0;
+    }
+
+    private int RollMountainAltitude()
+    {
         float roll = Random.value;
 
-        if (roll < grassFlowerChance)
-            return 3;
+        if (roll < mountainRock1Chance)
+            return 1; // 1 rock
+        
+        roll -= mountainRock1Chance;
 
-        roll -= grassFlowerChance;
-
-        if (roll < grassRock2Chance)
+        if (roll < mountainRock2Chance)
             return 2;
 
-        roll -= grassRock2Chance;
-
-        if (roll < grassRock1Chance)
-            return 1;
-
-        return 0;
+        return 3;
     }
 
     private void EnsureSelectionOutline(Tile tile)
@@ -362,7 +365,7 @@ public class HexGridManager : Singleton<HexGridManager>
 
         outlineObj.transform.localPosition = Vector3.zero;
         outlineObj.transform.localRotation = Quaternion.identity;
-        outlineObj.transform.localScale = Vector3.one;
+        outlineObj.transform.localScale = new Vector3(1.01f, 1.01f, 1f); // 1.03 - 1.06 would work
 
         outlineObj.SetActive(true);
     }
@@ -474,7 +477,7 @@ public class HexGridManager : Singleton<HexGridManager>
                 return deepOceanSprite;
 
             case TileType.MOUNTAIN:
-                return mountainSprite != null ? mountainSprite : grassRock2Sprite;
+                return GetMountainSprite(tile);
 
             default:
                 return grassFlatSprite;
@@ -483,20 +486,32 @@ public class HexGridManager : Singleton<HexGridManager>
 
     private Sprite GetGrassSprite(Tile tile)
     {
-        switch (tile.grassVariant)
+        return tile.grassVariant == 1 && grassFlowerSprite != null
+            ? grassFlowerSprite
+            : grassFlatSprite;    
+    }
+
+    private Sprite GetMountainSprite(Tile tile)
+    {
+        switch (tile.altitude)
         {
             case 1:
                 return grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite;
 
             case 2:
-                return grassRock2Sprite != null ? grassRock2Sprite : grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite;
+                return grassRock2Sprite != null
+                    ? grassRock2Sprite
+                    : (grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite);
 
             case 3:
-                return grassFlowerSprite != null ? grassFlowerSprite : grassFlatSprite;
-
+                return grassRock3Sprite != null
+                    ? grassRock3Sprite
+                    : (grassRock2Sprite != null
+                        ? grassRock2Sprite
+                        : (grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite));
             default:
                 return grassFlatSprite;
-        }
+            }    
     }
 
     private Sprite GetPurpleSprite()

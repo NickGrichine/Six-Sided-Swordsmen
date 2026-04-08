@@ -119,8 +119,8 @@ public class DataManager : Singleton <DataManager> {
     IEnumerator ReturnToMenuAfterDelay(string message, float delay)
     {
     // Display the popup
-        popupText.text = message;
-        popupPanel.SetActive(true);
+        // popupText.text = message;
+        // popupPanel.SetActive(true);
 
         // Wait for delay
         yield return new WaitForSeconds(delay);
