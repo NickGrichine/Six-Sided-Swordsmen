@@ -42,6 +42,7 @@ public class DataManager : Singleton <DataManager> {
         //2. create new file and write game data to json file thereby extracting file path
         string json = JsonUtility.ToJson(data, true); //Data record for save data
         string path = Path.Combine(Application.persistentDataPath, "Game" + gameId + ".json");
+        //By now Game is saved in data persistence file (json)
 
         //3. Handle slot Container --> possible need for UI
         activeSlot = new SaveSlot(data, path);
