@@ -25,11 +25,13 @@ public class CombatTest : MonoBehaviour
     private SelectionMode selectionMode = SelectionMode.Idle;
     private UnitController selectedUnit;
     private Coroutine activeMoveRoutine;
+    private readonly IUnitCommand attackCommand = new AttackCommand();
 
     private enum CommandMode
     {
         None,
         Move,
+        Attack,
     }
 
     private CommandMode commandMode = CommandMode.None;
@@ -39,6 +41,7 @@ public class CombatTest : MonoBehaviour
         Idle,
         UnitSelected,
         AwaitingMoveTarget,
+        AwaitingAttackTarget,
         Moving,
     }
 
@@ -139,17 +142,37 @@ public class CombatTest : MonoBehaviour
 
         if (clickedTile.occupant is UnitController occupantUnit)
         {
-            selectedUnit = occupantUnit;
-            RefreshSelectionModeForCurrentCommand();
-
-            Debug.Log($"CombatTest: selected unit '{selectedUnit.name}' at {selectedUnit.position?.gridPos}. Mode={selectionMode}, Command={commandMode}");
+            HandleClickedUnit(occupantUnit);
             return;
         }
 
-        if (commandMode != CommandMode.Move || selectionMode != SelectionMode.AwaitingMoveTarget)
+        HandleClickedEmptyTile(clickedTile);
+    }
+
+    private void HandleClickedUnit(UnitController clickedUnit)
+    {
+        if (clickedUnit == null)
+            return;
+
+        bool clickedFriendly = selectedUnit != null && clickedUnit.teamID == selectedUnit.teamID;
+
+        if (selectionMode == SelectionMode.AwaitingAttackTarget && !clickedFriendly)
         {
-            Debug.Log("CombatTest: select a Move command and a unit before choosing a destination tile.");
-            return; //eventually for when button for move command is implemented
+            TryAttackSelectedUnit(clickedUnit);
+            return;
+        }
+
+        selectedUnit = clickedUnit;
+        RefreshSelectionModeForCurrentCommand();
+        Debug.Log($"CombatTest: selected unit '{selectedUnit.name}' at {selectedUnit.position?.gridPos}. Mode={selectionMode}, Command={commandMode}");
+    }
+
+    private void HandleClickedEmptyTile(Tile clickedTile)
+    {
+        if (selectionMode != SelectionMode.AwaitingMoveTarget || commandMode != CommandMode.Move)
+        {
+            Debug.Log("CombatTest: select a command and a valid target tile/unit before acting.");
+            return;
         }
 
         if (clickedTile.IsOccupied)
@@ -190,6 +213,11 @@ public class CombatTest : MonoBehaviour
         }
 
         List<Tile> path = HexPathfinder.FindPath(selectedUnit.position, destination);
+        if(path.Count>selectedUnit.movesRemaining+1) //path includes current tile, so steps = path.Count - 1
+        {
+            Debug.LogWarning($"CombatTest: destination {destination.gridPos} is too far for '{selectedUnit.name}' to move this turn. Path steps={path.Count - 1}, moves remaining={selectedUnit.movesRemaining}.");
+            return;
+        }
         if (path == null || path.Count < 2)
         {
             Debug.LogWarning($"CombatTest: no valid move path for '{selectedUnit.name}' from {selectedUnit.position.gridPos} to {destination.gridPos}.");
@@ -199,14 +227,48 @@ public class CombatTest : MonoBehaviour
         if (activeMoveRoutine != null)
             StopCoroutine(activeMoveRoutine);
 
-        activeMoveRoutine = StartCoroutine(MoveUnitAlongPath(selectedUnit, path, 1f));
+        activeMoveRoutine = StartCoroutine(MoveUnitAlongPath(selectedUnit, path, 0.3f));
+    }
+
+    private void TryAttackSelectedUnit(UnitController targetUnit)
+    {
+        if (selectedUnit == null)
+        {
+            Debug.LogWarning("CombatTest: no selected unit to perform attack.");
+            return;
+        }
+
+        if (targetUnit == null)
+        {
+            Debug.LogWarning("CombatTest: attack target is null.");
+            return;
+        }
+
+        var target = new CommandTarget(targetUnit.position, targetUnit);
+        if (!attackCommand.CanExecute(selectedUnit, target))
+        {
+            Debug.Log($"CombatTest: attack invalid from '{selectedUnit.name}' to '{targetUnit.name}'.");
+            return;
+        }
+
+        CommandExecutionRecord result = attackCommand.Execute(selectedUnit, target);
+        if (result == null)
+        {
+            Debug.LogWarning("CombatTest: attack execution returned null.");
+            return;
+        }
+
+        Debug.Log($"CombatTest: '{selectedUnit.name}' attacked '{targetUnit.name}'.");
+        commandMode = CommandMode.None;
+        RefreshSelectionModeForCurrentCommand();
     }
 
     private IEnumerator MoveUnitAlongPath(UnitController unit, List<Tile> path, float secondsPerStep)
     {
+
         selectionMode = SelectionMode.Moving;
         Debug.Log($"CombatTest: starting movement for '{unit.name}', steps={path.Count - 1}.");
-
+        int length = path.Count;
         for (int i = 1; i < path.Count; i++)
         {
             Tile next = path[i];
@@ -214,7 +276,7 @@ public class CombatTest : MonoBehaviour
             if (!moved)
             {
                 Debug.LogWarning($"CombatTest: movement failed at step {i}/{path.Count - 1} toward {next.gridPos}. Unit stopped at {unit.position?.gridPos}.");
-                selectionMode = SelectionMode.AwaitingMoveTarget;
+                selectionMode = SelectionMode.Idle;
                 activeMoveRoutine = null;
                 yield break;
             }
@@ -224,7 +286,8 @@ public class CombatTest : MonoBehaviour
         }
 
         Debug.Log($"CombatTest: '{unit.name}' arrived at {unit.position.gridPos}. Movement complete.");
-        selectionMode = SelectionMode.AwaitingMoveTarget;
+        selectionMode = SelectionMode.Idle;
+        unit.movesRemaining -= length-1;   
         activeMoveRoutine = null;
     }
 
@@ -236,19 +299,27 @@ public class CombatTest : MonoBehaviour
             return;
         }
 
-        switch (command.category)
-        {
-            case CommandCategory.Move:
-                commandMode = CommandMode.Move;
-                break;
-            default:
-                commandMode = CommandMode.None;
-                Debug.Log($"CombatTest: command '{command.category}' not implemented yet. Falling back to None.");
-                break;
-        }
+        CommandMode requestedMode = CommandModeFromCategory(command.category);
+        if (requestedMode == commandMode)
+            commandMode = CommandMode.None;
+        else
+            commandMode = requestedMode;
 
         RefreshSelectionModeForCurrentCommand();
         Debug.Log($"CombatTest: command selected '{command.category}'. Mode={selectionMode}, Command={commandMode}.");
+    }
+
+    private CommandMode CommandModeFromCategory(CommandCategory category)
+    {
+        switch (category)
+        {
+            case CommandCategory.Move:
+                return CommandMode.Move;
+            case CommandCategory.Attack:
+                return CommandMode.Attack;
+            default:
+                return CommandMode.None;
+        }
     }
 
     private void RefreshSelectionModeForCurrentCommand()
@@ -268,6 +339,10 @@ public class CombatTest : MonoBehaviour
         if (commandMode == CommandMode.Move)
         {
             selectionMode = SelectionMode.AwaitingMoveTarget;
+        }
+        else if (commandMode == CommandMode.Attack)
+        {
+            selectionMode = SelectionMode.AwaitingAttackTarget;
         }
     }
 
