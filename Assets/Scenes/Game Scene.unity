@@ -194,10 +194,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a75d04c8308471c83aad9e3449457df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  worldCamera: {fileID: 0}
-  tileLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
   mouseButton: 0
 --- !u!114 &1083728399
 MonoBehaviour:
@@ -259,6 +255,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
+      propertyPath: tilePrefab
+      value: 
+      objectReference: {fileID: 3786522473565270464, guid: 13139b24087ea4440bda16628e2b0466, type: 3}
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: oceanChance
       value: 0.18
