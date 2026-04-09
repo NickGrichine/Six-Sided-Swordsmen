@@ -77,15 +77,10 @@ public class CustomButton : Button
 
     public void ClearIcon()
     {
-        IEnumerator delayed_clear()
+        if (buttonImage)
         {
-            yield return null;
-            if (buttonImage)
-            {
-                buttonImage.sprite = null; // clear icon.
-            }
+            buttonImage.sprite = null;
         }
-        StartCoroutine(delayed_clear());
     }
 }
 

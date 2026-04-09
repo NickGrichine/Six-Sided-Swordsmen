@@ -12,6 +12,7 @@ public class UnitController : MonoBehaviour, IOccupant
     public HealthManager healthManager;    
     public List<UnitCommandSO> commands = new List<UnitCommandSO>();
     public int movesRemaining;
+    public int range;
 
     [SerializeField] private SpriteRenderer spriteRenderer;
 
@@ -27,6 +28,7 @@ public class UnitController : MonoBehaviour, IOccupant
         {
             healthManager.onDeath += OnDeath;
         }
+        range = refData.attackRange;
 
         //healthManager.SetMaxHealth(healthManager.maxHealth);
     }
@@ -120,9 +122,12 @@ public class UnitController : MonoBehaviour, IOccupant
             healthManager.SetMaxHealth(refData.maxHealth);
         }
 
-        // initialize moves on spawn (GameManager.OnTurnStart fires before units exist on turn 1)
+        // initialize moves and range on spawn (GameManager.OnTurnStart fires before units exist on turn 1)
         if (refData != null)
+        {
             movesRemaining = refData.maxMovesPerTurn;
+            range = refData.attackRange;
+        }
 
         if (GameManager.Instance != null)
             GameManager.Instance.OnTurnStart += OnTurnStarted;
