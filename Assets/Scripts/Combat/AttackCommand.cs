@@ -18,9 +18,11 @@ public class AttackCommand : IUnitCommand
     
         // Updated to handle bonus damage IN ADDITION to base damage
         int baseDamage = actor.refData.attackStr;
-        int bonusDamage = actor.GetBonusDamageAgainst(target.unit);
+        int bonusDamage = actor.GetBonusDamageAgainst(target.unit);  // bonusDamage can be negative
         int finalDamage = baseDamage + bonusDamage;
 
+        // but finalDamage shouldn't ever be less than 0, so clamp it
+        finalDamage = Mathf.Max(0, finalDamage);
 
         target.unit.healthManager.TakeDamage(finalDamage);
         actor.ConsumeMoves();
