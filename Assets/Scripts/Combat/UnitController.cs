@@ -155,6 +155,8 @@ public class UnitController : MonoBehaviour, IOccupant
     // To retrieve bonus damage value
     public int GetBonusDamageAgainst(UnitController target)
     {
+
+        // TODO change to switch statement
         if (refData == null || target == null || target.refData == null)
             return 0;
 
