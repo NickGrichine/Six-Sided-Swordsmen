@@ -3,13 +3,17 @@ using UnityEngine;
 public class PopupWindowManager : MonoBehaviour
 {
     [SerializeField] Button openButton;
-    [SerializeField] Button closeButton;
-    [SerializeField] PopupWindow windowObject;
+    [SerializeField] GameObject windowPrefab;
+    [SerializeField] IPopupWindow windowScript;
 
     void Start()
     {
-        openButton.onClick += (_) => { windowObject.Open(); };
-        closeButton.onClick += (_) => { windowObject.Close(); };
+        openButton.onClick += (_) =>
+        {
+            GameObject window_object = Instantiate(windowPrefab, this.transform);
+            IPopupWindow window_script = window_object.GetComponent<IPopupWindow>();
+            window_script.Initialize();
+        };
     }
 }
 

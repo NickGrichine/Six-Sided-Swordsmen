@@ -7,4 +7,5 @@ public class UnitDataSO : ScriptableObject
     public int attackStr;
     public int maxMovesPerTurn;
     public int attackRange;
+    public Sprite icon;
 }
