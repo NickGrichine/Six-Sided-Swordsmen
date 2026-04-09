@@ -9,33 +9,101 @@ public static class WFCBiomeGenerator
         public bool IsCollapsed => possible.Count == 1;
     }
 
-    private const int MaxAttempts = 20;
-
-    private enum ControlRegion
+    private class LearnedRuleSet
     {
-        Neutral,
-        Water,
-        Grass,
-        Purple,
-        Mountain
+        public Dictionary<TileType, int> biomeCounts = new Dictionary<TileType, int>();
+        public Dictionary<TileType, Dictionary<TileType, int>> adjacencyCounts =
+            new Dictionary<TileType, Dictionary<TileType, int>>();
+
+        public HashSet<TileType> allBiomes = new HashSet<TileType>();
+
+        public void EnsureBiome(TileType type)
+        {
+            if (!biomeCounts.ContainsKey(type))
+                biomeCounts[type] = 0;
+
+            if (!adjacencyCounts.ContainsKey(type))
+                adjacencyCounts[type] = new Dictionary<TileType, int>();
+
+            allBiomes.Add(type);
+        }
+
+        public void AddBiome(TileType type)
+        {
+            EnsureBiome(type);
+            biomeCounts[type]++;
+        }
+
+        public void AddAdjacency(TileType a, TileType b)
+        {
+            EnsureBiome(a);
+            EnsureBiome(b);
+
+            if (!adjacencyCounts[a].ContainsKey(b))
+                adjacencyCounts[a][b] = 0;
+
+            adjacencyCounts[a][b]++;
+        }
+
+        public int GetBiomeWeight(TileType type)
+        {
+            if (!biomeCounts.ContainsKey(type))
+                return 1;
+
+            return Mathf.Max(1, biomeCounts[type]);
+        }
+
+        public int GetAdjacencyWeight(TileType center, TileType neighbor)
+        {
+            if (!adjacencyCounts.ContainsKey(center))
+                return 0;
+
+            if (!adjacencyCounts[center].ContainsKey(neighbor))
+                return 0;
+
+            return adjacencyCounts[center][neighbor];
+        }
+
+        public bool IsCompatible(TileType a, TileType b)
+        {
+            return GetAdjacencyWeight(a, b) > 0 && GetAdjacencyWeight(b, a) > 0;
+        }
     }
+
+    private const int MaxAttempts = 20;
 
     public static void Generate(HexGridManager gridManager, TileType[,] plannedTypes)
     {
+        if (gridManager.biomeControlMask == null)
+        {
+            Debug.LogWarning("No example image assigned. Falling back to StaticBiomeGenerator.");
+            StaticBiomeGenerator.Generate(gridManager, plannedTypes);
+            return;
+        }
+
+        LearnedRuleSet rules = LearnRulesFromTexture(gridManager.biomeControlMask);
+
+        if (rules.allBiomes.Count == 0)
+        {
+            Debug.LogWarning("Failed to learn rules from sample image. Falling back to StaticBiomeGenerator.");
+            StaticBiomeGenerator.Generate(gridManager, plannedTypes);
+            return;
+        }
+
         for (int attempt = 0; attempt < MaxAttempts; attempt++)
         {
-            if (TryGenerate(gridManager, plannedTypes))
+            if (TryGenerate(gridManager, plannedTypes, rules))
             {
-                Debug.Log($"WFC succeeded on attempt {attempt + 1}");
+                Debug.Log($"Example-learned Hex WFC succeeded on attempt {attempt + 1}");
                 return;
             }
         }
 
-        Debug.LogWarning("WFC failed after all attempts. Falling back to StaticBiomeGenerator.");
+        Debug.LogWarning("Example-learned Hex WFC failed after all attempts. Falling back to StaticBiomeGenerator.");
         StaticBiomeGenerator.Generate(gridManager, plannedTypes);
     }
 
-    private static bool TryGenerate(HexGridManager gridManager, TileType[,] plannedTypes)
+    private static bool TryGenerate(HexGridManager gridManager, TileType[,] plannedTypes, LearnedRuleSet rules)
     {
         int totalWidth = gridManager.TotalWidth;
         int totalHeight = gridManager.TotalHeight;
@@ -76,16 +144,24 @@ public static class WFCBiomeGenerator
                     localQ >= width - 2 ||
                     localR >= height - 2;
 
-                Color controlColor = SampleControlColor(gridManager, localQ, localR);
-                ControlRegion region = GetControlRegion(controlColor);
-
                 if (isNearInnerBorder)
                 {
-                    AddOptions(cells[q, r], TileType.GRASSLAND, TileType.PURPLELAND);
+                    // Keep border safe/playable.
+                    cells[q, r].possible.Add(TileType.GRASSLAND);
+                    cells[q, r].possible.Add(TileType.PURPLELAND);
                 }
                 else
                 {
-                    ApplyInitialDomainForRegion(cells[q, r], region);
+                    foreach (TileType biome in rules.allBiomes)
+                    {
+                        cells[q, r].possible.Add(biome);
+                    }
+
+                    // Ensure core playable biomes are present even if sample is weird.
+                    cells[q, r].possible.Add(TileType.GRASSLAND);
+                    cells[q, r].possible.Add(TileType.PURPLELAND);
+                    cells[q, r].possible.Add(TileType.MOUNTAIN);
+                    cells[q, r].possible.Add(TileType.OCEAN_DEEP);
                 }
             }
         }
@@ -101,7 +177,7 @@ public static class WFCBiomeGenerator
             }
         }
 
-        if (!Propagate(cells, queue, totalWidth, totalHeight))
+        if (!Propagate(cells, queue, totalWidth, totalHeight, rules))
             return false;
 
         while (true)
@@ -111,18 +187,14 @@ public static class WFCBiomeGenerator
             if (next.x == -1)
                 break;
 
-            int localQ = next.x - playableOffsetQ;
-            int localR = next.y - playableOffsetR;
-
-            Color controlColor = SampleControlColor(gridManager, localQ, localR);
-            TileType chosen = ChooseWeightedTile(cells[next.x, next.y].possible, controlColor);
+            TileType chosen = ChooseWeightedTile(cells, next.x, next.y, totalWidth, totalHeight, rules);
 
             cells[next.x, next.y].possible.Clear();
             cells[next.x, next.y].possible.Add(chosen);
 
             queue.Enqueue(next);
 
-            if (!Propagate(cells, queue, totalWidth, totalHeight))
+            if (!Propagate(cells, queue, totalWidth, totalHeight, rules))
                 return false;
         }
 
@@ -141,46 +213,96 @@ public static class WFCBiomeGenerator
             }
         }
 
-        PostProcessTowardControlMap(gridManager, plannedTypes);
-
         return true;
     }
 
-    private static void AddOptions(WfcCell cell, params TileType[] types)
+    private static LearnedRuleSet LearnRulesFromTexture(Texture2D texture)
     {
-        foreach (TileType t in types)
-            cell.possible.Add(t);
+        LearnedRuleSet rules = new LearnedRuleSet();
+
+        int width = texture.width;
+        int height = texture.height;
+        TileType[,] sample = new TileType[width, height];
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                Color c = texture.GetPixel(x, y);
+                TileType t = ClassifySampleColor(c);
+                sample[x, y] = t;
+                rules.AddBiome(t);
+            }
+        }
+
+        Vector2Int[] neighborDirsEven = new Vector2Int[]
+        {
+            new Vector2Int(+1, 0),
+            new Vector2Int(0, +1),
+            new Vector2Int(-1, +1),
+            new Vector2Int(-1, 0),
+            new Vector2Int(-1, -1),
+            new Vector2Int(0, -1)
+        };
+
+        Vector2Int[] neighborDirsOdd = new Vector2Int[]
+        {
+            new Vector2Int(+1, 0),
+            new Vector2Int(+1, +1),
+            new Vector2Int(0, +1),
+            new Vector2Int(-1, 0),
+            new Vector2Int(0, -1),
+            new Vector2Int(+1, -1)
+        };
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                TileType center = sample[x, y];
+                Vector2Int[] dirs = (x & 1) == 0 ? neighborDirsEven : neighborDirsOdd;
+
+                foreach (Vector2Int d in dirs)
+                {
+                    int nx = x + d.x;
+                    int ny = y + d.y;
+
+                    if (nx < 0 || nx >= width || ny < 0 || ny >= height)
+                        continue;
+
+                    TileType neighbor = sample[nx, ny];
+                    rules.AddAdjacency(center, neighbor);
+                }
+            }
+        }
+
+        return rules;
     }
 
-    private static void ApplyInitialDomainForRegion(WfcCell cell, ControlRegion region)
+    private static TileType ClassifySampleColor(Color c)
     {
-        switch (region)
+        // Blue => water
+        if (c.b > 0.75f && c.r < 0.45f && c.g < 0.65f)
+            return TileType.OCEAN_DEEP;
+
+        // Green => grass
+        if (c.g > 0.75f && c.r < 0.55f && c.b < 0.55f)
+            return TileType.GRASSLAND;
+
+        // Magenta => purple
+        if (c.r > 0.75f && c.b > 0.75f && c.g < 0.55f)
+            return TileType.PURPLELAND;
+
+        // Gray / white => mountain
+        if (Mathf.Abs(c.r - c.g) < 0.08f &&
+            Mathf.Abs(c.g - c.b) < 0.08f &&
+            c.grayscale > 0.35f)
         {
-            case ControlRegion.Water:
-                AddOptions(cell, TileType.OCEAN_DEEP, TileType.GRASSLAND);
-                break;
-
-            case ControlRegion.Grass:
-                AddOptions(cell, TileType.GRASSLAND, TileType.PURPLELAND);
-                break;
-
-            case ControlRegion.Purple:
-                AddOptions(cell, TileType.PURPLELAND, TileType.GRASSLAND);
-                break;
-
-            case ControlRegion.Mountain:
-                AddOptions(cell, TileType.MOUNTAIN, TileType.GRASSLAND);
-                break;
-
-            case ControlRegion.Neutral:
-            default:
-                AddOptions(cell,
-                    TileType.GRASSLAND,
-                    TileType.PURPLELAND,
-                    TileType.MOUNTAIN,
-                    TileType.OCEAN_DEEP);
-                break;
+            return TileType.MOUNTAIN;
         }
+
+        // Default
+        return TileType.GRASSLAND;
     }
 
     private static Vector2Int FindLowestEntropyCell(WfcCell[,] cells, int totalWidth, int totalHeight)
@@ -215,19 +337,41 @@ public static class WFCBiomeGenerator
         return candidates[Random.Range(0, candidates.Count)];
     }
 
-    private static TileType ChooseWeightedTile(HashSet<TileType> options, Color controlColor)
+    private static TileType ChooseWeightedTile(
+        WfcCell[,] cells,
+        int q,
+        int r,
+        int totalWidth,
+        int totalHeight,
+        LearnedRuleSet rules)
     {
+        HashSet<TileType> options = cells[q, r].possible;
+
         int totalWeight = 0;
+        Dictionary<TileType, int> weights = new Dictionary<TileType, int>();
 
         foreach (TileType type in options)
-            totalWeight += GetWeight(type, controlColor);
-
-        if (totalWeight <= 0)
         {
-            foreach (TileType type in options)
-                return type;
+            int weight = rules.GetBiomeWeight(type);
 
-            return TileType.GRASSLAND;
+            foreach (Vector2Int dir in HexMath.GetNeighborDirections(q))
+            {
+                int nq = q + dir.x;
+                int nr = r + dir.y;
+
+                if (nq < 0 || nq >= totalWidth || nr < 0 || nr >= totalHeight)
+                    continue;
+
+                if (cells[nq, nr].possible.Count == 1)
+                {
+                    TileType neighbor = GetSingleOption(cells[nq, nr]);
+                    weight += rules.GetAdjacencyWeight(type, neighbor) * 2;
+                }
+            }
+
+            weight = Mathf.Max(1, weight);
+            weights[type] = weight;
+            totalWeight += weight;
         }
 
         int roll = Random.Range(0, totalWeight);
@@ -235,7 +379,7 @@ public static class WFCBiomeGenerator
 
         foreach (TileType type in options)
         {
-            running += GetWeight(type, controlColor);
+            running += weights[type];
             if (roll < running)
                 return type;
         }
@@ -246,68 +390,20 @@ public static class WFCBiomeGenerator
         return TileType.GRASSLAND;
     }
 
-    private static int GetWeight(TileType type, Color c)
+    private static TileType GetSingleOption(WfcCell cell)
     {
-        ControlRegion region = GetControlRegion(c);
+        foreach (TileType t in cell.possible)
+            return t;
 
-        switch (region)
-        {
-            case ControlRegion.Water:
-                switch (type)
-                {
-                    case TileType.OCEAN_DEEP: return 220;
-                    case TileType.GRASSLAND: return 20;
-                    case TileType.PURPLELAND: return 5;
-                    case TileType.MOUNTAIN: return 1;
-                }
-                break;
-
-            case ControlRegion.Grass:
-                switch (type)
-                {
-                    case TileType.GRASSLAND: return 220;
-                    case TileType.PURPLELAND: return 25;
-                    case TileType.MOUNTAIN: return 5;
-                    case TileType.OCEAN_DEEP: return 10;
-                }
-                break;
-
-            case ControlRegion.Purple:
-                switch (type)
-                {
-                    case TileType.PURPLELAND: return 220;
-                    case TileType.GRASSLAND: return 20;
-                    case TileType.MOUNTAIN: return 5;
-                    case TileType.OCEAN_DEEP: return 5;
-                }
-                break;
-
-            case ControlRegion.Mountain:
-                switch (type)
-                {
-                    case TileType.MOUNTAIN: return 220;
-                    case TileType.GRASSLAND: return 20;
-                    case TileType.PURPLELAND: return 10;
-                    case TileType.OCEAN_DEEP: return 1;
-                }
-                break;
-
-            case ControlRegion.Neutral:
-            default:
-                switch (type)
-                {
-                    case TileType.GRASSLAND: return 45;
-                    case TileType.PURPLELAND: return 30;
-                    case TileType.MOUNTAIN: return 15;
-                    case TileType.OCEAN_DEEP: return 10;
-                }
-                break;
-        }
-
-        return 1;
+        return TileType.GRASSLAND;
     }
 
-    private static bool Propagate(WfcCell[,] cells, Queue<Vector2Int> queue, int totalWidth, int totalHeight)
+    private static bool Propagate(
+        WfcCell[,] cells,
+        Queue<Vector2Int> queue,
+        int totalWidth,
+        int totalHeight,
+        LearnedRuleSet rules)
     {
         while (queue.Count > 0)
         {
@@ -331,7 +427,7 @@ public static class WFCBiomeGenerator
 
                     foreach (TileType currentOption in currentCell.possible)
                     {
-                        if (AreCompatible(currentOption, neighborOption))
+                        if (rules.IsCompatible(currentOption, neighborOption))
                         {
                             valid = true;
                             break;
@@ -351,126 +447,6 @@ public static class WFCBiomeGenerator
                     queue.Enqueue(new Vector2Int(nq, nr));
                 }
             }
-        }
-
-        return true;
-    }
-
-    private static ControlRegion GetControlRegion(Color c)
-    {
-        if (c.b > 0.75f && c.r < 0.45f && c.g < 0.65f)
-            return ControlRegion.Water;
-
-        if (c.g > 0.75f && c.r < 0.55f && c.b < 0.55f)
-            return ControlRegion.Grass;
-
-        if (c.r > 0.75f && c.b > 0.75f && c.g < 0.55f)
-            return ControlRegion.Purple;
-
-        if (Mathf.Abs(c.r - c.g) < 0.08f &&
-            Mathf.Abs(c.g - c.b) < 0.08f &&
-            c.grayscale > 0.35f)
-        {
-            return ControlRegion.Mountain;
-        }
-
-        return ControlRegion.Neutral;
-    }
-
-    private static bool AreCompatible(TileType a, TileType b)
-    {
-        if (a == TileType.MOUNTAIN && b == TileType.OCEAN_DEEP) return false;
-        if (a == TileType.OCEAN_DEEP && b == TileType.MOUNTAIN) return false;
-
-        if (a == TileType.OCEAN_DEEP)
-            return b == TileType.OCEAN_DEEP ||
-                   b == TileType.GRASSLAND ||
-                   b == TileType.PURPLELAND;
-
-        if (a == TileType.MOUNTAIN)
-            return b == TileType.MOUNTAIN ||
-                   b == TileType.GRASSLAND ||
-                   b == TileType.PURPLELAND;
-
-        if (a == TileType.PURPLELAND)
-            return b == TileType.PURPLELAND ||
-                   b == TileType.GRASSLAND ||
-                   b == TileType.MOUNTAIN ||
-                   b == TileType.OCEAN_DEEP;
-
-        if (a == TileType.GRASSLAND)
-            return true;
-
-        return false;
-    }
-
-    private static Color SampleControlColor(HexGridManager gridManager, int localQ, int localR)
-    {
-        if (gridManager.biomeControlMask == null)
-            return Color.black;
-
-        float u = (gridManager.width <= 1) ? 0f : (float)localQ / (gridManager.width - 1);
-        float v = (gridManager.height <= 1) ? 0f : (float)localR / (gridManager.height - 1);
-
-        return gridManager.biomeControlMask.GetPixelBilinear(u, v);
-    }
-
-    private static TileType GetPrimaryTypeForRegion(ControlRegion region)
-    {
-        switch (region)
-        {
-            case ControlRegion.Water: return TileType.OCEAN_DEEP;
-            case ControlRegion.Grass: return TileType.GRASSLAND;
-            case ControlRegion.Purple: return TileType.PURPLELAND;
-            case ControlRegion.Mountain: return TileType.MOUNTAIN;
-            default: return TileType.GRASSLAND;
-        }
-    }
-
-    private static void PostProcessTowardControlMap(HexGridManager gridManager, TileType[,] plannedTypes)
-    {
-        int totalWidth = gridManager.TotalWidth;
-        int totalHeight = gridManager.TotalHeight;
-        int playableOffsetQ = gridManager.PlayableOffsetQ;
-        int playableOffsetR = gridManager.PlayableOffsetR;
-        int width = gridManager.width;
-        int height = gridManager.height;
-
-        for (int q = playableOffsetQ; q < playableOffsetQ + width; q++)
-        {
-            for (int r = playableOffsetR; r < playableOffsetR + height; r++)
-            {
-                int localQ = q - playableOffsetQ;
-                int localR = r - playableOffsetR;
-
-                Color c = SampleControlColor(gridManager, localQ, localR);
-                ControlRegion region = GetControlRegion(c);
-                TileType preferred = GetPrimaryTypeForRegion(region);
-                TileType current = plannedTypes[q, r];
-
-                if (current == preferred)
-                    continue;
-
-                if (CanReplaceWith(plannedTypes, q, r, preferred, totalWidth, totalHeight))
-                    plannedTypes[q, r] = preferred;
-            }
-        }
-    }
-
-    private static bool CanReplaceWith(TileType[,] plannedTypes, int q, int r, TileType candidate, int totalWidth, int totalHeight)
-    {
-        foreach (Vector2Int dir in HexMath.GetNeighborDirections(q))
-        {
-            int nq = q + dir.x;
-            int nr = r + dir.y;
-
-            if (nq < 0 || nq >= totalWidth || nr < 0 || nr >= totalHeight)
-                continue;
-
-            TileType neighbor = plannedTypes[nq, nr];
-
-            if (!AreCompatible(candidate, neighbor) || !AreCompatible(neighbor, candidate))
-                return false;
         }
 
         return true;

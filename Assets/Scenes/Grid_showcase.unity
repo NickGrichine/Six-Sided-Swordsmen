@@ -192,6 +192,10 @@ PrefabInstance:
       value: HexGridManager Variant
       objectReference: {fileID: 0}
     - target: {fileID: 1483967861461466955, guid: 1807075899f724915bffed1b92e28241, type: 3}
+      propertyPath: tilePrefab
+      value: 
+      objectReference: {fileID: 1143747835539376982, guid: cdabbef39137148ca884b82183a092ec, type: 3}
+    - target: {fileID: 1483967861461466955, guid: 1807075899f724915bffed1b92e28241, type: 3}
       propertyPath: generationMode
       value: 1
       objectReference: {fileID: 0}

@@ -9,9 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b73184b18bbeee49896266e362dce42, type: 3}
-  m_Name: Attack
+  m_Script: {fileID: 11500000, guid: b206e5188d8b9f04f8ae108dcd38bcc2, type: 3}
+  m_Name: Holy Knight
   m_EditorClassIdentifier: 
-  commandID: 2
-  category: 1
-  moveCost: 1
+  maxHealth: 20
+  attackStr: 7
+  maxMovesPerTurn: 8
+  attackRange: 1
+  visionRange: 3

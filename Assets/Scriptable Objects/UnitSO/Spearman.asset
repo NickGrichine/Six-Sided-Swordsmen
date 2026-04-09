@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Spearman
   m_EditorClassIdentifier: 
   maxHealth: 12
-  attackStr: 4
-  maxMovesPerTurn: 1
-  attackRange: 2
+  attackStr: 3
+  maxMovesPerTurn: 9
+  attackRange: 3
+  visionRange: 3

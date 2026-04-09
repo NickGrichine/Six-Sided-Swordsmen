@@ -1,5 +1,4 @@
 using UnityEngine;
-
 [CreateAssetMenu(fileName = "NewCommand", menuName = "Commands/UnitCommand")]
 public class UnitCommandSO : ScriptableObject, IButtonDisplayable
 {

@@ -8,9 +8,9 @@ using UnityEngine.UI;
 
 public class UnitConsole : Singleton<UnitConsole>
 {
-    private const int _command_size = 5;
-
     public event Action<UnitCommandSO> onCommandSelected;
+
+    private const int _command_size = 5;
 
     public CustomButton[] commandButtons = new CustomButton[_command_size];
     [SerializeField] private CustomButton unitIcon;
@@ -42,7 +42,7 @@ public class UnitConsole : Singleton<UnitConsole>
 
     public void UpdateUnitConsole(Tile tile)
     {
-        if (tile == Tile.NullTile) return;
+        if (tile == null) return;
 
         IOccupant occupant = tile.occupant;
         if (occupant == null)
@@ -88,12 +88,23 @@ public class UnitConsole : Singleton<UnitConsole>
         // unitIcon.Initialize( [sprite here] );
 
         Player current_turn_player = GameManager.Instance.TurnPlayer;
-        Player unit_belongs_to = unitController.teamID;
+        Player unit_belongs_to = (Player)unitController.teamID;
         if (unit_belongs_to == current_turn_player) SetCanvasGroupState(commandButtonArrayGroup, true);
         else
         {
             SetCanvasGroupState(commandButtonArrayGroup, false);
         }
+    }
+
+    private void OnCommandClicked(Button button)
+    {
+        if (!(button is CustomButton customButton))
+            return;
+
+        if (!(customButton.displayedObject is UnitCommandSO unitCommand))
+            return;
+
+        onCommandSelected?.Invoke(unitCommand);
     }
 
     private void ClearUnitConsole()
@@ -142,17 +153,6 @@ public class UnitConsole : Singleton<UnitConsole>
             command.ClearIcon();
             command.SetState(Button.BUTTON_STATE.INACTIVE);
         }
-    }
-
-    private void OnCommandClicked(Button button)
-    {
-        if (!(button is CustomButton customButton))
-            return;
-
-        if (!(customButton.displayedObject is UnitCommandSO unitCommand))
-            return;
-
-        onCommandSelected?.Invoke(unitCommand);
     }
 
     /// ------------------

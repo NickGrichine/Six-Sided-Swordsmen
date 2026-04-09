@@ -2,39 +2,45 @@ using UnityEngine;
 
 public class AttackCommand : IUnitCommand
 {
-    public bool CanExecute(CommandContext ctx, UnitController actor, CommandTarget target)
+    public bool CanExecute(UnitController actor, CommandTarget target)
     {
         if (target.unit == null) return false;
+        if (actor.movesRemaining <= 0) return false;
         return CombatUtils.CanAttack(actor, target.unit);
     }
 
-    public CommandExecutionRecord Execute(CommandContext ctx, UnitController actor, CommandTarget target)
+    public CommandExecutionRecord Execute(UnitController actor, CommandTarget target)
     {
-        if (!CanExecute(ctx, actor, target)) return null;
+        if (!CanExecute(actor, target)) return null;
 
-        int damage = actor.refData.attackStr;
-        target.unit.healthManager.TakeDamage(damage);
+        //int damage = actor.refData.attackStr;
+    
+    
+        // Updated to handle bonus damage IN ADDITION to base damage
+        int baseDamage = actor.refData.attackStr;
+        int bonusDamage = actor.GetBonusDamageAgainst(target.unit);  // bonusDamage can be negative
+        int finalDamage = baseDamage + bonusDamage;
 
+        // but finalDamage shouldn't ever be less than 0, so clamp it
+        finalDamage = Mathf.Max(0, finalDamage);
+
+        target.unit.healthManager.TakeDamage(finalDamage);
+        actor.ConsumeMoves();
         // Create record with damage stored somehow
-        var record = new AttackExecutionRecord(actor.teamID, target, damage);
+        var record = new AttackExecutionRecord(target.unit, finalDamage);
         return record;
     }
 
-    public void Undo(CommandContext ctx, CommandExecutionRecord record)
+    public void Undo(CommandExecutionRecord record)
     {
-        if (record is AttackExecutionRecord attackRecord)
-        {
-            //Heal back the damage
-            attackRecord.target.unit.healthManager.GainHealth(attackRecord.damageDealt);
-        }
+        record.UnitController.healthManager.GainHealth(((AttackExecutionRecord)record).damageDealt);
     }
 }
 
 public class AttackExecutionRecord : CommandExecutionRecord
 {
     public int damageDealt;
-                                                                                            //BASE IS NULL!!!
-    public AttackExecutionRecord(Player actorID, CommandTarget target, int damage) : base(null, actorID, target)
+    public AttackExecutionRecord(UnitController target, int damage) : base(target)
     {
         this.damageDealt = damage;
     }

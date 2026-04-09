@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
-// public enum Team { Player1 = 1, Player2 = 2 }
+public enum Team { Player1 = 1, Player2 = 2 }
 
 public class UnitController : MonoBehaviour, IOccupant
 {
@@ -9,17 +10,12 @@ public class UnitController : MonoBehaviour, IOccupant
     public Player teamID;
     public Tile position;
     public UnitDataSO refData;
-    public HealthManager healthManager;
+    public HealthManager healthManager;    
     public List<UnitCommandSO> commands = new List<UnitCommandSO>();
     public int movesRemaining;
+    public int range;
 
     [SerializeField] private SpriteRenderer spriteRenderer;
-
-    private Dictionary<Player, Color> playerColors = new Dictionary<Player, Color>()
-    {
-        { Player.PLAYER_1, Color.blue },
-        { Player.PLAYER_2, Color.red }, // NOTE: Add more as needed.
-    };
 
     private void Awake()
     {
@@ -33,21 +29,84 @@ public class UnitController : MonoBehaviour, IOccupant
         {
             healthManager.onDeath += OnDeath;
         }
+        range = refData.attackRange;
+
+        //healthManager.SetMaxHealth(healthManager.maxHealth);
     }
 
-    public void SetTeam(Player team)
+    private void Update()
     {
-        teamID = team;
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            healthManager.TakeDamage(5);
+        }
+
+
+        // TESTING HEALTH BAR
+        if (!IsCurrentlySelected())
+        {
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            healthManager.TakeDamage(1);
+
+            Debug.Log("UNIT TOOK DAMAGE! New health: " + healthManager.health);
+        }
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            healthManager.GainHealth(1);
+
+            Debug.Log("UNIT GAINED HEALTH! New health: " + healthManager.health);
+        }
+        // if (Input.GetKeyDown(KeyCode.I))
+        // {
+        //     healthManager.SetMaxHealth(10);
+
+        //     Debug.Log("UNIT HEALTH RESET! New health: " + healthManager.health);
+        // }
+    }
+
+    // This function is for making sure that only the unit that is currently selected (highlighted tile) will be affected
+    // ie. making sure that any changes in Health status only applies to this selected unit, rather than ALL units
+    private bool IsCurrentlySelected()
+    {
+        if (position == null || !ReferenceEquals(position.occupant, this))
+        {
+            return false;
+        }
+
+        GridEventHandler gridEventHandler = GridEventHandler.Instance;
+        if (gridEventHandler == null)
+        {
+            return false;
+        }
+
+        return gridEventHandler.SelectedTile == position;
+    }
+
+
+
+    public void SetTeam(Team team)
+    {
+        teamID = (Player)team;
         if (spriteRenderer != null)
         {
-            // spriteRenderer.color = team == Player.PLAYER_1 ? Color.blue : Color.red;
-            if (playerColors.TryGetValue(team, out Color teamColor))
-                spriteRenderer.color = teamColor;
-            else
-            {
-                Debug.LogError($"No color defined for player: {team}.");
-                spriteRenderer.color = Color.magenta;
-            }
+            spriteRenderer.color = team == Team.Player1 ? Colours.PLAYER_GREEN : Colours.PLAYER_YELLOW;
+        }
+    }
+
+    public void Show(bool shouldShow)
+    {
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.enabled = shouldShow;
+        }
+
+        if (healthManager != null && healthManager.healthBar != null)
+        {
+            healthManager.healthBar.Show(shouldShow);
         }
     }
 
@@ -63,13 +122,64 @@ public class UnitController : MonoBehaviour, IOccupant
         {
             healthManager.SetMaxHealth(refData.maxHealth);
         }
+
+        // initialize moves and range on spawn (GameManager.OnTurnStart fires before units exist on turn 1)
+        if (refData != null)
+        {
+            movesRemaining = refData.maxMovesPerTurn;
+            range = refData.attackRange;
+        }
+
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnTurnStart += OnTurnStarted;
     }
 
-    public void ConsumeMoves(int cost)
+    private void OnDestroy()
     {
-        movesRemaining -= cost;
-        if (movesRemaining < 0) movesRemaining = 0;
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnTurnStart -= OnTurnStarted;
     }
+
+    private void OnTurnStarted(int turnNumber)
+    {
+        if ((Player)teamID == GameManager.Instance.TurnPlayer)
+            StartTurn();
+    }
+
+    public void ConsumeMoves()
+    {
+        movesRemaining = 0;
+    }
+
+
+    // To retrieve bonus damage value
+    public int GetBonusDamageAgainst(UnitController target)
+    {
+        if (refData == null || target == null || target.refData == null)
+            return 0;
+
+        if (refData.unitType == UnitDataSO.UnitType.Archer)
+        {
+            return refData.damageBonusesArcher[target.refData.unitType];
+        }
+        else if (refData.unitType == UnitDataSO.UnitType.Knight)
+        {
+            return refData.damageBonusesKnight[target.refData.unitType];
+        }
+        else if (refData.unitType == UnitDataSO.UnitType.Spearman)
+        {
+            return refData.damageBonusesSpearman[target.refData.unitType];
+        }
+        else if (refData.unitType == UnitDataSO.UnitType.Swordsman)
+        {
+            return refData.damageBonusesSwordsman[target.refData.unitType];
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
 
     public void OnDeath()
     {
@@ -79,24 +189,9 @@ public class UnitController : MonoBehaviour, IOccupant
             position.occupant = null;
             position = null;
         }
+
+        GameManager.Instance?.NotifyGameStateChanged();
         Destroy(gameObject);
-    }
-
-    public bool Attack(UnitController target)
-    {
-        var command = new AttackCommand();
-        var ctx = new CommandContext(); // no board
-        var cmdTarget = new CommandTarget(target.position, target);
-
-        if (!command.CanExecute(ctx, this, cmdTarget)) return false;
-
-        var record = command.Execute(ctx, this, cmdTarget);
-        if (record != null)
-        {
-            // Optionally store record for undo. done later.
-            return true;
-        }
-        return false;
     }
 
     public bool MoveToAdjacentTile(Tile destination)
@@ -123,6 +218,31 @@ public class UnitController : MonoBehaviour, IOccupant
         // Failed, re-enter old tile
         position.TryEnter(this);
         return false;
+    }
+
+    public HashSet<Tile> CanSee()
+    {
+        HashSet<Tile> visibleTiles = new HashSet<Tile>();
+
+        if (position == null)
+            return visibleTiles;
+
+        Tile[,] grid = HexGridManager.Instance != null ? HexGridManager.Instance.Grid : null;
+        if (grid == null)
+            return visibleTiles;
+
+        int visionRange = refData != null ? Mathf.Max(0, refData.visionRange) : 0;
+
+        foreach (Tile tile in grid)
+        {
+            if (tile == null)
+                continue;
+
+            if (Tile.GetDistance(position, tile) <= visionRange)
+                visibleTiles.Add(tile);
+        }
+
+        return visibleTiles;
     }
 
 /*
@@ -154,6 +274,10 @@ public class UnitController : MonoBehaviour, IOccupant
     }
 
     public void OnNewTurn() => StartTurn();
-    public void OnMoved(Tile from, Tile to) { UpdatePosition(); }
+    public void OnMoved(Tile from, Tile to)
+    {
+        UpdatePosition();
+        GameManager.Instance?.NotifyGameStateChanged();
+    }
     public void onDeath() => OnDeath();
 }

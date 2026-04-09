@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Archer
   m_EditorClassIdentifier: 
   maxHealth: 8
-  attackStr: 2
-  maxMovesPerTurn: 1
-  attackRange: 5
+  attackStr: 3
+  maxMovesPerTurn: 2147483647
+  attackRange: 6
+  visionRange: 5

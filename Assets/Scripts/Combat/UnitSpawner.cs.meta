@@ -3,7 +3,13 @@ guid: 4b31bbe59b7c0ed4893508c7baa3c5f0
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - grid: {instanceID: 0}
+  - unitPrefab: {instanceID: 0}
+  - knightPrefab: {fileID: 453141174523818861, guid: 92a664a41c097064980ff6daeebea221, type: 3}
+  - archerPrefab: {fileID: 5932810274771392416, guid: c0ba2819ea1ea894aab70e201dfeffd4, type: 3}
+  - clericPrefab: {fileID: 5932810274771392416, guid: 62946516ca92c8a43ae5170058c95ff0, type: 3}
+  - spearmanPrefab: {fileID: 5932810274771392416, guid: 266d5473012f946478397272c8235bd0, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

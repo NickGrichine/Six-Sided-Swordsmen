@@ -9,10 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b206e5188d8b9f04f8ae108dcd38bcc2, type: 3}
-  m_Name: Cleric
+  m_Script: {fileID: 11500000, guid: 0b73184b18bbeee49896266e362dce42, type: 3}
+  m_Name: MoveCommand
   m_EditorClassIdentifier: 
-  maxHealth: 5
-  attackStr: 0
-  maxMovesPerTurn: 1
-  attackRange: 3
+  commandID: 1
+  category: 0
+  moveCost: 1
+  icon: {fileID: 21300000, guid: 3baa6b174a565037ebc44d1ab9d8671b, type: 3}
+  textDescription: Moves the Unit. Default.
