@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public enum Team { Player1 = 1, Player2 = 2 }
@@ -149,6 +150,36 @@ public class UnitController : MonoBehaviour, IOccupant
     {
         movesRemaining = 0;
     }
+
+
+    // To retrieve bonus damage value
+    public int GetBonusDamageAgainst(UnitController target)
+    {
+        if (refData == null || target == null || target.refData == null)
+            return 0;
+
+        if (refData.unitType == UnitDataSO.UnitType.Archer)
+        {
+            return refData.damageBonusesArcher[target.refData.unitType];
+        }
+        else if (refData.unitType == UnitDataSO.UnitType.Knight)
+        {
+            return refData.damageBonusesKnight[target.refData.unitType];
+        }
+        else if (refData.unitType == UnitDataSO.UnitType.Spearman)
+        {
+            return refData.damageBonusesSpearman[target.refData.unitType];
+        }
+        else if (refData.unitType == UnitDataSO.UnitType.Swordsman)
+        {
+            return refData.damageBonusesSwordsman[target.refData.unitType];
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
 
     public void OnDeath()
     {

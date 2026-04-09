@@ -13,11 +13,19 @@ public class AttackCommand : IUnitCommand
     {
         if (!CanExecute(actor, target)) return null;
 
-        int damage = actor.refData.attackStr;
-        target.unit.healthManager.TakeDamage(damage);
+        //int damage = actor.refData.attackStr;
+    
+    
+        // Updated to handle bonus damage IN ADDITION to base damage
+        int baseDamage = actor.refData.attackStr;
+        int bonusDamage = actor.GetBonusDamageAgainst(target.unit);
+        int finalDamage = baseDamage + bonusDamage;
+
+
+        target.unit.healthManager.TakeDamage(finalDamage);
         actor.ConsumeMoves();
         // Create record with damage stored somehow
-        var record = new AttackExecutionRecord(target.unit, damage);
+        var record = new AttackExecutionRecord(target.unit, finalDamage);
         return record;
     }
 
