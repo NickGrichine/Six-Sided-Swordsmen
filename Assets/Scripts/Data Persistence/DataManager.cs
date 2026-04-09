@@ -18,10 +18,7 @@ public class DataManager : Singleton <DataManager> {
 
     public void Load(int gameId) {
 
-        // For Demo purposes
-
         // Validate slot index
-
         if (gameId < 0 || gameId >= slots.Length)
         {
             StartCoroutine(ReturnToMenuAfterDelay("Invalid game slot. Back to menu!", 2f));
@@ -38,7 +35,7 @@ public class DataManager : Singleton <DataManager> {
             return;
         }
 
-        // Read JSON and deserialize
+        // Read JSON and deserialize into SaveData object
         string json = File.ReadAllText(path);
         SaveData obj = JsonUtility.FromJson<SaveData>(json);
 

@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 public static class TileAdapter{
     public static TileData ToData(Tile tile){
-        //todo
+        // Copies the important runtime fields from a live tile into a TileData object
+        // Runtime Tile -> Save Tile
         return new TileData
         {
             tileId = tile.tileId,
@@ -18,11 +19,11 @@ public static class TileAdapter{
         
     }
     public static void FromData(Tile tile, TileData tileData){
-        //todo
-
         if (tile == null || tileData == null)
             return;
 
+        // Overwrites tile fields with the values from the save file
+        // Save Tile -> Runtime Tile
         tile.tileId = tileData.tileId;
         tile.type = tileData.type;
         tile.altitude = tileData.altitude;

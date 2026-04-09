@@ -4,7 +4,8 @@ using System.Collections.Generic;
 public static class GridAdapter{
     
     public static GridData ToData(HexGridManager grid){
-        //todo
+
+        // Builds a GridData object from the HexGridManager grid
         var data = new GridData {
             width = grid.width,
             height = grid.height,
@@ -14,7 +15,7 @@ public static class GridAdapter{
             cameraBorderTiles = grid.CameraBorderTiles,
         };
 
-        //TODO: NEED GRID TO BE PUBLIC FIELD
+        // Populate the tile list (checks non-null tile)
         foreach (var tile in grid.Grid)
         {
             if (tile != null)
@@ -27,17 +28,12 @@ public static class GridAdapter{
     }
 
     public static HexGridManager FromData(HexGridManager grid, GridData gridData){
-        //todo
-        // grid.width = gridData.width;
-        // grid.height = gridData.height;
-        // grid.hexSize = gridData.hexSize;
-        //todo Tiles
-        //grid.OceanBorderThickness = gridData.oceanBorderThickness,
-        //grid.CameraBorderTiles = gridData.cameraBorderTiles,
+        
         
         if (grid == null || gridData == null) 
             return grid;
 
+        // Restores all grid settings
         grid.RestoreGridSettings(
             gridData.width,
             gridData.height,
@@ -46,8 +42,10 @@ public static class GridAdapter{
             gridData.cameraBorderTiles
         );
 
+        // Recreate the runtime tile objects for a grid of the correct size
         grid.GenerateGrid();
 
+        // Populate the grid with saved tile data
         if (gridData.tiles != null)
         {
             foreach (TileData tileData in gridData.tiles)
@@ -55,12 +53,16 @@ public static class GridAdapter{
                 Tile tile = grid.GetTileById(tileData.tileId);
                 if (tile != null)
                 {
+                    // Overwrite that tile with the saved state
                     TileAdapter.FromData(tile, tileData);
                 }
             }
         }
 
+        // Reconstruct tile neighbors from 
         grid.RebuildNeighborsFromIds();
+
+        // Refresh tile visuals and camera settings
         grid.RefreshAfterLoad();
 
         return grid;

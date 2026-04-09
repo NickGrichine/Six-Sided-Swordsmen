@@ -5,6 +5,7 @@ public class HexGridManager : Singleton<HexGridManager>
 {
 
     [Header("Start Settings")]
+    // Controls whether the grid is generated on startup
     [SerializeField] private bool generateOnStart = true;
 
     [Header("Grid Settings")]
