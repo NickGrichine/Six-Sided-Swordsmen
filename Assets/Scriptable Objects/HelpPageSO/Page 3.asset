@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 750a1008de54cd9c485a6ce504ff33a0, type: 3}
+  m_Name: Page 3
+  m_EditorClassIdentifier: 
+  sprite: {fileID: 21300000, guid: af7e459fd9c8373ebb92f8696cf7aa3e, type: 3}
+  title: Pass and play
+  description: Your units have a set amount of moves each turn. When you run out
+    of things to do, press end turn and pass the device to your opponent.
+  next: {fileID: 11400000, guid: 171b391381256fd22b529e45f20af5b9, type: 2}
