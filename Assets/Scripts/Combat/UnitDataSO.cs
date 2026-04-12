@@ -4,6 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Units/Unit Data")]
 public class UnitDataSO : ScriptableObject
 {
+    public Sprite icon;
     public int maxHealth;
     public int attackStr;
     public int maxMovesPerTurn;
@@ -13,7 +14,7 @@ public class UnitDataSO : ScriptableObject
 
     // Unit bonus damage info
     // ie. defines how much bonus damage to give when a specific unit type attacks another unit type
-    
+
     // for now, all values are set to 0, to be defined by Michael?
     public enum UnitType { Archer, Knight, Spearman, Swordsman }
     public UnitType unitType;
