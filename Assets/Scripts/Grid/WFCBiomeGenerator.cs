@@ -24,7 +24,7 @@ public static class WFCBiomeGenerator
 
     private class Pattern
     {
-        public TileType[] values;   // aligned to Footprint
+        public TileType[] values;   // aligned to footprint
         public int weight;          // frequency from sample
     }
 
@@ -42,6 +42,7 @@ public static class WFCBiomeGenerator
         int centerIndex = footprintIndex[Vector3Int.zero];
 
         TileType[,] sample = BuildSampleBiomeMap(gridManager.biomeControlMask);
+        DebugSampleCounts(sample);
 
         List<Pattern> patterns = ExtractPatterns(sample, footprint, footprintIndex);
         if (patterns.Count == 0)
@@ -124,11 +125,11 @@ public static class WFCBiomeGenerator
 
                 if (isNearInnerBorder)
                 {
-                    // Keep the playable edge friendly
+                    // Keep the playable edge friendly, but allow water if learned
                     for (int p = 0; p < patternCount; p++)
                     {
                         TileType center = patterns[p].values[centerIndex];
-                        if (center == TileType.GRASSLAND || center == TileType.PURPLELAND)
+                        if (center != TileType.MOUNTAIN)
                             wave[q, r].Add(p);
                     }
 
@@ -164,7 +165,7 @@ public static class WFCBiomeGenerator
             if (next.x == -1)
                 break;
 
-            int chosen = ChooseWeightedPattern(wave[next.x, next.y], patterns);
+            int chosen = ChooseWeightedPattern(wave[next.x, next.y], patterns, centerIndex);
             wave[next.x, next.y].Clear();
             wave[next.x, next.y].Add(chosen);
 
@@ -496,19 +497,29 @@ public static class WFCBiomeGenerator
         return entropy;
     }
 
-    private static int ChooseWeightedPattern(HashSet<int> domain, List<Pattern> patterns)
+    private static int ChooseWeightedPattern(HashSet<int> domain, List<Pattern> patterns, int centerIndex)
     {
         int totalWeight = 0;
+        Dictionary<int, int> weights = new Dictionary<int, int>();
 
         foreach (int p in domain)
-            totalWeight += Mathf.Max(1, patterns[p].weight);
+        {
+            int weight = Mathf.Max(1, patterns[p].weight);
+
+            // Slightly favor water-centered patterns
+            if (patterns[p].values[centerIndex] == TileType.OCEAN_DEEP)
+                weight *= 2;
+
+            weights[p] = weight;
+            totalWeight += weight;
+        }
 
         int roll = UnityEngine.Random.Range(0, totalWeight);
         int running = 0;
 
         foreach (int p in domain)
         {
-            running += Mathf.Max(1, patterns[p].weight);
+            running += weights[p];
             if (roll < running)
                 return p;
         }
@@ -567,15 +578,23 @@ public static class WFCBiomeGenerator
 
     private static TileType ClassifySampleColor(Color c)
     {
-        if (c.b > 0.75f && c.r < 0.45f && c.g < 0.65f)
+        // Cyan / blue water
+        if (c.b > 0.70f && c.g > 0.45f && c.r < 0.25f)
             return TileType.OCEAN_DEEP;
 
-        if (c.g > 0.75f && c.r < 0.55f && c.b < 0.55f)
+        // Darker blue fallback
+        if (c.b > 0.65f && c.r < 0.35f && c.g < 0.80f)
+            return TileType.OCEAN_DEEP;
+
+        // Green grass
+        if (c.g > 0.60f && c.r < 0.45f && c.b < 0.45f)
             return TileType.GRASSLAND;
 
-        if (c.r > 0.75f && c.b > 0.75f && c.g < 0.55f)
+        // Purple / magenta
+        if (c.r > 0.35f && c.b > 0.45f && c.g < 0.35f)
             return TileType.PURPLELAND;
 
+        // Gray mountain
         if (Mathf.Abs(c.r - c.g) < 0.08f &&
             Mathf.Abs(c.g - c.b) < 0.08f &&
             c.grayscale > 0.35f)
@@ -584,5 +603,29 @@ public static class WFCBiomeGenerator
         }
 
         return TileType.GRASSLAND;
+    }
+
+    private static void DebugSampleCounts(TileType[,] sample)
+    {
+        int grass = 0, water = 0, purple = 0, mountain = 0;
+
+        int w = sample.GetLength(0);
+        int h = sample.GetLength(1);
+
+        for (int x = 0; x < w; x++)
+        {
+            for (int y = 0; y < h; y++)
+            {
+                switch (sample[x, y])
+                {
+                    case TileType.GRASSLAND: grass++; break;
+                    case TileType.OCEAN_DEEP: water++; break;
+                    case TileType.PURPLELAND: purple++; break;
+                    case TileType.MOUNTAIN: mountain++; break;
+                }
+            }
+        }
+
+        Debug.Log($"Sample counts -> Grass: {grass}, Water: {water}, Purple: {purple}, Mountain: {mountain}");
     }
 }

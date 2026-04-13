@@ -245,6 +245,14 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
+      propertyPath: width
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
+      propertyPath: height
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: tilePrefab
       value: 
       objectReference: {fileID: 1143747835539376982, guid: cdabbef39137148ca884b82183a092ec, type: 3}
@@ -279,7 +287,7 @@ PrefabInstance:
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: biomeControlMask
       value: 
-      objectReference: {fileID: 2800000, guid: f32e747f1c16249aca89bd73a368f724, type: 3}
+      objectReference: {fileID: 2800000, guid: 756f1b80047764aa4b83bdc7e54e3dfd, type: 3}
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: grassRock1Sprite
       value: 
@@ -303,6 +311,10 @@ PrefabInstance:
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: mountainBlendChance
       value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
+      propertyPath: visualizeGeneration
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9030648936904342042, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: m_Name
