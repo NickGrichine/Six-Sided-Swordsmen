@@ -36,7 +36,7 @@ public class UnitSpawner : MonoBehaviour
 
         GameObject go = Instantiate(unitPrefab);
         var unit = go.GetComponent<UnitController>();
-        unit.SetTeam((Team)team);
+        unit.SetTeam(team);
         if (tile.TryEnter(unit))
         {
             GameManager.Instance?.NotifyGameStateChanged();

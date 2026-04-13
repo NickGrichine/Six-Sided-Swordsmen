@@ -82,5 +82,10 @@ public class CustomButton : Button
             buttonImage.sprite = null;
         }
     }
+
+    public void ChangeIconColor(Color32 color)
+    {
+        buttonImage.color = color;
+    }
 }
 
