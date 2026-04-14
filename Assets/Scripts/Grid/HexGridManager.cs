@@ -4,7 +4,7 @@ using UnityEngine;
 public class HexGridManager : Singleton<HexGridManager>
 {
     [Header("Grid Settings")]
-    public Tile tilePrefab; 
+    public Tile tilePrefab;
     public int width = 10;   // q cols
     public int height = 10;  // r rows
     public float hexSize = 1f; // Base Spacing factor for hex layout
@@ -52,7 +52,7 @@ public class HexGridManager : Singleton<HexGridManager>
 
     [Header("Camera Bounds")]
     [SerializeField] private int cameraBorderTiles = 3;
-    
+
     [Header("Generation Tuning")]
     [Range(0f, 1f)] public float oceanChance = 0.18f; // chance for tile to become ocean
     [Range(0f, 1f)] public float purpleChance = 0.32f; // chance for title to become purple
@@ -316,7 +316,7 @@ public class HexGridManager : Singleton<HexGridManager>
 
         if (roll < mountainRock1Chance)
             return 1; // 1 rock
-        
+
         roll -= mountainRock1Chance;
 
         if (roll < mountainRock2Chance)
@@ -484,7 +484,7 @@ public class HexGridManager : Singleton<HexGridManager>
     {
         return tile.grassVariant == 1 && grassFlowerSprite != null
             ? grassFlowerSprite
-            : grassFlatSprite;    
+            : grassFlatSprite;
     }
 
     private Sprite GetMountainSprite(Tile tile)
@@ -507,7 +507,7 @@ public class HexGridManager : Singleton<HexGridManager>
                         : (grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite));
             default:
                 return grassFlatSprite;
-            }    
+        }
     }
 
     private Sprite GetPurpleSprite()

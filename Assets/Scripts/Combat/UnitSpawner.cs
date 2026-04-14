@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-public class UnitSpawner : MonoBehaviour
+public class UnitSpawner : Singleton<UnitSpawner>
 {
     public HexGridManager grid;
     public GameObject unitPrefab;
@@ -13,6 +13,25 @@ public class UnitSpawner : MonoBehaviour
     public enum TagUnitType
     {
         Knight, Archer, Cleric, Spearman
+    }
+
+    // NOTE: duplicated code; to clean up later.
+    public UnitController SpawnUnit(Player team, Tile tile, TagUnitType unitType)
+    {
+        unitPrefab = GetPrefabForType(unitType);
+
+        GameObject go = Instantiate(unitPrefab);
+        var unit = go.GetComponent<UnitController>();
+        unit.SetTeam(team);
+        if (tile.TryEnter(unit))
+        {
+            GameManager.Instance?.NotifyGameStateChanged();
+            return unit;
+        }
+
+        Destroy(go);
+        Debug.LogError($"TryEnter() failed for tile at {tile.gridPos}");
+        return null;
     }
 
     public UnitController SpawnUnit(Player team, Vector2Int gridPos, TagUnitType unitType)

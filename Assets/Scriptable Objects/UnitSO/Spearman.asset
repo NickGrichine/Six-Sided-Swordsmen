@@ -18,4 +18,4 @@ MonoBehaviour:
   maxMovesPerTurn: 9
   attackRange: 3
   visionRange: 3
-  unitType: 0
+  unitType: 2
