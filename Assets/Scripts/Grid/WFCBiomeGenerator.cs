@@ -8,7 +8,7 @@ public static class WFCBiomeGenerator
     // each wave cell is a superposition of pattern IDs, not tile types.
 
     private const int PatternRadius = 1;   // 1 = 7-cell hex pattern, 2 = 19-cell pattern
-    private const bool UseRotations = true;
+    private const bool UseRotations = false;
     private const int MaxAttempts = 20;
 
     // Cube directions for hex neighbors
@@ -505,11 +505,6 @@ public static class WFCBiomeGenerator
         foreach (int p in domain)
         {
             int weight = Mathf.Max(1, patterns[p].weight);
-
-            // Slightly favor water-centered patterns
-            if (patterns[p].values[centerIndex] == TileType.OCEAN_DEEP)
-                weight *= 2;
-
             weights[p] = weight;
             totalWeight += weight;
         }
