@@ -1,12 +1,19 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
-public class UnitArray : MonoBehaviour
+public class UnitArray : Singleton<UnitArray>
 {
     [SerializeField] private GameObject unitButtonPrefab;
     [SerializeField] private UnitDataSO[] allUnits;
+    [SerializeField] private RectTransform unitArray;
+    [SerializeField] private RectTransform unitPanel;
 
     private UnitDataSO selected_unit = null;
+
+    public event Action<Player, UnitDataSO, Tile> OnUnitPlacement;
+
+
 
     void Start()
     {
@@ -29,6 +36,14 @@ public class UnitArray : MonoBehaviour
             UnitDataSO unit = this.selected_unit;
             PlaceUnit(team, unit, tile);
         };
+
+        ForceResizePanel();
+    }
+
+    private void ForceResizePanel()
+    {
+        LayoutRebuilder.ForceRebuildLayoutImmediate(unitArray);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(unitPanel);
     }
 
     private void SelectUnit(UnitDataSO unit)
@@ -41,8 +56,12 @@ public class UnitArray : MonoBehaviour
     {
         if (tile.IsOccupied) return;
         if (selected_unit == null) return;
+        if (ResourceManager.Instance.CheckValidDeductionOfResource(team, unit.cost) == false) return;
+
         UnitSpawner.TagUnitType tagUnitType = _convertUnitTypeToTagUnitType(unit);
         UnitSpawner.Instance.SpawnUnit(team, tile, tagUnitType);
+
+        OnUnitPlacement?.Invoke(team, unit, tile);
     }
     private UnitSpawner.TagUnitType _convertUnitTypeToTagUnitType(UnitDataSO unit)
     {
