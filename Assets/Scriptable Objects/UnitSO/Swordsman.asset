@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b206e5188d8b9f04f8ae108dcd38bcc2, type: 3}
   m_Name: Swordsman
   m_EditorClassIdentifier: 
+  icon: {fileID: 2012179291, guid: c152a547652e83a47abe29106d5e7d19, type: 3}
   maxHealth: 15
   attackStr: 5
-  maxMovesPerTurn: 10
+  maxMovesPerTurn: 3
   attackRange: 1
   visionRange: 2
+  unitType: 0

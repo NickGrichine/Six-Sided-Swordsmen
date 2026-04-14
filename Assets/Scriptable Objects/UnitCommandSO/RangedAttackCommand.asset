@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0b73184b18bbeee49896266e362dce42, type: 3}
-  m_Name: AttackCommand
+  m_Name: RangedAttackCommand
   m_EditorClassIdentifier: 
   commandID: 2
   category: 1
   moveCost: 1
-  icon: {fileID: 21300000, guid: 3baa6b174a565037ebc44d1ab9d8671b, type: 3}
-  textDescription: Basic Attack Command
+  icon: {fileID: 1817520089, guid: 5a9c1ec6d71d57741ba77c6b6df092d9, type: 3}
+  textDescription: Ranged Attack

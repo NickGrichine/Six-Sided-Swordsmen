@@ -3,16 +3,33 @@ using System.Collections.Generic;
 
 public static class HexPathfinder
 {
+    // Standard movement pathfinding: goal must be passable and unoccupied.
     public static List<Tile> FindPath(Tile start, Tile goal)
     {
-        
-        //If either tile is missing, or start == goal, there is nothing useful to pathfind. Impassable goals or occupied tiles as well.
         if (start == null || goal == null || start == goal) return new List<Tile>();
         if (!goal.passable || goal.IsOccupied)
         {
             Debug.LogWarning($"Pathfinding failed: goal tile '{goal.name}' is not passable or is occupied.");
             return new List<Tile>();
         }
+
+        return FindPathInternal(start, goal, ignoreGoalOccupancy: false);
+    }
+
+    // LOS/range pathfinding: goal may be occupied (e.g. a target unit), but must still be passable terrain.
+    public static List<Tile> FindPathForLOS(Tile start, Tile goal)
+    {
+        if (start == null || goal == null || start == goal) return new List<Tile>();
+        if (!goal.passable)
+        {
+            return new List<Tile>();
+        }
+
+        return FindPathInternal(start, goal, ignoreGoalOccupancy: true);
+    }
+
+    private static List<Tile> FindPathInternal(Tile start, Tile goal, bool ignoreGoalOccupancy)
+    {
 
         /*
         Initialize A* data structures.
@@ -59,7 +76,7 @@ public static class HexPathfinder
                 {
                     continue;
                 }
-                if (!CanEnterTile(current, neighbor))
+                if (!CanEnterTile(current, neighbor, ignoreOccupancy: ignoreGoalOccupancy && neighbor == goal))
                 {
                     continue;
                 }
@@ -72,7 +89,7 @@ public static class HexPathfinder
                 }
 
                 //Compute tentative cost to neighbor through current.
-                int tentativeG = currentG + Mathf.Max(1, neighbor.moveCost);
+                int tentativeG = currentG + Mathf.Max(1, neighbor.moveCost); //Of course, in this case it's redundant becase every tile has moveCost 1, but this allows for future expansion with varied terrain costs.
 
                 //Existing best cost to neighbor (if any).
                 int neighborG = gScore.TryGetValue(neighbor, out int knownNeighborG) ? knownNeighborG : int.MaxValue;
@@ -103,19 +120,11 @@ public static class HexPathfinder
     }
 
     //Validates whether moving from one tile to another is legal.
-    private static bool CanEnterTile(Tile from, Tile to)
+    private static bool CanEnterTile(Tile from, Tile to, bool ignoreOccupancy = false)
     {
-        //Null tiles are never enterable, neither are blocked or occupied tiles.
-        if (to == null)
-        {
-            return false;
-        }
-        if (!to.passable || to.IsOccupied)
-        {
-            return false;
-        }
-
-        //Terrain height/climb rules are handled by Tile's logic.
+        if (to == null) return false;
+        if (!to.passable) return false;
+        if (!ignoreOccupancy && to.IsOccupied) return false;
         return to.CanClimbFrom(from);
     }
 
@@ -127,7 +136,7 @@ public static class HexPathfinder
     }
 
     //Selects the open tile with the lowest fScore.
-    //If fScores tie, pick the one with lower heuristic distance to goal.
+    //If fScores tie, pick the one with lower heuristic distance to goal. AS THE A* REQUIRES.
     private static Tile GetLowestFScore(List<Tile> openSet, Dictionary<Tile, int> fScore, Tile goal)
     {
         Tile best = openSet[0];

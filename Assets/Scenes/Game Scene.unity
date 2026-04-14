@@ -258,7 +258,7 @@ PrefabInstance:
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: tilePrefab
       value: 
-      objectReference: {fileID: 3786522473565270464, guid: 13139b24087ea4440bda16628e2b0466, type: 3}
+      objectReference: {fileID: 3786522473565270464, guid: 1244cca042012754baf167dca488c431, type: 3}
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: oceanChance
       value: 0.18
@@ -277,7 +277,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: generationMode
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: mountainChance
@@ -359,7 +359,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   grid: {fileID: 1083728395}
   unitPrefab: {fileID: 453141174523818861, guid: 92a664a41c097064980ff6daeebea221, type: 3}
-  healthManager: {fileID: 0}
 --- !u!114 &1446639555
 MonoBehaviour:
   m_ObjectHideFlags: 0

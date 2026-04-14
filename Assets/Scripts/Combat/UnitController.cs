@@ -1,17 +1,17 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public enum Team { Player1 = 1, Player2 = 2 }
 
 public class UnitController : MonoBehaviour, IOccupant
 {
-    // public Team teamID;
     public Player teamID;
     public Tile position;
     public UnitDataSO refData;
-    public HealthManager healthManager;    
+    public HealthManager healthManager;
     public List<UnitCommandSO> commands = new List<UnitCommandSO>();
     public int movesRemaining;
+    public int range;
 
     [SerializeField] private SpriteRenderer spriteRenderer;
 
@@ -27,6 +27,7 @@ public class UnitController : MonoBehaviour, IOccupant
         {
             healthManager.onDeath += OnDeath;
         }
+        range = refData.attackRange;
 
         //healthManager.SetMaxHealth(healthManager.maxHealth);
     }
@@ -85,12 +86,12 @@ public class UnitController : MonoBehaviour, IOccupant
 
 
 
-    public void SetTeam(Team team)
+    public void SetTeam(Player team)
     {
-        teamID = (Player)team;
+        teamID = team;
         if (spriteRenderer != null)
         {
-            spriteRenderer.color = team == Team.Player1 ? Colours.PLAYER_GREEN : Colours.PLAYER_YELLOW;
+            spriteRenderer.color = Colours.GetColor(team);
         }
     }
 
@@ -120,9 +121,12 @@ public class UnitController : MonoBehaviour, IOccupant
             healthManager.SetMaxHealth(refData.maxHealth);
         }
 
-        // initialize moves on spawn (GameManager.OnTurnStart fires before units exist on turn 1)
+        // initialize moves and range on spawn (GameManager.OnTurnStart fires before units exist on turn 1)
         if (refData != null)
+        {
             movesRemaining = refData.maxMovesPerTurn;
+            range = refData.attackRange;
+        }
 
         if (GameManager.Instance != null)
             GameManager.Instance.OnTurnStart += OnTurnStarted;
@@ -144,6 +148,38 @@ public class UnitController : MonoBehaviour, IOccupant
     {
         movesRemaining = 0;
     }
+
+
+    // To retrieve bonus damage value
+    public int GetBonusDamageAgainst(UnitController target)
+    {
+
+        // TODO change to switch statement
+        if (refData == null || target == null || target.refData == null)
+            return 0;
+
+        if (refData.unitType == UnitDataSO.UnitType.Archer)
+        {
+            return refData.damageBonusesArcher[target.refData.unitType];
+        }
+        else if (refData.unitType == UnitDataSO.UnitType.Knight)
+        {
+            return refData.damageBonusesKnight[target.refData.unitType];
+        }
+        else if (refData.unitType == UnitDataSO.UnitType.Spearman)
+        {
+            return refData.damageBonusesSpearman[target.refData.unitType];
+        }
+        else if (refData.unitType == UnitDataSO.UnitType.Swordsman)
+        {
+            return refData.damageBonusesSwordsman[target.refData.unitType];
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
 
     public void OnDeath()
     {
@@ -209,23 +245,23 @@ public class UnitController : MonoBehaviour, IOccupant
         return visibleTiles;
     }
 
-/*
-    public bool MoveToTile(Tile destination)
-    {
-        if (destination == null || destination.IsOccupied || !destination.passable)
-            return false;
-
-        var path = HexPathfinder.FindPath(position, destination);
-        if (path.Count == 0) return false;
-
-        if (path.Count == 2) // Adjacent
+    /*
+        public bool MoveToTile(Tile destination)
         {
-            return MoveToAdjacentTile(destination);
-        }
+            if (destination == null || destination.IsOccupied || !destination.passable)
+                return false;
 
-        var nextTile = path[1];
-        return MoveToAdjacentTile(nextTile);
-    } */
+            var path = HexPathfinder.FindPath(position, destination);
+            if (path.Count == 0) return false;
+
+            if (path.Count == 2) // Adjacent
+            {
+                return MoveToAdjacentTile(destination);
+            }
+
+            var nextTile = path[1];
+            return MoveToAdjacentTile(nextTile);
+        } */
     public int OwnerId => (int)teamID;
     public Tile CurrentTile { get => position; set { position = value; UpdatePosition(); } }
 
@@ -244,4 +280,5 @@ public class UnitController : MonoBehaviour, IOccupant
         GameManager.Instance?.NotifyGameStateChanged();
     }
     public void onDeath() => OnDeath();
+
 }

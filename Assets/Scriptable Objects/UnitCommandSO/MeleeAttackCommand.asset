@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0b73184b18bbeee49896266e362dce42, type: 3}
-  m_Name: MoveCommand
+  m_Name: MeleeAttackCommand
   m_EditorClassIdentifier: 
-  commandID: 1
-  category: 0
+  commandID: 2
+  category: 1
   moveCost: 1
-  icon: {fileID: -114019984, guid: 5a9c1ec6d71d57741ba77c6b6df092d9, type: 3}
-  textDescription: Move
+  icon: {fileID: 674457812, guid: 5a9c1ec6d71d57741ba77c6b6df092d9, type: 3}
+  textDescription: Melee Attack

@@ -53,8 +53,9 @@ MonoBehaviour:
   healthManager: {fileID: 0}
   commands:
   - {fileID: 11400000, guid: 5d082b3a1934f95449c3a067a883e236, type: 2}
-  - {fileID: 11400000, guid: e1e26134467b41d49b88e726aa445faa, type: 2}
+  - {fileID: 11400000, guid: 11249551fa6ffed48846eb556f71a323, type: 2}
   movesRemaining: 0
+  range: 0
   spriteRenderer: {fileID: -3586668808884303377}
 --- !u!114 &5852851653461846090
 MonoBehaviour:

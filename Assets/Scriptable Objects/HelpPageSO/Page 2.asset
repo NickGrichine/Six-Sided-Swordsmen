@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 750a1008de54cd9c485a6ce504ff33a0, type: 3}
+  m_Name: Page 2
+  m_EditorClassIdentifier: 
+  sprite: {fileID: 21300000, guid: e7f3f9db43b57f2c0a47edd229a6a3d9, type: 3}
+  title: Command with precision
+  description: Your army awaits your orders. Command them to move and attack enemy
+    soldiers by clicking on your units and then initiating a command through the
+    unit console.
+  next: {fileID: 11400000, guid: c5930a62ae600a2c7ba86263e5403fb6, type: 2}
