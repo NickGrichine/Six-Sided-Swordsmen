@@ -39,6 +39,7 @@ public class UnitSpawner : MonoBehaviour
         unit.SetTeam(team);
         if (tile.TryEnter(unit))
         {
+            ReplayManager.EnsureExists().RecordUnitSpawned(unit, tile);
             GameManager.Instance?.NotifyGameStateChanged();
             return unit;
         }
