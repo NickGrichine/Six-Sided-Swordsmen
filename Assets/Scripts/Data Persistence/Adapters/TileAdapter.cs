@@ -3,21 +3,25 @@ using System.Collections.Generic;
 
 public static class TileAdapter{
     public static TileData ToData(Tile tile){
-        //todo
+        if (tile == null)
+        {
+            return null;
+        }
+
         var data = new TileData{
-            //isNull = tile.IsNull,
             tileId = tile.tileId,
             type = tile.type,
             altitude = tile.altitude,
             gridPos = tile.gridPos,
             moveCost = tile.moveCost,
             passable = tile.passable,
-            neighborIds = new List<int>(tile.neighborIds)
+            neighborIds = new List<int>(tile.neighborIds),
+            occupant = ToOccupantData(tile.occupant)
         };
-        //foreach(var tileId in tile.tiles)
+
         return data;
-        
     }
+
     public static void FromData(Tile tile, TileData tileData){
         //todo
         //tile.IsNull = tileData.isNull;
@@ -29,5 +33,30 @@ public static class TileAdapter{
         tile.passable = tileData.passable;
         
 
+    }
+
+    private static TileOccupantData ToOccupantData(IOccupant occupant)
+    {
+        if (!(occupant is UnitController unit))
+        {
+            return null;
+        }
+
+        int currentHealth = unit.healthManager != null ? unit.healthManager.GetHealth() : 0;
+        int maxHealth = unit.healthManager != null ? unit.healthManager.GetMaxHealth() : 0;
+        int attackRange = unit.refData != null ? unit.refData.attackRange : unit.range;
+        int attackStrength = unit.refData != null ? unit.refData.attackStr : 0;
+
+        return new TileOccupantData
+        {
+            unitId = ReplayManager.GetOrCreatePersistentUnitId(unit),
+            unitName = unit.name.Replace("(Clone)", string.Empty).Trim(),
+            ownerId = unit.OwnerId,
+            health = currentHealth,
+            maxHealth = maxHealth,
+            movesRemaining = unit.movesRemaining,
+            attackRange = attackRange,
+            attackStrength = attackStrength
+        };
     }
 }

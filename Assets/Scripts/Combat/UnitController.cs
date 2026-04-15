@@ -2,15 +2,13 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public enum Team { Player1 = 1, Player2 = 2 }
 
 public class UnitController : MonoBehaviour, IOccupant
 {
-    // public Team teamID;
     public Player teamID;
     public Tile position;
     public UnitDataSO refData;
-    public HealthManager healthManager;    
+    public HealthManager healthManager;
     public List<UnitCommandSO> commands = new List<UnitCommandSO>();
     public int movesRemaining;
     public int range;
@@ -88,12 +86,12 @@ public class UnitController : MonoBehaviour, IOccupant
 
 
 
-    public void SetTeam(Team team)
+    public void SetTeam(Player team)
     {
-        teamID = (Player)team;
+        teamID = team;
         if (spriteRenderer != null)
         {
-            spriteRenderer.color = team == Team.Player1 ? Colours.PLAYER_GREEN : Colours.PLAYER_YELLOW;
+            spriteRenderer.color = Colours.GetColor(team);
         }
     }
 
@@ -185,11 +183,18 @@ public class UnitController : MonoBehaviour, IOccupant
 
     public void OnDeath()
     {
+        Tile deathTile = position;
+
         // clear tile reference so it can be reused
         if (position != null)
         {
             position.occupant = null;
             position = null;
+        }
+
+        if (deathTile != null)
+        {
+            ReplayManager.EnsureExists().RecordUnitDied(this, deathTile);
         }
 
         GameManager.Instance?.NotifyGameStateChanged();
@@ -201,24 +206,27 @@ public class UnitController : MonoBehaviour, IOccupant
         if (destination == null || destination.IsOccupied || !destination.passable)
             return false;
 
-        if (position == null || !position.neighbors.Contains(destination))
+        Tile fromTile = position;
+
+        if (fromTile == null || !fromTile.neighbors.Contains(destination))
             return false;
 
-        if (!destination.CanClimbFrom(position))
+        if (!destination.CanClimbFrom(fromTile))
             return false;
 
         // leaving current tile.
-        position.occupant = null;
+        fromTile.occupant = null;
 
         // entering new tile
         if (destination.TryEnter(this))
         {
-            OnMoved(position, destination);
+            ReplayManager.EnsureExists().RecordUnitMoved(this, fromTile, destination);
+            OnMoved(fromTile, destination);
             return true;
         }
 
         // Failed, re-enter old tile
-        position.TryEnter(this);
+        fromTile.TryEnter(this);
         return false;
     }
 
@@ -247,23 +255,23 @@ public class UnitController : MonoBehaviour, IOccupant
         return visibleTiles;
     }
 
-/*
-    public bool MoveToTile(Tile destination)
-    {
-        if (destination == null || destination.IsOccupied || !destination.passable)
-            return false;
-
-        var path = HexPathfinder.FindPath(position, destination);
-        if (path.Count == 0) return false;
-
-        if (path.Count == 2) // Adjacent
+    /*
+        public bool MoveToTile(Tile destination)
         {
-            return MoveToAdjacentTile(destination);
-        }
+            if (destination == null || destination.IsOccupied || !destination.passable)
+                return false;
 
-        var nextTile = path[1];
-        return MoveToAdjacentTile(nextTile);
-    } */
+            var path = HexPathfinder.FindPath(position, destination);
+            if (path.Count == 0) return false;
+
+            if (path.Count == 2) // Adjacent
+            {
+                return MoveToAdjacentTile(destination);
+            }
+
+            var nextTile = path[1];
+            return MoveToAdjacentTile(nextTile);
+        } */
     public int OwnerId => (int)teamID;
     public Tile CurrentTile { get => position; set { position = value; UpdatePosition(); } }
 
@@ -282,4 +290,5 @@ public class UnitController : MonoBehaviour, IOccupant
         GameManager.Instance?.NotifyGameStateChanged();
     }
     public void onDeath() => OnDeath();
+
 }

@@ -27,6 +27,9 @@ public class Tile : MonoBehaviour
     private bool hasFog = true;
     public bool Visible => !hasFog;
 
+    // Command highlighting
+    public GameObject commandHighlight;
+
     [SerializeField] private Sprite[] fogSprites = new Sprite[0];
     [SerializeField] private SpriteRenderer fogSpriteRenderer;
 
@@ -123,4 +126,22 @@ print (fogSprites == null ? "fogSprites is null" : $"fogSprites length: {fogSpri
         unit.CurrentTile = this;
         return true;
     }
+
+
+    public void ShowCommandHighlight()
+    {
+        if (commandHighlight != null)
+        {
+            commandHighlight.SetActive(true);
+        }
+    }
+
+    public void HideCommandHighlight()
+    {
+        if (commandHighlight != null)
+        {
+            commandHighlight.SetActive(false);
+        }
+    }
+
 }

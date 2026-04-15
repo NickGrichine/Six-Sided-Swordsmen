@@ -84,8 +84,10 @@ public class UnitConsole : Singleton<UnitConsole>
             SetCommandButton(OnCommandClicked, null, command);
         }
 
-        // TODO: Set unit icon:
-        // unitIcon.Initialize( [sprite here] );
+        // Set unit icon:
+        unitIcon.Initialize(unitController.refData.icon);
+        Color32 color = Colours.GetColor(unitController.teamID);
+        unitIcon.ChangeIconColor(color);
 
         Player current_turn_player = GameManager.Instance.TurnPlayer;
         Player unit_belongs_to = (Player)unitController.teamID;

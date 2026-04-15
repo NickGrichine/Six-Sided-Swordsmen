@@ -36,9 +36,10 @@ public class UnitSpawner : MonoBehaviour
 
         GameObject go = Instantiate(unitPrefab);
         var unit = go.GetComponent<UnitController>();
-        unit.SetTeam((Team)team);
+        unit.SetTeam(team);
         if (tile.TryEnter(unit))
         {
+            ReplayManager.EnsureExists().RecordUnitSpawned(unit, tile);
             GameManager.Instance?.NotifyGameStateChanged();
             return unit;
         }
