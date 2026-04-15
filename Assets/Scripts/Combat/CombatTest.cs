@@ -4,20 +4,6 @@ using UnityEngine;
 
 public class CombatTest : MonoBehaviour
 {
-    public HexGridManager grid;
-    public GameObject unitPrefab;
-
-    private UnitController unitA;
-    private UnitController unitB;
-    private UnitController unitC;
-    private UnitController unitD;
-    private UnitController unitE;
-    private UnitController unitF;
-    private UnitController unitG;
-    private UnitController unitH;
-    private UnitController unitI;
-
-    private UnitSpawner spawner;
     private SelectionMode selectionMode = SelectionMode.Idle;
     private UnitController selectedUnit;
     private Coroutine activeMoveRoutine;
@@ -43,42 +29,6 @@ public class CombatTest : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("CombatTest.Start called");
-        var allUnits = FindObjectsOfType<UnitController>();
-        foreach (var u in allUnits) Debug.Log($"Unit: {u.gameObject.name} at {u.transform.position}");
-
-        if (FindObjectsOfType<CombatTest>().Length > 1)
-        {
-            Debug.LogError("Multiple CombatTest in scene, destroying this one");
-            Destroy(gameObject);
-            return;
-        }
-
-        foreach (var unit in allUnits) //cleanup any possible leftover units from previous test runs in the editor, since they won't be cleaned up by Play mode stop if they were spawned in edit mode.
-        {
-            Destroy(unit.gameObject);
-        }
-
-        Debug.Log("After destroy, units left: " + FindObjectsOfType<UnitController>().Length);
-
-        spawner = GetComponent<UnitSpawner>() ?? gameObject.AddComponent<UnitSpawner>();
-        spawner.grid = grid;
-        spawner.unitPrefab = unitPrefab;
-
-        unitA = spawner.SpawnUnit(Player.PLAYER_1, new Vector2Int(0, 0), UnitSpawner.TagUnitType.Knight);
-        unitB = spawner.SpawnUnit(Player.PLAYER_1, new Vector2Int(2, 1), UnitSpawner.TagUnitType.Archer);
-        unitC = spawner.SpawnUnit(Player.PLAYER_1, new Vector2Int(0, 2), UnitSpawner.TagUnitType.Cleric);
-        unitD = spawner.SpawnUnit(Player.PLAYER_1, new Vector2Int(1, 3), UnitSpawner.TagUnitType.Spearman);
-        unitE = spawner.SpawnUnit(Player.PLAYER_1, new Vector2Int(0, 4), UnitSpawner.TagUnitType.Knight);
-        unitF = spawner.SpawnUnit(Player.PLAYER_2, new Vector2Int(4, 6), UnitSpawner.TagUnitType.Knight);
-        unitG = spawner.SpawnUnit(Player.PLAYER_2, new Vector2Int(6, 5), UnitSpawner.TagUnitType.Archer);
-        unitH = spawner.SpawnUnit(Player.PLAYER_2, new Vector2Int(6, 8), UnitSpawner.TagUnitType.Cleric);
-        unitI = spawner.SpawnUnit(Player.PLAYER_2, new Vector2Int(4, 7), UnitSpawner.TagUnitType.Spearman);
-
-
-        Debug.Log($"Spawned A at {unitA?.position.gridPos}, B at {unitB?.position.gridPos}");
-        Debug.Log("Total units after spawn: " + FindObjectsOfType<UnitController>().Length);
-
         if (GridEventHandler.Instance != null)
         {
             GridEventHandler.Instance.onTileClicked += OnTileClicked;
