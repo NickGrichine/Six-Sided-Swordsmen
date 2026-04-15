@@ -101,7 +101,8 @@ public static class WFCBiomeGenerator
 
                 if (outsidePlayableArea)
                 {
-                    // Force ocean border
+                    // Force the ocean border outside the playable area.
+                    // Only patterns whose CENTER tile is ocean are allowed here.
                     for (int p = 0; p < patternCount; p++)
                     {
                         if (patterns[p].values[centerIndex] == TileType.OCEAN_DEEP)
@@ -109,7 +110,10 @@ public static class WFCBiomeGenerator
                     }
 
                     if (wave[q, r].Count == 0)
+                    {
+                        Debug.LogWarning($"WFC init failed: no ocean-centered patterns available for border cell ({q}, {r}).");
                         return false;
+                    }
 
                     continue;
                 }
@@ -125,7 +129,10 @@ public static class WFCBiomeGenerator
 
                 if (isNearInnerBorder)
                 {
-                    // Keep the playable edge friendly, but allow water if learned
+                    // Procedural generation intentionally allows water near the playable edge,
+                    // so rivers or inlets can flow into the map and semi-split it.
+                    // We only block mountain-centered patterns here to keep the edge from
+                    // being too harsh / clogged by rock walls.
                     for (int p = 0; p < patternCount; p++)
                     {
                         TileType center = patterns[p].values[centerIndex];
@@ -134,7 +141,10 @@ public static class WFCBiomeGenerator
                     }
 
                     if (wave[q, r].Count == 0)
+                    {
+                        Debug.LogWarning($"WFC init failed: no valid non-mountain patterns for inner-edge cell ({q}, {r}).");
                         return false;
+                    }
                 }
                 else
                 {
@@ -165,7 +175,7 @@ public static class WFCBiomeGenerator
             if (next.x == -1)
                 break;
 
-            int chosen = ChooseWeightedPattern(wave[next.x, next.y], patterns, centerIndex);
+            int chosen = ChooseWeightedPattern(wave[next.x, next.y], patterns);
             wave[next.x, next.y].Clear();
             wave[next.x, next.y].Add(chosen);
 
@@ -424,7 +434,10 @@ public static class WFCBiomeGenerator
                 }
 
                 if (reduced.Count == 0)
+                {
+                    Debug.LogWarning($"WFC contradiction during propagation at neighbor ({nq}, {nr}) from current ({current.x}, {current.y}).");
                     return false;
+                }
 
                 if (reduced.Count < neighborDomain.Count)
                 {
@@ -492,12 +505,12 @@ public static class WFCBiomeGenerator
 
         float entropy = Mathf.Log(totalWeight) - (weightedLogSum / totalWeight);
 
-        // tiny noise to reduce tie patterns like mxgmn
+        // Tiny noise to reduce tie patterns like mxgmn.
         entropy += UnityEngine.Random.value * 0.0001f;
         return entropy;
     }
 
-    private static int ChooseWeightedPattern(HashSet<int> domain, List<Pattern> patterns, int centerIndex)
+    private static int ChooseWeightedPattern(HashSet<int> domain, List<Pattern> patterns)
     {
         int totalWeight = 0;
         Dictionary<int, int> weights = new Dictionary<int, int>();
