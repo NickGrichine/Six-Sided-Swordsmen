@@ -1,0 +1,27 @@
+The control image is read by code and converted into a biome type.
+
+BIOME COLOURS
+- Grassland  = (50, 220, 50)
+- Ocean      = (40, 120, 230)
+- Mountain   = (140, 140, 140)
+- Purpleland = (180, 60, 220)
+
+
+Recommended hex values:
+- Grassland  = #32DC32
+- Ocean      = #2878E6
+- Mountain   = #8C8C8C
+- Purpleland = #B43CDC
+
+
+UNITY IMPORT SETTINGS
+Texture Type:       default
+Texture Shape:      2D
+sRGB:               On 
+Read/Write:         On
+Generate Mipmaps:   Off
+Filter Mode:        Point (no filter)
+Compression:        Off
+
+FILE FORMAT 
+Only use PNG
