@@ -13,20 +13,30 @@ public class AttackCommand : IUnitCommand
     {
         if (!CanExecute(actor, target)) return null;
 
-        //int damage = actor.refData.attackStr;
-    
-    
-        // Updated to handle bonus damage IN ADDITION to base damage
-        int baseDamage = actor.refData.attackStr;
-        int bonusDamage = actor.GetBonusDamageAgainst(target.unit);  // bonusDamage can be negative
-        int finalDamage = baseDamage + bonusDamage;
+        Tile attackerTile = actor.position;
+        Tile targetTile = target.unit.position;
+        int hpBefore = target.unit.healthManager.GetHealth();
 
-        // but finalDamage shouldn't ever be less than 0, so clamp it
-        finalDamage = Mathf.Max(0, finalDamage);
+        // Updated to handle bonus damage in addition to base damage.
+        int baseDamage = actor.refData.attackStr;
+        int bonusDamage = actor.GetBonusDamageAgainst(target.unit);
+        int finalDamage = Mathf.Max(0, baseDamage + bonusDamage);
 
         target.unit.healthManager.TakeDamage(finalDamage);
+        int hpAfter = target.unit.healthManager.GetHealth();
+
         actor.ConsumeMoves();
-        // Create record with damage stored somehow
+
+        ReplayManager.EnsureExists().RecordUnitAttacked(
+            actor,
+            target.unit,
+            attackerTile,
+            targetTile,
+            finalDamage,
+            hpBefore,
+            hpAfter
+        );
+
         var record = new AttackExecutionRecord(target.unit, finalDamage);
         return record;
     }
@@ -40,6 +50,7 @@ public class AttackCommand : IUnitCommand
 public class AttackExecutionRecord : CommandExecutionRecord
 {
     public int damageDealt;
+
     public AttackExecutionRecord(UnitController target, int damage) : base(target)
     {
         this.damageDealt = damage;

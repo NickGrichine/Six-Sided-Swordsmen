@@ -30,6 +30,7 @@ public class GameManager : Singleton<GameManager>
         TurnPlayer = NextPlayer();
         TurnNumber = 1;
         gameOngoing = true;
+        ReplayManager.EnsureExists().RecordTurnStarted(TurnNumber, TurnPlayer);
         OnTurnStart?.Invoke(TurnNumber);
         NotifyGameStateChanged();
     }
@@ -39,11 +40,13 @@ public class GameManager : Singleton<GameManager>
         // create notification for unused actions, etc. and delay calling this function
         // done by some end turn menu/ event handler
 
+        ReplayManager.EnsureExists().RecordTurnEnded(TurnNumber, TurnPlayer);
         OnTurnEnd?.Invoke(TurnNumber);
 
         TurnNumber ++;
         TurnPlayer = NextPlayer();
 
+        ReplayManager.EnsureExists().RecordTurnStarted(TurnNumber, TurnPlayer);
         OnTurnStart?.Invoke(TurnNumber);
         NotifyGameStateChanged();
     }

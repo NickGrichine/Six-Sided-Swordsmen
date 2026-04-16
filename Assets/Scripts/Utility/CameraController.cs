@@ -1,8 +1,7 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[DefaultExecutionOrder(-100)]
 public class CameraController : Singleton<CameraController>
 {
     [SerializeField] private float panSpeed;
@@ -20,14 +19,26 @@ public class CameraController : Singleton<CameraController>
 
 
     [SerializeField] private new Camera camera;
-
-
-
-
     private void Update()
     {
         HandleMovement();
         HandleZoom();
+    }
+
+    private void Start()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnTurnStart += HandleTurnStart;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnTurnStart -= HandleTurnStart;
+        }
     }
 
     private void HandleMovement()
@@ -65,6 +76,36 @@ public class CameraController : Singleton<CameraController>
             transform.position = newPosition;
         }
 
+    }
+
+    private void HandleTurnStart(int turnNumber)
+    {
+        if (GameManager.Instance == null)
+            return;
+
+        Player currentPlayer = GameManager.Instance.TurnPlayer;
+        UnitController[] units = FindObjectsOfType<UnitController>();
+        List<UnitController> candidateUnits = new List<UnitController>();
+
+        foreach (UnitController unit in units)
+        {
+            if (unit == null)
+                continue;
+
+            if ((Player)unit.teamID == currentPlayer)
+            {
+                candidateUnits.Add(unit);
+            }
+        }
+
+        if (candidateUnits.Count == 0)
+            return;
+
+        UnitController targetUnit = candidateUnits[Random.Range(0, candidateUnits.Count)];
+        if (targetUnit == null)
+            return;
+
+        SetPosition(targetUnit.transform.position);
     }
 
     private void HandleZoom()

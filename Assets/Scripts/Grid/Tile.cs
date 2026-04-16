@@ -27,6 +27,9 @@ public class Tile : MonoBehaviour
     private bool hasFog = true;
     public bool Visible => !hasFog;
 
+    // Command highlighting
+    public GameObject commandHighlight;
+
     [SerializeField] private Sprite[] fogSprites = new Sprite[0];
     [SerializeField] private SpriteRenderer fogSpriteRenderer;
 
@@ -43,7 +46,7 @@ public class Tile : MonoBehaviour
             selectionOutline.SetActive(false);
         }
 
-print (fogSprites == null ? "fogSprites is null" : $"fogSprites length: {fogSprites.Length}");
+        //print (fogSprites == null ? "fogSprites is null" : $"fogSprites length: {fogSprites.Length}");
         float randomFogIndex = Random.Range(0, fogSprites.Length);
         if (fogSpriteRenderer != null && fogSprites.Length > 0)
         {
@@ -123,4 +126,22 @@ print (fogSprites == null ? "fogSprites is null" : $"fogSprites length: {fogSpri
         unit.CurrentTile = this;
         return true;
     }
+
+
+    public void ShowCommandHighlight()
+    {
+        if (commandHighlight != null)
+        {
+            commandHighlight.SetActive(true);
+        }
+    }
+
+    public void HideCommandHighlight()
+    {
+        if (commandHighlight != null)
+        {
+            commandHighlight.SetActive(false);
+        }
+    }
+
 }

@@ -13,6 +13,7 @@ public class TileData{
     public Vector2Int gridPos;
     public int moveCost;
     public bool passable;
-    public List<int> neighborIds = new List<int>();
+    public List<int> neighborIds;
+    public TileOccupantData occupant;
 
 }

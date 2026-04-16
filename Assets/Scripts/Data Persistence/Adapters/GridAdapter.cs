@@ -4,24 +4,25 @@ using System.Collections.Generic;
 public static class GridAdapter{
     
     public static GridData ToData(HexGridManager grid){
+        if (grid == null || grid.Grid == null)
+        {
+            return null;
+        }
 
-        // Builds a GridData object from the HexGridManager grid
         var data = new GridData {
             width = grid.width,
             height = grid.height,
             hexSize = grid.hexSize,
-            tiles = new List<TileData>(),
             oceanBorderThickness = grid.OceanBorderThickness,
             cameraBorderTiles = grid.CameraBorderTiles,
         };
 
-        // Populate the tile list (checks non-null tile)
         foreach (var tile in grid.Grid)
         {
-            if (tile != null)
+            TileData tileData = TileAdapter.ToData(tile);
+            if (tileData != null)
             {
-                data.tiles.Add(TileAdapter.ToData(tile));
-
+                data.tiles.Add(tileData);
             }
         }
         return data;
