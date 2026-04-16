@@ -287,7 +287,7 @@ PrefabInstance:
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: biomeControlMask
       value: 
-      objectReference: {fileID: 2800000, guid: 756f1b80047764aa4b83bdc7e54e3dfd, type: 3}
+      objectReference: {fileID: 2800000, guid: 7632dc14601fa469784365ec7cf52eec, type: 3}
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: grassRock1Sprite
       value: 

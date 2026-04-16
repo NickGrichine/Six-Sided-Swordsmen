@@ -648,12 +648,6 @@ public static class WFCBiomeGenerator
             Mathf.Abs(color.b - b) <= tolerance;
     }
 
-    private static bool IsNear(Color32 color, int r, int g, int b, int tolerance)
-    {
-        return Mathf.Abs(color.r - r) <= tolerance &&
-               Mathf.Abs(color.g - g) <= tolerance &&
-               Mathf.Abs(color.b - b) <= tolerance;
-    }
 
     private static void DebugStats(SampleStats stats)
     {
