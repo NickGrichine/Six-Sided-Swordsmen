@@ -566,6 +566,7 @@ public class HexGridManager : Singleton<HexGridManager>
     void Awake()
     {
         base.Awake();
+        
         if (generateOnStart)
         {
     
