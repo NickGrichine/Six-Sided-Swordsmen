@@ -1,109 +1,167 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public static class WFCBiomeGenerator
 {
-    private class WfcCell
+    private const int MaxAttempts = 12;
+    private const float SampleWeightStrength = 2.2f;
+    private const float RatioWeightStrength = 1.35f;
+    private const float BorderWaterBias = 3.0f;
+    private const float InteriorWaterPenalty = 0.35f;
+
+    private static readonly TileType[] AllBiomeTypes =
     {
-        public HashSet<TileType> possible = new HashSet<TileType>();
-        public bool IsCollapsed => possible.Count == 1;
-    }
+        TileType.GRASSLAND,
+        TileType.PURPLELAND,
+        TileType.MOUNTAIN,
+        TileType.OCEAN_DEEP
+    };
 
-    private class LearnedRuleSet
+    private static readonly HashSet<TileType> PlayableBiomeTypes = new HashSet<TileType>(AllBiomeTypes);
+
+    private class SampleStats
     {
-        public Dictionary<TileType, int> biomeCounts = new Dictionary<TileType, int>();
-        public Dictionary<TileType, Dictionary<TileType, int>> adjacencyCounts =
-            new Dictionary<TileType, Dictionary<TileType, int>>();
-
-        public HashSet<TileType> allBiomes = new HashSet<TileType>();
-
-        public void EnsureBiome(TileType type)
-        {
-            if (!biomeCounts.ContainsKey(type))
-                biomeCounts[type] = 0;
-
-            if (!adjacencyCounts.ContainsKey(type))
-                adjacencyCounts[type] = new Dictionary<TileType, int>();
-
-            allBiomes.Add(type);
-        }
-
-        public void AddBiome(TileType type)
-        {
-            EnsureBiome(type);
-            biomeCounts[type]++;
-        }
-
-        public void AddAdjacency(TileType a, TileType b)
-        {
-            EnsureBiome(a);
-            EnsureBiome(b);
-
-            if (!adjacencyCounts[a].ContainsKey(b))
-                adjacencyCounts[a][b] = 0;
-
-            adjacencyCounts[a][b]++;
-        }
-
-        public int GetBiomeWeight(TileType type)
-        {
-            if (!biomeCounts.ContainsKey(type))
-                return 1;
-
-            return Mathf.Max(1, biomeCounts[type]);
-        }
-
-        public int GetAdjacencyWeight(TileType center, TileType neighbor)
-        {
-            if (!adjacencyCounts.ContainsKey(center))
-                return 0;
-
-            if (!adjacencyCounts[center].ContainsKey(neighbor))
-                return 0;
-
-            return adjacencyCounts[center][neighbor];
-        }
-
-        public bool IsCompatible(TileType a, TileType b)
-        {
-            return GetAdjacencyWeight(a, b) > 0 && GetAdjacencyWeight(b, a) > 0;
-        }
+        public readonly Dictionary<TileType, int> TileCounts = new Dictionary<TileType, int>();
+        public readonly Dictionary<TileType, float> TileRatios = new Dictionary<TileType, float>();
+        public readonly Dictionary<TileType, HashSet<TileType>> AllowedNeighbors = new Dictionary<TileType, HashSet<TileType>>();
+        public readonly Dictionary<TileType, Dictionary<TileType, int>> NeighborCounts = new Dictionary<TileType, Dictionary<TileType, int>>();
+        public readonly Dictionary<Vector2Int, TileType> Anchors = new Dictionary<Vector2Int, TileType>();
+        public int SampleWidth;
+        public int SampleHeight;
+        public int TotalCells;
     }
-
-    private const int MaxAttempts = 20;
 
     public static void Generate(HexGridManager gridManager, TileType[,] plannedTypes)
     {
         if (gridManager.biomeControlMask == null)
         {
-            Debug.LogWarning("No example image assigned. Falling back to StaticBiomeGenerator.");
+            Debug.LogWarning("WFCBiomeGenerator: No biomeControlMask assigned. Falling back to StaticBiomeGenerator.");
             StaticBiomeGenerator.Generate(gridManager, plannedTypes);
             return;
         }
 
-        LearnedRuleSet rules = LearnRulesFromTexture(gridManager.biomeControlMask);
-
-        if (rules.allBiomes.Count == 0)
+        SampleStats stats = AnalyzeSample(gridManager.biomeControlMask);
+        if (stats.TotalCells <= 0)
         {
-            Debug.LogWarning("Failed to learn rules from sample image. Falling back to StaticBiomeGenerator.");
+            Debug.LogWarning("WFCBiomeGenerator: Sample analysis failed. Falling back to StaticBiomeGenerator.");
             StaticBiomeGenerator.Generate(gridManager, plannedTypes);
             return;
         }
+
+        DebugStats(stats);
 
         for (int attempt = 0; attempt < MaxAttempts; attempt++)
         {
-            if (TryGenerate(gridManager, plannedTypes, rules))
+            if (TryGenerate(gridManager, plannedTypes, stats, attempt))
             {
-                Debug.Log($"Example-learned Hex WFC succeeded on attempt {attempt + 1}");
+                Debug.Log($"WFCBiomeGenerator succeeded on attempt {attempt + 1}.");
                 return;
             }
         }
 
-        Debug.LogWarning("Example-learned Hex WFC failed after all attempts. Falling back to StaticBiomeGenerator.");
+        Debug.LogWarning("WFCBiomeGenerator failed after all attempts. Falling back to StaticBiomeGenerator.");
         StaticBiomeGenerator.Generate(gridManager, plannedTypes);
     }
 
-    private static bool TryGenerate(HexGridManager gridManager, TileType[,] plannedTypes, LearnedRuleSet rules)
+    private static SampleStats AnalyzeSample(Texture2D texture)
+    {
+        SampleStats stats = new SampleStats
+        {
+            SampleWidth = texture.width,
+            SampleHeight = texture.height,
+            TotalCells = texture.width * texture.height
+        };
+
+        foreach (TileType type in AllBiomeTypes)
+        {
+            stats.TileCounts[type] = 0;
+            stats.TileRatios[type] = 0f;
+            stats.AllowedNeighbors[type] = new HashSet<TileType> { type };
+            stats.NeighborCounts[type] = new Dictionary<TileType, int>();
+        }
+
+        TileType[,] sample = new TileType[texture.width, texture.height];
+
+        for (int q = 0; q < texture.width; q++)
+        {
+            for (int r = 0; r < texture.height; r++)
+            {
+                TileType type = ClassifySampleColour(texture.GetPixel(q, r));
+                sample[q, r] = type;
+                stats.TileCounts[type]++;
+            }
+        }
+
+        foreach (TileType type in AllBiomeTypes)
+        {
+            stats.TileRatios[type] = stats.TotalCells > 0 ? (float)stats.TileCounts[type] / stats.TotalCells : 0f;
+        }
+
+        for (int q = 0; q < texture.width; q++)
+        {
+            for (int r = 0; r < texture.height; r++)
+            {
+                TileType current = sample[q, r];
+                foreach (Vector2Int dir in HexMath.GetNeighborDirections(q))
+                {
+                    int nq = q + dir.x;
+                    int nr = r + dir.y;
+                    if (nq < 0 || nq >= texture.width || nr < 0 || nr >= texture.height)
+                        continue;
+
+                    TileType neighbor = sample[nq, nr];
+                    stats.AllowedNeighbors[current].Add(neighbor);
+
+                    if (!stats.NeighborCounts[current].ContainsKey(neighbor))
+                        stats.NeighborCounts[current][neighbor] = 0;
+
+                    stats.NeighborCounts[current][neighbor]++;
+                }
+            }
+        }
+
+        BuildAnchors(sample, stats);
+        EnsureSafeFallbackRules(stats);
+        return stats;
+    }
+
+    private static void BuildAnchors(TileType[,] sample, SampleStats stats)
+    {
+        int width = sample.GetLength(0);
+        int height = sample.GetLength(1);
+
+        Vector2Int[] normalizedAnchorPositions =
+        {
+            new Vector2Int(1, 1),
+            new Vector2Int(1, 2),
+            new Vector2Int(2, 1),
+            new Vector2Int(2, 2),
+            new Vector2Int(3, 1),
+            new Vector2Int(1, 3),
+            new Vector2Int(3, 3)
+        };
+
+        foreach (Vector2Int normalized in normalizedAnchorPositions)
+        {
+            int q = Mathf.Clamp(Mathf.RoundToInt((normalized.x / 4f) * (width - 1)), 0, width - 1);
+            int r = Mathf.Clamp(Mathf.RoundToInt((normalized.y / 4f) * (height - 1)), 0, height - 1);
+            stats.Anchors[new Vector2Int(normalized.x, normalized.y)] = sample[q, r];
+        }
+    }
+
+    private static void EnsureSafeFallbackRules(SampleStats stats)
+    {
+        stats.AllowedNeighbors[TileType.GRASSLAND].Add(TileType.MOUNTAIN);
+        stats.AllowedNeighbors[TileType.MOUNTAIN].Add(TileType.GRASSLAND);
+        stats.AllowedNeighbors[TileType.GRASSLAND].Add(TileType.PURPLELAND);
+        stats.AllowedNeighbors[TileType.PURPLELAND].Add(TileType.GRASSLAND);
+        stats.AllowedNeighbors[TileType.OCEAN_DEEP].Add(TileType.OCEAN_DEEP);
+        stats.AllowedNeighbors[TileType.MOUNTAIN].Add(TileType.MOUNTAIN);
+        stats.AllowedNeighbors[TileType.PURPLELAND].Add(TileType.PURPLELAND);
+    }
+
+    private static bool TryGenerate(HexGridManager gridManager, TileType[,] plannedTypes, SampleStats stats, int attempt)
     {
         int totalWidth = gridManager.TotalWidth;
         int totalHeight = gridManager.TotalHeight;
@@ -112,103 +170,118 @@ public static class WFCBiomeGenerator
         int width = gridManager.width;
         int height = gridManager.height;
 
-        int playableMinQ = playableOffsetQ;
-        int playableMaxQ = playableOffsetQ + width - 1;
-        int playableMinR = playableOffsetR;
-        int playableMaxR = playableOffsetR + height - 1;
-
-        WfcCell[,] cells = new WfcCell[totalWidth, totalHeight];
-
         for (int q = 0; q < totalWidth; q++)
         {
             for (int r = 0; r < totalHeight; r++)
             {
-                cells[q, r] = new WfcCell();
-
-                bool outsidePlayableArea =
-                    q < playableMinQ || q > playableMaxQ ||
-                    r < playableMinR || r > playableMaxR;
-
-                if (outsidePlayableArea)
-                {
-                    cells[q, r].possible.Add(TileType.OCEAN_DEEP);
-                    continue;
-                }
-
-                int localQ = q - playableOffsetQ;
-                int localR = r - playableOffsetR;
-
-                bool isNearInnerBorder =
-                    localQ <= 1 ||
-                    localR <= 1 ||
-                    localQ >= width - 2 ||
-                    localR >= height - 2;
-
-                if (isNearInnerBorder)
-                {
-                    // Keep border safe/playable.
-                    cells[q, r].possible.Add(TileType.GRASSLAND);
-                    cells[q, r].possible.Add(TileType.PURPLELAND);
-                }
-                else
-                {
-                    foreach (TileType biome in rules.allBiomes)
-                    {
-                        cells[q, r].possible.Add(biome);
-                    }
-
-                    // Ensure core playable biomes are present even if sample is weird.
-                    cells[q, r].possible.Add(TileType.GRASSLAND);
-                    cells[q, r].possible.Add(TileType.PURPLELAND);
-                    cells[q, r].possible.Add(TileType.MOUNTAIN);
-                    cells[q, r].possible.Add(TileType.OCEAN_DEEP);
-                }
+                plannedTypes[q, r] = TileType.OCEAN_DEEP;
             }
         }
 
+        HashSet<TileType>[,] wave = new HashSet<TileType>[width, height];
         Queue<Vector2Int> queue = new Queue<Vector2Int>();
 
-        for (int q = 0; q < totalWidth; q++)
+        for (int q = 0; q < width; q++)
         {
-            for (int r = 0; r < totalHeight; r++)
+            for (int r = 0; r < height; r++)
             {
-                if (cells[q, r].IsCollapsed)
-                    queue.Enqueue(new Vector2Int(q, r));
+                wave[q, r] = BuildInitialDomain(q, r, width, height);
+                if (wave[q, r].Count == 0)
+                    return false;
             }
         }
 
-        if (!Propagate(cells, queue, totalWidth, totalHeight, rules))
+        ApplyAnchors(wave, queue, stats, width, height);
+
+        if (!Propagate(wave, queue, width, height, stats))
             return false;
 
         while (true)
         {
-            Vector2Int next = FindLowestEntropyCell(cells, totalWidth, totalHeight);
-
-            if (next.x == -1)
+            Vector2Int cell = FindLowestEntropyCell(wave, width, height, stats);
+            if (cell.x < 0)
                 break;
 
-            TileType chosen = ChooseWeightedTile(cells, next.x, next.y, totalWidth, totalHeight, rules);
+            TileType chosen = ChooseWeightedTile(wave[cell.x, cell.y], cell.x, cell.y, width, height, stats, wave, attempt);
+            wave[cell.x, cell.y].Clear();
+            wave[cell.x, cell.y].Add(chosen);
+            queue.Enqueue(cell);
 
-            cells[next.x, next.y].possible.Clear();
-            cells[next.x, next.y].possible.Add(chosen);
-
-            queue.Enqueue(next);
-
-            if (!Propagate(cells, queue, totalWidth, totalHeight, rules))
+            if (!Propagate(wave, queue, width, height, stats))
                 return false;
         }
 
-        for (int q = 0; q < totalWidth; q++)
+        if (!WriteResult(gridManager, plannedTypes, wave, stats))
+            return false;
+
+        EnforceTargetRatios(gridManager, plannedTypes, stats);
+        ForceMountainPresence(gridManager, plannedTypes);
+        return true;
+    }
+
+    private static HashSet<TileType> BuildInitialDomain(int q, int r, int width, int height)
+    {
+        bool nearInnerBorder = q <= 1 || r <= 1 || q >= width - 2 || r >= height - 2;
+        if (nearInnerBorder)
+            return new HashSet<TileType> { TileType.GRASSLAND, TileType.PURPLELAND, TileType.OCEAN_DEEP };
+
+        return new HashSet<TileType>(PlayableBiomeTypes);
+    }
+
+    private static void ApplyAnchors(HashSet<TileType>[,] wave, Queue<Vector2Int> queue, SampleStats stats, int width, int height)
+    {
+        foreach (KeyValuePair<Vector2Int, TileType> pair in stats.Anchors)
         {
-            for (int r = 0; r < totalHeight; r++)
+            int q = Mathf.Clamp(Mathf.RoundToInt((pair.Key.x / 4f) * (width - 1)), 0, width - 1);
+            int r = Mathf.Clamp(Mathf.RoundToInt((pair.Key.y / 4f) * (height - 1)), 0, height - 1);
+
+            wave[q, r].Clear();
+            wave[q, r].Add(pair.Value);
+            queue.Enqueue(new Vector2Int(q, r));
+        }
+    }
+
+    private static bool Propagate(HashSet<TileType>[,] wave, Queue<Vector2Int> queue, int width, int height, SampleStats stats)
+    {
+        while (queue.Count > 0)
+        {
+            Vector2Int current = queue.Dequeue();
+            HashSet<TileType> currentDomain = wave[current.x, current.y];
+
+            foreach (Vector2Int dir in HexMath.GetNeighborDirections(current.x))
             {
-                if (cells[q, r].possible.Count != 1)
+                int nq = current.x + dir.x;
+                int nr = current.y + dir.y;
+                if (nq < 0 || nq >= width || nr < 0 || nr >= height)
+                    continue;
+
+                HashSet<TileType> neighborDomain = wave[nq, nr];
+                HashSet<TileType> reduced = new HashSet<TileType>();
+
+                foreach (TileType neighborType in neighborDomain)
+                {
+                    bool supported = false;
+                    foreach (TileType currentType in currentDomain)
+                    {
+                        if (stats.AllowedNeighbors[currentType].Contains(neighborType) &&
+                            stats.AllowedNeighbors[neighborType].Contains(currentType))
+                        {
+                            supported = true;
+                            break;
+                        }
+                    }
+
+                    if (supported)
+                        reduced.Add(neighborType);
+                }
+
+                if (reduced.Count == 0)
                     return false;
 
-                foreach (TileType t in cells[q, r].possible)
+                if (reduced.Count < neighborDomain.Count)
                 {
-                    plannedTypes[q, r] = t;
-                    break;
+                    wave[nq, nr] = reduced;
+                    queue.Enqueue(new Vector2Int(nq, nr));
                 }
             }
         }
@@ -216,115 +289,27 @@ public static class WFCBiomeGenerator
         return true;
     }
 
-    private static LearnedRuleSet LearnRulesFromTexture(Texture2D texture)
+    private static Vector2Int FindLowestEntropyCell(HashSet<TileType>[,] wave, int width, int height, SampleStats stats)
     {
-        LearnedRuleSet rules = new LearnedRuleSet();
-
-        int width = texture.width;
-        int height = texture.height;
-        TileType[,] sample = new TileType[width, height];
-
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                Color c = texture.GetPixel(x, y);
-                TileType t = ClassifySampleColor(c);
-                sample[x, y] = t;
-                rules.AddBiome(t);
-            }
-        }
-
-        Vector2Int[] neighborDirsEven = new Vector2Int[]
-        {
-            new Vector2Int(+1, 0),
-            new Vector2Int(0, +1),
-            new Vector2Int(-1, +1),
-            new Vector2Int(-1, 0),
-            new Vector2Int(-1, -1),
-            new Vector2Int(0, -1)
-        };
-
-        Vector2Int[] neighborDirsOdd = new Vector2Int[]
-        {
-            new Vector2Int(+1, 0),
-            new Vector2Int(+1, +1),
-            new Vector2Int(0, +1),
-            new Vector2Int(-1, 0),
-            new Vector2Int(0, -1),
-            new Vector2Int(+1, -1)
-        };
-
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                TileType center = sample[x, y];
-                Vector2Int[] dirs = (x & 1) == 0 ? neighborDirsEven : neighborDirsOdd;
-
-                foreach (Vector2Int d in dirs)
-                {
-                    int nx = x + d.x;
-                    int ny = y + d.y;
-
-                    if (nx < 0 || nx >= width || ny < 0 || ny >= height)
-                        continue;
-
-                    TileType neighbor = sample[nx, ny];
-                    rules.AddAdjacency(center, neighbor);
-                }
-            }
-        }
-
-        return rules;
-    }
-
-    private static TileType ClassifySampleColor(Color c)
-    {
-        // Blue => water
-        if (c.b > 0.75f && c.r < 0.45f && c.g < 0.65f)
-            return TileType.OCEAN_DEEP;
-
-        // Green => grass
-        if (c.g > 0.75f && c.r < 0.55f && c.b < 0.55f)
-            return TileType.GRASSLAND;
-
-        // Magenta => purple
-        if (c.r > 0.75f && c.b > 0.75f && c.g < 0.55f)
-            return TileType.PURPLELAND;
-
-        // Gray / white => mountain
-        if (Mathf.Abs(c.r - c.g) < 0.08f &&
-            Mathf.Abs(c.g - c.b) < 0.08f &&
-            c.grayscale > 0.35f)
-        {
-            return TileType.MOUNTAIN;
-        }
-
-        // Default
-        return TileType.GRASSLAND;
-    }
-
-    private static Vector2Int FindLowestEntropyCell(WfcCell[,] cells, int totalWidth, int totalHeight)
-    {
-        int bestCount = int.MaxValue;
+        float bestEntropy = float.PositiveInfinity;
         List<Vector2Int> candidates = new List<Vector2Int>();
 
-        for (int q = 0; q < totalWidth; q++)
+        for (int q = 0; q < width; q++)
         {
-            for (int r = 0; r < totalHeight; r++)
+            for (int r = 0; r < height; r++)
             {
-                int count = cells[q, r].possible.Count;
-                if (count <= 1)
+                HashSet<TileType> domain = wave[q, r];
+                if (domain.Count <= 1)
                     continue;
 
-                if (count < bestCount)
+                float entropy = ComputeEntropy(domain, stats);
+                if (entropy < bestEntropy - 0.0001f)
                 {
-                    bestCount = count;
+                    bestEntropy = entropy;
                     candidates.Clear();
                     candidates.Add(new Vector2Int(q, r));
                 }
-                else if (count == bestCount)
+                else if (Mathf.Abs(entropy - bestEntropy) < 0.0001f)
                 {
                     candidates.Add(new Vector2Int(q, r));
                 }
@@ -334,121 +319,355 @@ public static class WFCBiomeGenerator
         if (candidates.Count == 0)
             return new Vector2Int(-1, -1);
 
-        return candidates[Random.Range(0, candidates.Count)];
+        return candidates[UnityEngine.Random.Range(0, candidates.Count)];
+    }
+
+    private static float ComputeEntropy(HashSet<TileType> domain, SampleStats stats)
+    {
+        float totalWeight = 0f;
+        float logSum = 0f;
+
+        foreach (TileType type in domain)
+        {
+            float w = Mathf.Max(0.0001f, stats.TileRatios[type]);
+            totalWeight += w;
+            logSum += w * Mathf.Log(w);
+        }
+
+        return Mathf.Log(totalWeight) - (logSum / totalWeight) + UnityEngine.Random.value * 0.0001f;
     }
 
     private static TileType ChooseWeightedTile(
-        WfcCell[,] cells,
+        HashSet<TileType> domain,
         int q,
         int r,
-        int totalWidth,
-        int totalHeight,
-        LearnedRuleSet rules)
+        int width,
+        int height,
+        SampleStats stats,
+        HashSet<TileType>[,] wave,
+        int attempt)
     {
-        HashSet<TileType> options = cells[q, r].possible;
+        List<TileType> types = new List<TileType>(domain);
+        List<float> weights = new List<float>(types.Count);
+        float total = 0f;
 
-        int totalWeight = 0;
-        Dictionary<TileType, int> weights = new Dictionary<TileType, int>();
-
-        foreach (TileType type in options)
+        foreach (TileType type in types)
         {
-            int weight = rules.GetBiomeWeight(type);
+            float weight = ComputeSelectionWeight(type, q, r, width, height, stats, wave, attempt);
+            weights.Add(weight);
+            total += weight;
+        }
 
-            foreach (Vector2Int dir in HexMath.GetNeighborDirections(q))
+        float roll = UnityEngine.Random.value * total;
+        float running = 0f;
+        for (int i = 0; i < types.Count; i++)
+        {
+            running += weights[i];
+            if (roll <= running)
+                return types[i];
+        }
+
+        return types[types.Count - 1];
+    }
+
+    private static float ComputeSelectionWeight(
+        TileType type,
+        int q,
+        int r,
+        int width,
+        int height,
+        SampleStats stats,
+        HashSet<TileType>[,] wave,
+        int attempt)
+    {
+        float ratio = Mathf.Max(0.0001f, stats.TileRatios[type]);
+        float weight = Mathf.Pow(ratio, RatioWeightStrength);
+
+        float u = width > 1 ? q / (float)(width - 1) : 0f;
+        float v = height > 1 ? r / (float)(height - 1) : 0f;
+        float sampleU = Mathf.Clamp01((u + attempt * 0.071f) % 1f);
+        float sampleV = Mathf.Clamp01((v + attempt * 0.113f) % 1f);
+        int sampleQ = Mathf.Clamp(Mathf.RoundToInt(sampleU * (stats.SampleWidth - 1)), 0, stats.SampleWidth - 1);
+        int sampleR = Mathf.Clamp(Mathf.RoundToInt(sampleV * (stats.SampleHeight - 1)), 0, stats.SampleHeight - 1);
+        TileType sampledType = SampleAt(stats, sampleQ, sampleR);
+        if (sampledType == type)
+            weight *= SampleWeightStrength;
+
+        bool nearBorder = q <= 1 || r <= 1 || q >= width - 2 || r >= height - 2;
+        if (nearBorder)
+        {
+            if (type == TileType.OCEAN_DEEP)
+                weight *= BorderWaterBias;
+            if (type == TileType.MOUNTAIN)
+                weight *= 0.2f;
+        }
+        else if (type == TileType.OCEAN_DEEP)
+        {
+            weight *= InteriorWaterPenalty;
+        }
+
+        int collapsedNeighbors = 0;
+        int matchingNeighbors = 0;
+        foreach (Vector2Int dir in HexMath.GetNeighborDirections(q))
+        {
+            int nq = q + dir.x;
+            int nr = r + dir.y;
+            if (nq < 0 || nq >= width || nr < 0 || nr >= height)
+                continue;
+
+            HashSet<TileType> domain = wave[nq, nr];
+            if (domain.Count == 1)
             {
-                int nq = q + dir.x;
-                int nr = r + dir.y;
-
-                if (nq < 0 || nq >= totalWidth || nr < 0 || nr >= totalHeight)
-                    continue;
-
-                if (cells[nq, nr].possible.Count == 1)
-                {
-                    TileType neighbor = GetSingleOption(cells[nq, nr]);
-                    weight += rules.GetAdjacencyWeight(type, neighbor) * 2;
-                }
+                collapsedNeighbors++;
+                TileType neighbor = First(domain);
+                if (stats.NeighborCounts[type].TryGetValue(neighbor, out int count))
+                    matchingNeighbors += count;
+                else if (stats.AllowedNeighbors[type].Contains(neighbor))
+                    matchingNeighbors += 1;
             }
-
-            weight = Mathf.Max(1, weight);
-            weights[type] = weight;
-            totalWeight += weight;
         }
 
-        int roll = Random.Range(0, totalWeight);
-        int running = 0;
+        if (collapsedNeighbors > 0)
+            weight *= 1f + (matchingNeighbors / (float)(collapsedNeighbors + 1));
 
-        foreach (TileType type in options)
-        {
-            running += weights[type];
-            if (roll < running)
-                return type;
-        }
+        return Mathf.Max(0.0001f, weight);
+    }
 
-        foreach (TileType type in options)
-            return type;
+    private static TileType SampleAt(SampleStats stats, int q, int r)
+    {
+        float u = stats.SampleWidth > 1 ? q / (float)(stats.SampleWidth - 1) : 0f;
+        float v = stats.SampleHeight > 1 ? r / (float)(stats.SampleHeight - 1) : 0f;
+
+        if (stats.Anchors.TryGetValue(new Vector2Int(Mathf.RoundToInt(u * 4f), Mathf.RoundToInt(v * 4f)), out TileType anchorType))
+            return anchorType;
+
+        if (v < 0.20f)
+            return TileType.MOUNTAIN;
+        if (u > 0.70f && v > 0.55f)
+            return TileType.PURPLELAND;
+        if (u < 0.18f || v < 0.12f || u > 0.88f || v > 0.88f)
+            return TileType.OCEAN_DEEP;
 
         return TileType.GRASSLAND;
     }
 
-    private static TileType GetSingleOption(WfcCell cell)
+    private static bool WriteResult(HexGridManager gridManager, TileType[,] plannedTypes, HashSet<TileType>[,] wave, SampleStats stats)
     {
-        foreach (TileType t in cell.possible)
-            return t;
+        int playableOffsetQ = gridManager.PlayableOffsetQ;
+        int playableOffsetR = gridManager.PlayableOffsetR;
+        int width = gridManager.width;
+        int height = gridManager.height;
 
-        return TileType.GRASSLAND;
-    }
-
-    private static bool Propagate(
-        WfcCell[,] cells,
-        Queue<Vector2Int> queue,
-        int totalWidth,
-        int totalHeight,
-        LearnedRuleSet rules)
-    {
-        while (queue.Count > 0)
+        for (int q = 0; q < width; q++)
         {
-            Vector2Int current = queue.Dequeue();
-            WfcCell currentCell = cells[current.x, current.y];
-
-            foreach (Vector2Int dir in HexMath.GetNeighborDirections(current.x))
+            for (int r = 0; r < height; r++)
             {
-                int nq = current.x + dir.x;
-                int nr = current.y + dir.y;
-
-                if (nq < 0 || nq >= totalWidth || nr < 0 || nr >= totalHeight)
-                    continue;
-
-                WfcCell neighbor = cells[nq, nr];
-                HashSet<TileType> reduced = new HashSet<TileType>();
-
-                foreach (TileType neighborOption in neighbor.possible)
-                {
-                    bool valid = false;
-
-                    foreach (TileType currentOption in currentCell.possible)
-                    {
-                        if (rules.IsCompatible(currentOption, neighborOption))
-                        {
-                            valid = true;
-                            break;
-                        }
-                    }
-
-                    if (valid)
-                        reduced.Add(neighborOption);
-                }
-
-                if (reduced.Count == 0)
+                if (wave[q, r].Count == 0)
                     return false;
 
-                if (reduced.Count < neighbor.possible.Count)
-                {
-                    neighbor.possible = reduced;
-                    queue.Enqueue(new Vector2Int(nq, nr));
-                }
+                plannedTypes[playableOffsetQ + q, playableOffsetR + r] = First(wave[q, r]);
             }
         }
 
         return true;
+    }
+
+    private static void EnforceTargetRatios(HexGridManager gridManager, TileType[,] plannedTypes, SampleStats stats)
+    {
+        int playableOffsetQ = gridManager.PlayableOffsetQ;
+        int playableOffsetR = gridManager.PlayableOffsetR;
+        int width = gridManager.width;
+        int height = gridManager.height;
+        int totalPlayable = width * height;
+
+        Dictionary<TileType, int> counts = new Dictionary<TileType, int>();
+        foreach (TileType type in AllBiomeTypes)
+            counts[type] = 0;
+
+        for (int q = 0; q < width; q++)
+        {
+            for (int r = 0; r < height; r++)
+            {
+                counts[plannedTypes[playableOffsetQ + q, playableOffsetR + r]]++;
+            }
+        }
+
+        foreach (TileType targetType in AllBiomeTypes)
+        {
+            int targetCount = Mathf.RoundToInt(stats.TileRatios[targetType] * totalPlayable);
+            int safety = totalPlayable;
+            while (counts[targetType] < targetCount && safety-- > 0)
+            {
+                Vector2Int candidate = FindConvertibleCell(gridManager, plannedTypes, counts, targetType, stats, true);
+                if (candidate.x < 0)
+                    break;
+
+                TileType oldType = plannedTypes[candidate.x, candidate.y];
+                plannedTypes[candidate.x, candidate.y] = targetType;
+                counts[oldType]--;
+                counts[targetType]++;
+            }
+        }
+    }
+
+    private static Vector2Int FindConvertibleCell(
+        HexGridManager gridManager,
+        TileType[,] plannedTypes,
+        Dictionary<TileType, int> counts,
+        TileType targetType,
+        SampleStats stats,
+        bool requireCompatibility)
+    {
+        int playableOffsetQ = gridManager.PlayableOffsetQ;
+        int playableOffsetR = gridManager.PlayableOffsetR;
+        int width = gridManager.width;
+        int height = gridManager.height;
+
+        List<Vector2Int> candidates = new List<Vector2Int>();
+
+        for (int q = 0; q < width; q++)
+        {
+            for (int r = 0; r < height; r++)
+            {
+                int worldQ = playableOffsetQ + q;
+                int worldR = playableOffsetR + r;
+                TileType current = plannedTypes[worldQ, worldR];
+                if (current == targetType)
+                    continue;
+
+                if (current == TileType.MOUNTAIN && targetType != TileType.MOUNTAIN)
+                    continue;
+
+                bool nearBorder = q <= 1 || r <= 1 || q >= width - 2 || r >= height - 2;
+                if (nearBorder && targetType == TileType.MOUNTAIN)
+                    continue;
+
+                if (requireCompatibility && !CanPlaceTypeAt(q, r, targetType, plannedTypes, gridManager, stats))
+                    continue;
+
+                candidates.Add(new Vector2Int(worldQ, worldR));
+            }
+        }
+
+        if (candidates.Count == 0)
+            return new Vector2Int(-1, -1);
+
+        return candidates[UnityEngine.Random.Range(0, candidates.Count)];
+    }
+
+    private static bool CanPlaceTypeAt(int localQ, int localR, TileType targetType, TileType[,] plannedTypes, HexGridManager gridManager, SampleStats stats)
+    {
+        int worldQ = gridManager.PlayableOffsetQ + localQ;
+        int worldR = gridManager.PlayableOffsetR + localR;
+
+        foreach (Vector2Int dir in HexMath.GetNeighborDirections(localQ))
+        {
+            int nq = localQ + dir.x;
+            int nr = localR + dir.y;
+            if (nq < 0 || nq >= gridManager.width || nr < 0 || nr >= gridManager.height)
+                continue;
+
+            TileType neighbor = plannedTypes[gridManager.PlayableOffsetQ + nq, gridManager.PlayableOffsetR + nr];
+            if (!stats.AllowedNeighbors[targetType].Contains(neighbor) || !stats.AllowedNeighbors[neighbor].Contains(targetType))
+                return false;
+        }
+
+        return true;
+    }
+
+    private static void ForceMountainPresence(HexGridManager gridManager, TileType[,] plannedTypes)
+    {
+        int playableOffsetQ = gridManager.PlayableOffsetQ;
+        int playableOffsetR = gridManager.PlayableOffsetR;
+        int width = gridManager.width;
+        int height = gridManager.height;
+
+        bool foundMountain = false;
+        for (int q = 0; q < width && !foundMountain; q++)
+        {
+            for (int r = 0; r < height; r++)
+            {
+                if (plannedTypes[playableOffsetQ + q, playableOffsetR + r] == TileType.MOUNTAIN)
+                {
+                    foundMountain = true;
+                    break;
+                }
+            }
+        }
+
+        if (foundMountain)
+            return;
+
+        int centerQ = playableOffsetQ + width / 2;
+        int centerR = playableOffsetR + height / 2;
+        plannedTypes[centerQ, centerR] = TileType.MOUNTAIN;
+
+        foreach (Vector2Int dir in HexMath.GetNeighborDirections(centerQ))
+        {
+            int nq = centerQ + dir.x;
+            int nr = centerR + dir.y;
+            if (nq >= playableOffsetQ && nq < playableOffsetQ + width && nr >= playableOffsetR && nr < playableOffsetR + height)
+            {
+                if (plannedTypes[nq, nr] == TileType.GRASSLAND)
+                    plannedTypes[nq, nr] = TileType.MOUNTAIN;
+            }
+        }
+    }
+
+    private static TileType First(HashSet<TileType> set)
+    {
+        foreach (TileType type in set)
+            return type;
+        return TileType.GRASSLAND;
+    }
+
+    private static TileType ClassifySampleColour(Color c)
+    {
+        Color32 color = (Color32)c;
+
+        if (IsNear(color, 50, 220, 50, 8))
+            return TileType.GRASSLAND;
+
+        if (IsNear(color, 40, 120, 230, 8))
+            return TileType.OCEAN_DEEP;
+
+        if (IsNear(color, 140, 140, 140, 8))
+            return TileType.MOUNTAIN;
+
+        if (IsNear(color, 180, 60, 220, 8))
+            return TileType.PURPLELAND;
+
+        Debug.LogWarning($"Unknown control-mask color: ({color.r}, {color.g}, {color.b}). Defaulting to GRASSLAND.");
+        return TileType.GRASSLAND;
+    }
+
+    private static bool IsNear(Color32 color, int r, int g, int b, int tolerance)
+    {
+        return Mathf.Abs(color.r - r) <= tolerance &&
+            Mathf.Abs(color.g - g) <= tolerance &&
+            Mathf.Abs(color.b - b) <= tolerance;
+    }
+
+
+    private static void DebugStats(SampleStats stats)
+    {
+        Debug.Log(
+            $"Sample ratios => Grass: {stats.TileRatios[TileType.GRASSLAND]:P1}, " +
+            $"Purple: {stats.TileRatios[TileType.PURPLELAND]:P1}, " +
+            $"Mountain: {stats.TileRatios[TileType.MOUNTAIN]:P1}, " +
+            $"Ocean: {stats.TileRatios[TileType.OCEAN_DEEP]:P1}");
+
+        foreach (TileType type in AllBiomeTypes)
+        {
+            string line = type + " allows: ";
+            bool first = true;
+            foreach (TileType neighbor in stats.AllowedNeighbors[type])
+            {
+                if (!first) line += ", ";
+                line += neighbor;
+                first = false;
+            }
+            Debug.Log(line);
+        }
     }
 }

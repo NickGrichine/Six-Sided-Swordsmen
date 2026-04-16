@@ -4,20 +4,26 @@ using System.Collections.Generic;
 public static class GridAdapter{
     
     public static GridData ToData(HexGridManager grid){
-        //todo
+        if (grid == null || grid.Grid == null)
+        {
+            return null;
+        }
+
         var data = new GridData {
             width = grid.width,
             height = grid.height,
             hexSize = grid.hexSize,
-            //tiles = new List<TileData>()
             oceanBorderThickness = grid.OceanBorderThickness,
             cameraBorderTiles = grid.CameraBorderTiles,
         };
 
-        //TODO: NEED GRID TO BE PUBLIC FIELD
         foreach (var tile in grid.Grid)
         {
-            TileAdapter.ToData(tile);
+            TileData tileData = TileAdapter.ToData(tile);
+            if (tileData != null)
+            {
+                data.tiles.Add(tileData);
+            }
         }
         return data;
     }

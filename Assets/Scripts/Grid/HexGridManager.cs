@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class HexGridManager : Singleton<HexGridManager>
 {
+    [Header("Generation Mode")]
+    [SerializeField] private bool generateOnStart = true;
+
     [Header("Grid Settings")]
     public Tile tilePrefab;
     public int width = 10;   // q cols
@@ -299,7 +302,7 @@ public class HexGridManager : Singleton<HexGridManager>
             case TileType.MOUNTAIN:
                 tile.altitude = RollMountainAltitude();
                 tile.passable = true;
-                tile.moveCost = tile.altitude + 1;
+                tile.moveCost = 2;
                 tile.grassVariant = 0;
                 break;
         }
@@ -329,6 +332,7 @@ public class HexGridManager : Singleton<HexGridManager>
     {
         EnsureBaseOutline(tile);
         EnsureSelectedOutline(tile);
+        EnsureCommandHighlight(tile);
     }
 
     private void EnsureBaseOutline(Tile tile)
@@ -559,9 +563,16 @@ public class HexGridManager : Singleton<HexGridManager>
             Destroy(child.gameObject);
     }
 
-    void Start()
+    void Awake()
     {
-        GenerateGrid();
+        base.Awake();
+
+        if (generateOnStart)
+        {
+
+            GenerateGrid();
+        }
+
     }
 
     public IEnumerable<Tile> GetAllTiles()
@@ -646,5 +657,162 @@ public class HexGridManager : Singleton<HexGridManager>
             return null;
 
         return grid[q, r];
+    }
+
+    // Command Highlighting
+    private void EnsureCommandHighlight(Tile tile)
+    {
+        if (tile.commandHighlight != null)
+            return;
+
+        Transform existing = tile.transform.Find("CommandHighlight");
+        GameObject outlineObj;
+
+        if (existing != null)
+        {
+            outlineObj = existing.gameObject;
+        }
+        else
+        {
+            outlineObj = new GameObject("CommandHighlight");
+            outlineObj.transform.SetParent(tile.transform, false);
+        }
+
+        SpriteRenderer outlineRenderer = outlineObj.GetComponent<SpriteRenderer>();
+        if (outlineRenderer == null)
+            outlineRenderer = outlineObj.AddComponent<SpriteRenderer>();
+
+        outlineRenderer.sprite = selectionOutlineSprite;
+        outlineRenderer.color = Color.cyan;
+
+        if (tile.spriteRenderer != null)
+        {
+            outlineRenderer.sortingLayerID = tile.spriteRenderer.sortingLayerID;
+            outlineRenderer.sortingOrder = tile.spriteRenderer.sortingOrder + 3;
+        }
+
+        outlineObj.transform.localPosition = Vector3.zero;
+        outlineObj.transform.localRotation = Quaternion.identity;
+        outlineObj.transform.localScale = new Vector3(1.03f, 1.03f, 1f);
+
+        outlineObj.SetActive(false);
+        tile.commandHighlight = outlineObj;
+    }
+
+    public void ClearAllCommandHighlights()
+    {
+        foreach (Tile tile in GetAllTiles())
+        {
+            if (tile != null)
+            {
+                tile.HideCommandHighlight();
+            }
+        }
+    }
+
+    public void ShowCommandHighlights(IEnumerable<Tile> tiles)
+    {
+        ClearAllCommandHighlights();
+
+        foreach (Tile tile in tiles)
+        {
+            if (tile != null)
+                tile.ShowCommandHighlight();
+        }
+    }
+
+    public HashSet<Tile> GetValidMoveTiles(UnitController actor)
+    {
+        HashSet<Tile> result = new HashSet<Tile>();
+
+        if (actor == null || actor.position == null)
+            return result;
+
+        Tile start = actor.position;
+        int maxCost = actor.movesRemaining;
+
+        Dictionary<Tile, int> bestCost = new Dictionary<Tile, int>();
+        Queue<Tile> frontier = new Queue<Tile>();
+
+        bestCost[start] = 0;
+        frontier.Enqueue(start);
+
+        while (frontier.Count > 0)
+        {
+            Tile current = frontier.Dequeue();
+            int currentCost = bestCost[current];
+
+            foreach (Tile neighbor in current.neighbors)
+            {
+                if (neighbor == null)
+                    continue;
+
+                if (!neighbor.passable)
+                    continue;
+
+                if (neighbor.IsOccupied)
+                    continue;
+
+                if (!neighbor.CanClimbFrom(current))
+                    continue;
+
+                int nextCost = currentCost + neighbor.moveCost;
+                if (nextCost > maxCost)
+                    continue;
+
+                if (!bestCost.ContainsKey(neighbor) || nextCost < bestCost[neighbor])
+                {
+                    bestCost[neighbor] = nextCost;
+                    frontier.Enqueue(neighbor);
+                    result.Add(neighbor);
+                }
+            }
+        }
+
+        result.Remove(start);
+        return result;
+    }
+
+    public HashSet<Tile> GetValidAttackTiles(UnitController actor)
+    {
+        HashSet<Tile> result = new HashSet<Tile>();
+
+        if (actor == null || actor.position == null)
+            return result;
+
+        foreach (Tile tile in GetAllTiles())
+        {
+            if (tile == null || !tile.IsOccupied)
+                continue;
+
+            UnitController target = tile.occupant as UnitController;
+            if (target == null)
+                continue;
+
+            if (CombatUtils.CanAttack(actor, target))
+                result.Add(tile);
+        }
+
+        return result;
+    }
+
+    public HashSet<Tile> GetValidTilesForCommand(UnitController actor, UnitCommandSO command)
+    {
+        HashSet<Tile> result = new HashSet<Tile>();
+
+        if (actor == null || command == null)
+            return result;
+
+        switch (command.category)
+        {
+            case CommandCategory.Move:
+                return GetValidMoveTiles(actor);
+
+            case CommandCategory.Attack:
+                return GetValidAttackTiles(actor);
+
+            default:
+                return result;
+        }
     }
 }

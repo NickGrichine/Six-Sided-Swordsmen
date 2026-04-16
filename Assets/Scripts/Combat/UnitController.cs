@@ -183,11 +183,18 @@ public class UnitController : MonoBehaviour, IOccupant
 
     public void OnDeath()
     {
+        Tile deathTile = position;
+
         // clear tile reference so it can be reused
         if (position != null)
         {
             position.occupant = null;
             position = null;
+        }
+
+        if (deathTile != null)
+        {
+            ReplayManager.EnsureExists().RecordUnitDied(this, deathTile);
         }
 
         GameManager.Instance?.NotifyGameStateChanged();
@@ -199,24 +206,27 @@ public class UnitController : MonoBehaviour, IOccupant
         if (destination == null || destination.IsOccupied || !destination.passable)
             return false;
 
-        if (position == null || !position.neighbors.Contains(destination))
+        Tile fromTile = position;
+
+        if (fromTile == null || !fromTile.neighbors.Contains(destination))
             return false;
 
-        if (!destination.CanClimbFrom(position))
+        if (!destination.CanClimbFrom(fromTile))
             return false;
 
         // leaving current tile.
-        position.occupant = null;
+        fromTile.occupant = null;
 
         // entering new tile
         if (destination.TryEnter(this))
         {
-            OnMoved(position, destination);
+            ReplayManager.EnsureExists().RecordUnitMoved(this, fromTile, destination);
+            OnMoved(fromTile, destination);
             return true;
         }
 
         // Failed, re-enter old tile
-        position.TryEnter(this);
+        fromTile.TryEnter(this);
         return false;
     }
 

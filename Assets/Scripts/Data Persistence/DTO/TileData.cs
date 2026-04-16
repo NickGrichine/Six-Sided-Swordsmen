@@ -12,5 +12,6 @@ public class TileData{
     public int moveCost;
     public bool passable;
     public List<int> neighborIds;
+    public TileOccupantData occupant;
 
 }

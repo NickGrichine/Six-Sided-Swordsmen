@@ -7,12 +7,12 @@ public class UnitSpawner : Singleton<UnitSpawner>
     public GameObject unitPrefab;
     public GameObject knightPrefab;
     public GameObject archerPrefab;
-    public GameObject clericPrefab;
+    public GameObject swordsmanPrefab;
     public GameObject spearmanPrefab;
 
     public enum TagUnitType
     {
-        Knight, Archer, Cleric, Spearman
+        Knight, Archer, Swordsman, Spearman
     }
 
     // NOTE: duplicated code; to clean up later.
@@ -58,6 +58,7 @@ public class UnitSpawner : Singleton<UnitSpawner>
         unit.SetTeam(team);
         if (tile.TryEnter(unit))
         {
+            ReplayManager.EnsureExists().RecordUnitSpawned(unit, tile);
             GameManager.Instance?.NotifyGameStateChanged();
             return unit;
         }
@@ -99,8 +100,8 @@ public class UnitSpawner : Singleton<UnitSpawner>
                 return knightPrefab != null ? knightPrefab : unitPrefab;
             case TagUnitType.Archer:
                 return archerPrefab != null ? archerPrefab : unitPrefab;
-            case TagUnitType.Cleric:
-                return clericPrefab != null ? clericPrefab : unitPrefab;
+            case TagUnitType.Swordsman:
+                return swordsmanPrefab != null ? swordsmanPrefab : unitPrefab;
             case TagUnitType.Spearman:
                 return spearmanPrefab != null ? spearmanPrefab : unitPrefab;
             default:

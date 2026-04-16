@@ -11,9 +11,8 @@ public class FogOfWar : MonoBehaviour
 
     private void OnDisable()
     {
-
-        GameManager.Instance.OnGameStateChanged -= UpdateFog;
-        
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnGameStateChanged -= UpdateFog;
     }
 
     public void UpdateFog()
