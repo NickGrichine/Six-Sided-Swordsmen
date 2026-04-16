@@ -46,10 +46,7 @@ public class Tile : MonoBehaviour
             selectionOutline.SetActive(false);
         }
 
-        Debug.Log(fogSprites == null
-            ? "fogSprites is null" 
-            : $"fogSprites length: {fogSprites.Length}"); 
-
+        //print (fogSprites == null ? "fogSprites is null" : $"fogSprites length: {fogSprites.Length}");
         float randomFogIndex = Random.Range(0, fogSprites.Length);
         if (fogSpriteRenderer != null && fogSprites.Length > 0)
         {

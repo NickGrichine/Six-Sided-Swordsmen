@@ -302,7 +302,7 @@ public class HexGridManager : Singleton<HexGridManager>
             case TileType.MOUNTAIN:
                 tile.altitude = RollMountainAltitude();
                 tile.passable = true;
-                tile.moveCost = tile.altitude + 1;
+                tile.moveCost = 2;
                 tile.grassVariant = 0;
                 break;
         }
@@ -563,12 +563,15 @@ public class HexGridManager : Singleton<HexGridManager>
             Destroy(child.gameObject);
     }
 
-    void Start()
+    void Awake()
     {
+        base.Awake();
         if (generateOnStart)
         {
+    
             GenerateGrid();
         }
+    
     }
 
     public IEnumerable<Tile> GetAllTiles()
