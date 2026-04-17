@@ -153,31 +153,23 @@ public class UnitController : MonoBehaviour, IOccupant
     // To retrieve bonus damage value
     public int GetBonusDamageAgainst(UnitController target)
     {
-
-        // TODO change to switch statement
         if (refData == null || target == null || target.refData == null)
+        {
             return 0;
+        }
+        
+        UnitDataSO.UnitType targetType = target.refData.unitType;
 
-        if (refData.unitType == UnitDataSO.UnitType.Archer)
+        foreach (UnitDataSO.DamageBonus bonus in refData.damageBonuses)
         {
-            return refData.damageBonusesArcher[target.refData.unitType];
+            if (bonus.targetType == targetType)
+            {
+                return bonus.bonusDamage;
+            }
         }
-        else if (refData.unitType == UnitDataSO.UnitType.Knight)
-        {
-            return refData.damageBonusesKnight[target.refData.unitType];
-        }
-        else if (refData.unitType == UnitDataSO.UnitType.Spearman)
-        {
-            return refData.damageBonusesSpearman[target.refData.unitType];
-        }
-        else if (refData.unitType == UnitDataSO.UnitType.Swordsman)
-        {
-            return refData.damageBonusesSwordsman[target.refData.unitType];
-        }
-        else
-        {
-            return 0;
-        }
+
+        return 0;
+        
     }
 
 
