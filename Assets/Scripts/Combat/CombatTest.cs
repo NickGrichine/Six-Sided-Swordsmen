@@ -55,6 +55,9 @@ public class CombatTest : MonoBehaviour
 
         // No blue command outlines are left active
         RefreshCommandHighlights();
+
+        // Reset selected command when clicking new tile
+        GridEventHandler.Instance.onTileClicked += (_) => ResetToBasicSelectionState();
     }
 
     private void OnDestroy()
@@ -492,7 +495,7 @@ public class CombatTest : MonoBehaviour
 
         if (selectedUnit == null)
             selectionMode = SelectionMode.Idle;
-        else 
+        else
             // If a unit is still selected
             selectionMode = SelectionMode.UnitSelected;
 
