@@ -30,14 +30,21 @@ public class UnitArray : Singleton<UnitArray>
         }
 
         // Subscribe "place unit" function to onTileClicked event:
-        GridEventHandler.Instance.onTileClicked += (tile) =>
-        {
-            Player team = GameManager.Instance.TurnPlayer;
-            UnitDataSO unit = this.selected_unit;
-            PlaceUnit(team, unit, tile);
-        };
+        GridEventHandler.Instance.onTileClicked += _place_unit_on_tile_click;
 
         ForceResizePanel();
+    }
+
+    void OnDestroy()
+    {
+        GridEventHandler.Instance.onTileClicked -= _place_unit_on_tile_click;
+    }
+
+    private void _place_unit_on_tile_click(Tile tile)
+    {
+        Player team = SetupManager.Instance.CurrentPlayer;
+        UnitDataSO unit = this.selected_unit;
+        PlaceUnit(team, unit, tile);
     }
 
     private void ForceResizePanel()
@@ -58,23 +65,23 @@ public class UnitArray : Singleton<UnitArray>
         if (selected_unit == null) return;
         if (ResourceManager.Instance.CheckValidDeductionOfResource(team, unit.cost) == false) return;
 
-        UnitSpawner.TagUnitType tagUnitType = _convertUnitTypeToTagUnitType(unit);
+        UnitSpawner.TagUnitType tagUnitType = _toTagUnitType(unit);
         UnitSpawner.Instance.SpawnUnit(team, tile, tagUnitType);
 
         OnUnitPlacement?.Invoke(team, unit, tile);
     }
-    private UnitSpawner.TagUnitType _convertUnitTypeToTagUnitType(UnitDataSO unit)
+    private UnitSpawner.TagUnitType _toTagUnitType(UnitDataSO unit)
     {
         switch (unit.unitType)
         {
             case UnitDataSO.UnitType.Archer:
                 return UnitSpawner.TagUnitType.Archer;
             case UnitDataSO.UnitType.Knight:
-                return UnitSpawner.TagUnitType.Cleric;
+                return UnitSpawner.TagUnitType.Knight;
             case UnitDataSO.UnitType.Spearman:
                 return UnitSpawner.TagUnitType.Spearman;
             case UnitDataSO.UnitType.Swordsman:
-                return UnitSpawner.TagUnitType.Knight;
+                return UnitSpawner.TagUnitType.Swordsman;
             default:
                 throw new System.Exception("Unit type unrecognized.");
         }

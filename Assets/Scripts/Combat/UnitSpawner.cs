@@ -10,17 +10,23 @@ public class UnitSpawner : Singleton<UnitSpawner>
     public GameObject swordsmanPrefab;
     public GameObject spearmanPrefab;
 
+    void Awake()
+    {
+        base.Awake();
+        grid = HexGridManager.Instance;
+    }
+
     public enum TagUnitType
     {
         Knight, Archer, Swordsman, Spearman
     }
 
-    // NOTE: duplicated code; to clean up later.
+    // NOTE: duplicated code; needed for setup phase; to clean up later.
     public UnitController SpawnUnit(Player team, Tile tile, TagUnitType unitType)
     {
         unitPrefab = GetPrefabForType(unitType);
 
-        GameObject go = Instantiate(unitPrefab);
+        GameObject go = Instantiate(unitPrefab, HexGridManager.Instance.transform);
         var unit = go.GetComponent<UnitController>();
         unit.SetTeam(team);
         if (tile.TryEnter(unit))

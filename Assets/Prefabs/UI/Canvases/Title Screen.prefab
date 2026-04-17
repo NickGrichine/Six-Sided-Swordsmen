@@ -441,6 +441,18 @@ PrefabInstance:
       propertyPath: m_text
       value: PLAY
       objectReference: {fileID: 0}
+    - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 7930148983eae2dac81cc5342968701f, type: 2}
+    - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 125442094865265601, guid: 7930148983eae2dac81cc5342968701f, type: 2}
+    - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -569,6 +581,18 @@ PrefabInstance:
     - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
       propertyPath: m_text
       value: HELP
+      objectReference: {fileID: 0}
+    - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 7930148983eae2dac81cc5342968701f, type: 2}
+    - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 125442094865265601, guid: 7930148983eae2dac81cc5342968701f, type: 2}
+    - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

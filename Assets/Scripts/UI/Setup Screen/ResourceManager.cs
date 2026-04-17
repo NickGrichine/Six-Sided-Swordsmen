@@ -40,7 +40,7 @@ public class ResourceManager : Singleton<ResourceManager>
 
     public void UpdateResourceDisplay()
     {
-        Player player = GameManager.Instance.TurnPlayer;
+        Player player = SetupManager.Instance.CurrentPlayer;
         int amount = GetPlayerResourceAmount(player);
         resourceTextObject.text = amount + " Gold";
     }
