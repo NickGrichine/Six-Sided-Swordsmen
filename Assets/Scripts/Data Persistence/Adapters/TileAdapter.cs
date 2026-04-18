@@ -9,7 +9,7 @@ public static class TileAdapter{
         {
             return null;
         }
-        
+
         TileOccupantData occupantData = ToOccupantData(tile.occupant);
 
         var data = new TileData
@@ -76,6 +76,8 @@ public static class TileAdapter{
         int attackStrength = unit.refData != null ? unit.refData.attackStr : 0;
         UnitDataSO.UnitType unitType = unit.refData != null ? unit.refData.unitType : UnitDataSO.UnitType.Swordsman;
 
+        Debug.Log($"Saving unit {unit.name}: current={unit.healthManager?.GetHealth()} max={unit.healthManager?.GetMaxHealth()} tile={unit.CurrentTile?.gridPos}");
+        
         return new TileOccupantData
         {
             unitId = ReplayManager.GetOrCreatePersistentUnitId(unit),

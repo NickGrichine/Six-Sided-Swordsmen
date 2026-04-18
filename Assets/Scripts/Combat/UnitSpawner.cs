@@ -133,15 +133,13 @@ public class UnitSpawner : MonoBehaviour
         if (unit == null)
             return null;
 
-        if (unit.healthManager != null)
-        {
-            unit.healthManager.SetMaxHealth(occupantData.maxHealth);
-            unit.healthManager.SetCurrentHealth(occupantData.health);
-        }
-
-        unit.movesRemaining = occupantData.movesRemaining;
-        unit.range = occupantData.attackRange;
-        unit.name = string.IsNullOrWhiteSpace(occupantData.unitName) ? prefab.name : occupantData.unitName;
+        unit.ApplyLoadedState(
+            occupantData.health,
+            occupantData.maxHealth,
+            occupantData.movesRemaining,
+            occupantData.attackRange,
+            string.IsNullOrWhiteSpace(occupantData.unitName) ? prefab.name : occupantData.unitName
+        );
 
         return unit;
     }

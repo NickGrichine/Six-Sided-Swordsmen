@@ -13,6 +13,8 @@ public class UnitController : MonoBehaviour, IOccupant
     public int movesRemaining;
     public int range;
 
+    private bool loadedFromSave = false;
+
     [SerializeField] private SpriteRenderer spriteRenderer;
 
     private void Awake()
@@ -115,17 +117,20 @@ public class UnitController : MonoBehaviour, IOccupant
 
     private void Start()
     {
-        // initialize health based on unit data scriptable object
-        if (healthManager != null && refData != null)
+        if (!loadedFromSave)
         {
-            healthManager.SetMaxHealth(refData.maxHealth);
-        }
+            // initialize health based on unit data scriptable object
+            if (healthManager != null && refData != null)
+            {
+                healthManager.SetMaxHealth(refData.maxHealth);
+            }
 
-        // initialize moves and range on spawn (GameManager.OnTurnStart fires before units exist on turn 1)
-        if (refData != null)
-        {
-            movesRemaining = refData.maxMovesPerTurn;
-            range = refData.attackRange;
+            // initialize moves and range on spawn
+            if (refData != null)
+            {
+                movesRemaining = refData.maxMovesPerTurn;
+                range = refData.attackRange;
+            }
         }
 
         if (GameManager.Instance != null)
@@ -285,6 +290,8 @@ public class UnitController : MonoBehaviour, IOccupant
 
     public void ApplyLoadedState(int currentHealth, int maxHealth, int movesRemaining, int attackRange, string loadedName)
     {
+        loadedFromSave = true;
+
         if (healthManager != null)
         {
             healthManager.SetMaxHealth(maxHealth);

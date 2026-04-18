@@ -85,6 +85,8 @@ public class HealthManager : MonoBehaviour
             return;
         }
 
+        Debug.Log($"TakeDamage on {gameObject.name}: new health = {health}");
+        
         health -= modifiedAmount;
 
         if (health <= 0)
