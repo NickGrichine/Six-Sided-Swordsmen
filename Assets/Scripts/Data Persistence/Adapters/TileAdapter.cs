@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public static class TileAdapter{
     public static TileData ToData(Tile tile)
@@ -9,6 +10,8 @@ public static class TileAdapter{
             return null;
         }
 
+        Debug.Log($"Saving tile {tile.tileId}, occupant null? {tile.occupant == null}");
+        
         var data = new TileData
         {
             tileId = tile.tileId,
@@ -49,16 +52,29 @@ public static class TileAdapter{
 
     private static TileOccupantData ToOccupantData(IOccupant occupant)
     {
-        if (!(occupant is UnitController unit))
-        {
+        if (occupant == null)
             return null;
-        }
+
+        UnitController unit = occupant as UnitController;
+        if (unit == null)
+            return null;
+
+        UnityEngine.Object unityObj = unit as UnityEngine.Object;
+        if (unityObj == null)
+            return null;
+
+        if (unit.CurrentTile == null)
+            return null;
+
+        if (!ReferenceEquals(unit.CurrentTile.occupant, unit))
+            return null;
 
         int currentHealth = unit.healthManager != null ? unit.healthManager.GetHealth() : 0;
         int maxHealth = unit.healthManager != null ? unit.healthManager.GetMaxHealth() : 0;
         int attackRange = unit.refData != null ? unit.refData.attackRange : unit.range;
         int attackStrength = unit.refData != null ? unit.refData.attackStr : 0;
         UnitDataSO.UnitType unitType = unit.refData != null ? unit.refData.unitType : UnitDataSO.UnitType.Swordsman;
+
         return new TileOccupantData
         {
             unitId = ReplayManager.GetOrCreatePersistentUnitId(unit),

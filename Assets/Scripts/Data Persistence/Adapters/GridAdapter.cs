@@ -78,19 +78,24 @@ public static class GridAdapter{
 
     private static void RebuildUnits(HexGridManager grid, GridData gridData)
     {
-        UnitController[] existingUnits = Object.FindObjectsOfType<UnitController>();
+        UnitController[] existingUnits = UnityEngine.Object.FindObjectsOfType<UnitController>();
         foreach (UnitController unit in existingUnits)
         {
             if (unit != null)
             {
-                Object.Destroy(unit.gameObject);
+                if (unit.position != null && ReferenceEquals(unit.position.occupant, unit))
+                {
+                    unit.position.occupant = null;
+                }
+
+                UnityEngine.Object.Destroy(unit.gameObject);
             }
         }
 
         if (gridData.tiles == null)
             return;
 
-        UnitSpawner spawner = Object.FindObjectOfType<UnitSpawner>();
+        UnitSpawner spawner = UnityEngine.Object.FindObjectOfType<UnitSpawner>();
         if (spawner == null)
         {
             Debug.LogError("GridAdapter: No UnitSpawner found in scene, cannot restore units from save.");

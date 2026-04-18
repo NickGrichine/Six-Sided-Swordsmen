@@ -27,6 +27,25 @@ public class UnitSpawner : MonoBehaviour
         return SpawnUnitOnTile(team, tile, unitPrefab, recordReplay: true, notifyGameState: true);
     }
 
+    public UnitController SpawnUnit(Player team, Vector2Int gridPos, TagUnitType unitType)
+    {
+        GameObject prefab = GetPrefabForType(unitType);
+        if (prefab == null)
+        {
+            Debug.LogError($"SpawnUnit failed: no prefab found for unit type {unitType}.");
+            return null;
+        }
+
+        Tile tile = FindPassableTileNear(gridPos);
+        if (tile == null)
+        {
+            Debug.LogError($"No passable tile found near {gridPos}");
+            return null;
+        }
+
+        return SpawnUnitOnTile(team, tile, prefab, recordReplay: true, notifyGameState: true);
+    }
+
     private Tile FindPassableTileNear(Vector2Int center)
     {
         // Check center first

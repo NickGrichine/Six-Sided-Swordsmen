@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1212750771231466179}
   - component: {fileID: 218757908431768965}
   m_Layer: 0
-  m_Name: Swordsmen
+  m_Name: Swordsman
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

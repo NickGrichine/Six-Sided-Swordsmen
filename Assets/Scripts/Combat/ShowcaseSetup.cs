@@ -5,6 +5,8 @@ public class ShowcaseSetup : MonoBehaviour
 {
     [SerializeField] private HexGridManager grid;
     [SerializeField] private UnitSpawner unitSpawner;
+    
+    [SerializeField] private bool spawnShowcaseOnStart = false;
 
     private static readonly Vector2Int ArmyOneCenter = new Vector2Int(20, 13);
     private static readonly Vector2Int ArmyTwoCenter = new Vector2Int(20, 27);
@@ -37,6 +39,9 @@ public class ShowcaseSetup : MonoBehaviour
 
     private void Start()
     {
+        if (!spawnShowcaseOnStart)
+            return;
+        
         if (unitSpawner == null)
         {
             unitSpawner = GetComponent<UnitSpawner>() ?? gameObject.AddComponent<UnitSpawner>();
@@ -67,6 +72,11 @@ public class ShowcaseSetup : MonoBehaviour
         {
             if (unit != null)
             {
+                if (unit.position != null && ReferenceEquals(unit.position.occupant, unit))
+                {
+                    unit.position.occupant = null;
+                }
+
                 Destroy(unit.gameObject);
             }
         }

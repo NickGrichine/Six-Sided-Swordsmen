@@ -19,10 +19,6 @@ public class GameManager : Singleton<GameManager>
     {
         // For testing purposes, start the game immediately
         // StartGame();
-
-        // Game loading for Data Persistence
-        int gameId = 1;
-        DataManager.Instance.Load(gameId);
     }
 
     public void StartGame()

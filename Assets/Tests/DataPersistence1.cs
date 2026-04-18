@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class DataPersistence : MonoBehaviour
+public class DataPersistence1 : MonoBehaviour
 {
 
     public TMP_InputField inputField;
