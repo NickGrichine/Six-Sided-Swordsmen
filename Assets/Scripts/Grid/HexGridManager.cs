@@ -849,4 +849,9 @@ public class HexGridManager : Singleton<HexGridManager>
         }
     }
 
+    public void SetGenerateOnStart(bool value)
+    {
+        generateOnStart = value;
+    }
+
 }

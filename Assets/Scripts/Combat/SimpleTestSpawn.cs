@@ -49,4 +49,9 @@ public class SimpleTestSpawn : MonoBehaviour
 
         GameManager.Instance?.NotifyGameStateChanged();
     }
+
+    public void SetSpawnOnStart(bool value)
+    {
+        spawnOnStart = value;
+    }
 }

@@ -3,13 +3,15 @@ using UnityEngine;
 [DefaultExecutionOrder(100)]
 public class ShowcaseSetup : MonoBehaviour
 {
+    [SerializeField] private bool spawnShowcaseOnStart = false;
+
     [SerializeField] private HexGridManager grid;
     [SerializeField] private UnitSpawner unitSpawner;
     
-    [SerializeField] private bool spawnShowcaseOnStart = false;
-
     private static readonly Vector2Int ArmyOneCenter = new Vector2Int(20, 13);
     private static readonly Vector2Int ArmyTwoCenter = new Vector2Int(20, 27);
+
+    
 
     private static readonly Vector2Int[] FormationOffsets =
     {
@@ -63,6 +65,11 @@ public class ShowcaseSetup : MonoBehaviour
         GameManager.Instance?.NotifyGameStateChanged();
 
         Debug.Log($"ShowcaseSetup: spawned showcase armies near {ArmyOneCenter} and {ArmyTwoCenter}.");
+    }
+
+    public void SetSpawnShowcaseOnStart(bool value)
+    {
+        spawnShowcaseOnStart = value;
     }
 
     private void ClearExistingUnits()

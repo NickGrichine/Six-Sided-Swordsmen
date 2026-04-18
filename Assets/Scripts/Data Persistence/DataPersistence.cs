@@ -23,5 +23,15 @@ public class DataPersistence : MonoBehaviour
             DataManager.Instance.Save(HexGridManager.Instance, gameId);
         }
     }
+
+    public void SetLoadOnStart(bool value)
+    {
+        loadOnStart = value;
+    }
+
+    public void SetSaveOnQuit(bool value)
+    {
+        saveOnQuit = value;
+    }
 }
 
