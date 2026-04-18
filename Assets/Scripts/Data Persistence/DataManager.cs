@@ -18,22 +18,23 @@ public class DataManager : Singleton <DataManager> {
 
     public void Load(int gameId) {
 
-        // Validate slot index
-        // if (gameId < 0 || gameId >= slots.Length)
-        // {
-        //     StartCoroutine(ReturnToMenuAfterDelay("Invalid game slot. Back to menu!", 2f));
-        //     return;
-        // }
+        //Validate slot index
+        if (gameId < 0 || gameId >= slots.Length)
+        {
+            Debug.LogError($"Invalid game slot index: {gameId}");
+            return;
+        }
+
 
         // Builds the save-file path
         string path = Path.Combine(Application.persistentDataPath, "Game" + gameId + ".json");
 
         // Checks if the file does exist
-        // if (!File.Exists(path))
-        // {
-        //     StartCoroutine(ReturnToMenuAfterDelay("The game you're looking for does not exist! Back to menu!", 2f));
-        //     return;
-        // }
+        if (!File.Exists(path))
+        {
+            Debug.LogError("Save file does not exist: " + path);
+            return;
+        }
 
         // Read JSON and deserialize into SaveData object
         string json = File.ReadAllText(path);
@@ -60,6 +61,19 @@ public class DataManager : Singleton <DataManager> {
     //Create Save Data as an argument
     //new SaveData("Game " + gameId, gameId, grid)
     public void Save(HexGridManager grid, int gameId) { //*CALLED AT END OF GAME
+
+        if (grid == null)
+        {
+            Debug.LogError("Save failed: grid is null.");
+            return;
+        }
+
+        if (gameId < 0 || gameId >= slots.Length)
+        {
+            Debug.LogError($"Save failed: invalid slot index {gameId}.");
+            return;
+        }
+
         //1. Grid adapter copies grid contents into GridData (done in on grid data creation --> constructor)
         SaveData data = new SaveData("game" + gameId, gameId, grid);    //The constructor calls adapter functions
 
@@ -70,6 +84,7 @@ public class DataManager : Singleton <DataManager> {
 
         //3. Handle slot Container --> possible need for UI
         activeSlot = new SaveSlot(data, path);
+        slots[gameId] = activeSlot;
         //3.1 Decide where to slot the SaveData wrapper object
         //3.1.1 User chooses which slot --> need for UI
 

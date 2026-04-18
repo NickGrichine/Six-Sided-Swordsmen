@@ -27,8 +27,8 @@ public class UnitController : MonoBehaviour, IOccupant
         {
             healthManager.onDeath += OnDeath;
         }
-        range = refData.attackRange;
 
+        range = refData != null ? refData.attackRange : 0;
         //healthManager.SetMaxHealth(healthManager.maxHealth);
     }
 
@@ -110,7 +110,7 @@ public class UnitController : MonoBehaviour, IOccupant
 
     public void StartTurn()
     {
-        movesRemaining = refData.maxMovesPerTurn;
+        movesRemaining = refData != null ? refData.maxMovesPerTurn : 0;    
     }
 
     private void Start()
@@ -283,4 +283,20 @@ public class UnitController : MonoBehaviour, IOccupant
     }
     public void onDeath() => OnDeath();
 
+    public void ApplyLoadedState(int currentHealth, int maxHealth, int movesRemaining, int attackRange, string loadedName)
+    {
+        if (healthManager != null)
+        {
+            healthManager.SetMaxHealth(maxHealth);
+            healthManager.SetCurrentHealth(currentHealth);
+        }
+
+        this.movesRemaining = movesRemaining;
+        this.range = attackRange;
+
+        if (!string.IsNullOrWhiteSpace(loadedName))
+        {
+            name = loadedName;
+        }
+    }
 }

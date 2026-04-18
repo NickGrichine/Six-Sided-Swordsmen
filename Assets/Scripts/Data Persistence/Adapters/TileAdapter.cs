@@ -2,13 +2,15 @@ using System;
 using System.Collections.Generic;
 
 public static class TileAdapter{
-    public static TileData ToData(Tile tile){
+    public static TileData ToData(Tile tile)
+    {
         if (tile == null)
         {
             return null;
         }
 
-        var data = new TileData{
+        var data = new TileData
+        {
             tileId = tile.tileId,
             type = tile.type,
             altitude = tile.altitude,
@@ -36,7 +38,12 @@ public static class TileAdapter{
         tile.gridPos = tileData.gridPos;
         tile.moveCost = tileData.moveCost;
         tile.passable = tileData.passable;
-        
+
+        tile.neighborIds = tileData.neighborIds != null
+            ? new List<int>(tileData.neighborIds)
+            : new List<int>();
+
+        tile.occupant = null;
 
     }
 
@@ -51,17 +58,19 @@ public static class TileAdapter{
         int maxHealth = unit.healthManager != null ? unit.healthManager.GetMaxHealth() : 0;
         int attackRange = unit.refData != null ? unit.refData.attackRange : unit.range;
         int attackStrength = unit.refData != null ? unit.refData.attackStr : 0;
-
+        UnitDataSO.UnitType unitType = unit.refData != null ? unit.refData.unitType : UnitDataSO.UnitType.Swordsman;
         return new TileOccupantData
         {
             unitId = ReplayManager.GetOrCreatePersistentUnitId(unit),
-            unitName = unit.name.Replace("(Clone)", string.Empty).Trim(),
+            unitName = string.IsNullOrWhiteSpace(unit.name) ? "Unit" : unit.name.Replace("(Clone)", string.Empty).Trim(),
+            unitType = unitType,
             ownerId = unit.OwnerId,
             health = currentHealth,
             maxHealth = maxHealth,
             movesRemaining = unit.movesRemaining,
             attackRange = attackRange,
-            attackStrength = attackStrength
+            attackStrength = attackStrength,
+            refDataName = unit.refData != null ? unit.refData.name : string.Empty
         };
     }
 }

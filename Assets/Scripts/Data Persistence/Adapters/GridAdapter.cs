@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public static class GridAdapter{
     
@@ -43,6 +44,8 @@ public static class GridAdapter{
             gridData.cameraBorderTiles
         );
 
+        grid.MarkLoadedFromSave();
+
         // Recreate the runtime tile objects for a grid of the correct size
         grid.GenerateGrid();
 
@@ -63,9 +66,55 @@ public static class GridAdapter{
         // Reconstruct tile neighbors from 
         grid.RebuildNeighborsFromIds();
 
+        grid.ClearAllOccupants();
+
+        RebuildUnits(grid, gridData);
+
         // Refresh tile visuals and camera settings
         grid.RefreshAfterLoad();
 
         return grid;
     }
+
+    private static void RebuildUnits(HexGridManager grid, GridData gridData)
+    {
+        UnitController[] existingUnits = Object.FindObjectsOfType<UnitController>();
+        foreach (UnitController unit in existingUnits)
+        {
+            if (unit != null)
+            {
+                Object.Destroy(unit.gameObject);
+            }
+        }
+
+        if (gridData.tiles == null)
+            return;
+
+        UnitSpawner spawner = Object.FindObjectOfType<UnitSpawner>();
+        if (spawner == null)
+        {
+            Debug.LogError("GridAdapter: No UnitSpawner found in scene, cannot restore units from save.");
+            return;
+        }
+
+        spawner.grid = grid;
+
+        foreach (TileData tileData in gridData.tiles)
+        {
+            if (tileData == null || tileData.occupant == null)
+                continue;
+
+            Tile tile = grid.GetTileById(tileData.tileId);
+            if (tile == null)
+                continue;
+
+            if (tile.IsOccupied)
+                continue;
+
+            spawner.SpawnUnitFromSave(tile, tileData.occupant);
+        }
+
+    }
+
+
 }

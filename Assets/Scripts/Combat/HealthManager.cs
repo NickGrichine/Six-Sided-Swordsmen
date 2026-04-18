@@ -38,7 +38,10 @@ public class HealthManager : MonoBehaviour
         maxHealth = health;
         this.health = maxHealth;
 
-        healthBar.SetMaxHealth(health);
+        if (healthBar != null)
+        {
+            healthBar.SetMaxHealth(health);
+        }
     }
 
     public void SetMaxHealth(float relativeHealth)
@@ -46,6 +49,16 @@ public class HealthManager : MonoBehaviour
         if (relativeHealth <= 0f) return;
         maxHealth = Mathf.RoundToInt(relativeHealth * maxHealth);
         this.health = maxHealth;
+    }
+
+    public void SetCurrentHealth(int value)
+    {
+        health = Mathf.Clamp(value, 0, maxHealth);
+        if (healthBar != null)
+        {
+            healthBar.SetHealth(health);
+        }
+
     }
 
     public void SetDodge(float dodge)
@@ -81,8 +94,10 @@ public class HealthManager : MonoBehaviour
         }
         onDamage?.Invoke(modifiedAmount);
 
-
-        healthBar.SetHealth(health);
+        if (healthBar != null)
+        {
+            healthBar.SetHealth(health);
+        }
     }
 
 
@@ -105,6 +120,11 @@ public class HealthManager : MonoBehaviour
             onDeath?.Invoke();
         }
         onCrit?.Invoke(modifiedAmount);
+
+        if (healthBar != null)
+        {
+            healthBar.SetHealth(health);
+        }
     }
 
 
@@ -113,6 +133,11 @@ public class HealthManager : MonoBehaviour
         health = 0;
         onDamage?.Invoke(maxHealth);
         onDeath?.Invoke();
+
+        if (healthBar != null)
+        {
+            healthBar.SetHealth(health);
+        }
     }
 
 
@@ -143,7 +168,10 @@ public class HealthManager : MonoBehaviour
         
         onHeal?.Invoke(modifiedAmount);
 
-        healthBar.SetHealth(health);
+        if (healthBar != null)
+        {
+            healthBar.SetHealth(health);
+        }
     }
 
     

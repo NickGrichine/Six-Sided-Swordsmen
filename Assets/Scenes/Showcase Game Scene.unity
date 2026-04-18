@@ -266,7 +266,7 @@ PrefabInstance:
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: tilePrefab
       value: 
-      objectReference: {fileID: 3786522473565270464, guid: 1244cca042012754baf167dca488c431, type: 3}
+      objectReference: {fileID: 3786522473565270464, guid: 13139b24087ea4440bda16628e2b0466, type: 3}
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: oceanChance
       value: 0.18
@@ -285,7 +285,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: generationMode
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: mountainChance
@@ -298,7 +298,7 @@ PrefabInstance:
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: biomeControlMask
       value: 
-      objectReference: {fileID: 2800000, guid: f32e747f1c16249aca89bd73a368f724, type: 3}
+      objectReference: {fileID: 2800000, guid: 1182f2aa95b194f85a4331973664a948, type: 3}
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: grassRock1Sprite
       value: 
@@ -427,7 +427,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   grid: {fileID: 1083728395}
-  unitPrefab: {fileID: 0}
   unitSpawner: {fileID: 1446639557}
 --- !u!114 &1446639559
 MonoBehaviour:

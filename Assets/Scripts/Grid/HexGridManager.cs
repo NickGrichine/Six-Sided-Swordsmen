@@ -5,6 +5,7 @@ public class HexGridManager : Singleton<HexGridManager>
 {
     [Header("Generation Mode")]
     [SerializeField] private bool generateOnStart = true;
+    private bool hasLoadedFromSave = false;
 
     [Header("Grid Settings")]
     public Tile tilePrefab; 
@@ -567,12 +568,17 @@ public class HexGridManager : Singleton<HexGridManager>
     {
         base.Awake();
         
-        if (generateOnStart)
+        if (generateOnStart && ! hasLoadedFromSave)
         {
     
             GenerateGrid();
         }
     
+    }
+
+    public void MarkLoadedFromSave()
+    {
+        hasLoadedFromSave = true;
     }
 
     public IEnumerable<Tile> GetAllTiles()
@@ -831,4 +837,16 @@ public class HexGridManager : Singleton<HexGridManager>
                 return result;
         }
     }
+
+    public void ClearAllOccupants()
+    {
+        foreach (Tile tile in GetAllTiles())
+        {
+            if (tile != null)
+            {
+                tile.occupant = null;
+            }
+        }
+    }
+
 }
