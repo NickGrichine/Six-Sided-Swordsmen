@@ -10,7 +10,8 @@ public enum ReplayEventType
     TurnStarted,
     TurnEnded,
     TileEffectTriggered,
-    Other
+    Other,
+    UnitMoved
 }
 
 [Serializable]
@@ -41,14 +42,17 @@ public class ReplayEvent
     public int actingPlayerId;
     public ReplayEventType type;
 
+    public int unitPlayerId;
     public string unitName;
     public string unitId;
+    public int otherUnitPlayerId;
     public string otherUnitName;
     public string otherUnitId;
 
     public int hpBefore;
     public int hpAfter;
 
+    public bool hasTile;
     public TileCoordinate tile;
 
     public bool hasFromTile;

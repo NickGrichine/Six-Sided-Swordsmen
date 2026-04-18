@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class CameraController : Singleton<CameraController>
 {
@@ -69,6 +70,11 @@ public class CameraController : Singleton<CameraController>
 
     private void HandleZoom()
     {
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+
         float scrollInput = Input.GetAxis("Mouse ScrollWheel");
 
         if (scrollInput != 0)

@@ -1,15 +1,22 @@
 using TMPro;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class TileReplayViewer : MonoBehaviour
 {
     private const string ViewerObjectName = "[TileReplayViewer]";
 
+    private enum ReplayViewMode
+    {
+        Global,
+        Tile
+    }
+
     private class TurnSlide
     {
         // The UI steps turn-by-turn, so several same-turn events share one slide
         public int turnNumber;
-        public System.Collections.Generic.List<ReplayEvent> events = new System.Collections.Generic.List<ReplayEvent>();
+        public List<ReplayEvent> events = new List<ReplayEvent>();
     }
 
     [SerializeField] private UnityEngine.Canvas targetCanvas;
@@ -21,15 +28,19 @@ public class TileReplayViewer : MonoBehaviour
     private UnityEngine.UI.ScrollRect bodyScrollRect;
     private UnityEngine.UI.Button previousButton;
     private UnityEngine.UI.Button nextButton;
+    private UnityEngine.UI.Button globalViewButton;
+    private UnityEngine.UI.Button tileViewButton;
     private UnityEngine.UI.Button closeButton;
     private CustomButton openButton;
 
     private ReplayManager.TileReplayLog currentLog;
-    private readonly System.Collections.Generic.List<TurnSlide> currentSlides = new System.Collections.Generic.List<TurnSlide>();
+    private readonly List<TurnSlide> currentSlides = new List<TurnSlide>();
     private int currentIndex;
     private bool subscribedToGridClicks;
     private Tile selectedTile;
     private Tile displayedTile;
+    private ReplayViewMode currentViewMode = ReplayViewMode.Global;
+    private string currentTitle = "Match Replay";
 
     public static TileReplayViewer EnsureExists()
     {
@@ -71,6 +82,16 @@ public class TileReplayViewer : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.R))
         {
+            ToggleReplayPanel();
+        }
+
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            OpenGlobalReplay();
+        }
+
+        if (Input.GetKeyDown(KeyCode.T))
+        {
             OpenReplayForSelectedTile();
         }
 
@@ -100,12 +121,41 @@ public class TileReplayViewer : MonoBehaviour
     private void OnTileClicked(Tile tile)
     {
         // If the player changes selection, hide the stale replay instead of leaving it open.
-        if (displayedTile != null && tile != displayedTile)
+        if (currentViewMode == ReplayViewMode.Tile && displayedTile != null && tile != displayedTile)
         {
             SetPanelVisible(false);
         }
 
         selectedTile = tile;
+    }
+
+    private void ToggleReplayPanel()
+    {
+        if (panelRoot != null && panelRoot.activeSelf)
+        {
+            SetPanelVisible(false);
+            return;
+        }
+
+        if (currentViewMode == ReplayViewMode.Tile)
+        {
+            OpenReplayForSelectedTile();
+            return;
+        }
+
+        OpenGlobalReplay();
+    }
+
+    private void OpenGlobalReplay()
+    {
+        ReplayManager replayManager = ReplayManager.EnsureExists();
+        List<ReplayEvent> globalEvents = replayManager.GetEventsVisibleToCurrentPlayer(replayManager.GetGlobalEvents());
+        currentLog = null;
+        displayedTile = null;
+        currentViewMode = ReplayViewMode.Global;
+        currentTitle = "Match Replay";
+
+        OpenReplayFromEvents(globalEvents);
     }
 
     private void OpenReplayForSelectedTile()
@@ -126,7 +176,8 @@ public class TileReplayViewer : MonoBehaviour
             return;
         }
 
-        currentLog = ReplayManager.EnsureExists().GetLogForTile(tile);
+        ReplayManager replayManager = ReplayManager.EnsureExists();
+        currentLog = replayManager.GetLogForTile(tile);
         if (currentLog == null || currentLog.events == null || currentLog.events.Count == 0)
         {
             currentSlides.Clear();
@@ -135,8 +186,21 @@ public class TileReplayViewer : MonoBehaviour
             return;
         }
 
-        RebuildSlides();
+        currentViewMode = ReplayViewMode.Tile;
+        currentTitle = $"Tile Replay {currentLog.tile}";
         displayedTile = tile;
+        OpenReplayFromEvents(replayManager.GetEventsVisibleToCurrentPlayer(currentLog.events));
+    }
+
+    private void OpenReplayFromEvents(IReadOnlyList<ReplayEvent> sourceEvents)
+    {
+        RebuildSlides(sourceEvents);
+        if (currentSlides.Count == 0)
+        {
+            SetPanelVisible(false);
+            return;
+        }
+
         currentIndex = currentSlides.Count - 1;
         SetPanelVisible(true);
         RefreshView();
@@ -166,7 +230,7 @@ public class TileReplayViewer : MonoBehaviour
 
     private void RefreshView()
     {
-        if (currentLog == null || currentLog.events == null || currentLog.events.Count == 0 || currentSlides.Count == 0)
+        if (currentSlides.Count == 0)
         {
             SetPanelVisible(false);
             return;
@@ -174,12 +238,14 @@ public class TileReplayViewer : MonoBehaviour
 
         TurnSlide currentSlide = currentSlides[currentIndex];
 
-        titleText.text = $"Tile Replay {currentLog.tile}";
+        titleText.text = currentTitle;
         bodyText.text = BuildSlideText(currentSlide);
-        footerText.text = $"Turn {currentSlide.turnNumber}    Slide {currentIndex + 1}/{currentSlides.Count}    A/Left: Prev    D/Right: Next    Esc: Close";
+        footerText.text = $"Turn {currentSlide.turnNumber}    Slide {currentIndex + 1}/{currentSlides.Count}    R: Toggle    M: Match    T: Tile    A/D: Prev/Next    Esc: Close";
 
         previousButton.interactable = currentIndex > 0;
         nextButton.interactable = currentIndex < currentSlides.Count - 1;
+        globalViewButton.interactable = currentViewMode != ReplayViewMode.Global;
+        tileViewButton.interactable = selectedTile != null && currentViewMode != ReplayViewMode.Tile;
 
         UnityEngine.Canvas.ForceUpdateCanvases();
         if (bodyScrollRect != null)
@@ -199,17 +265,17 @@ public class TileReplayViewer : MonoBehaviour
         subscribedToGridClicks = true;
     }
 
-    private void RebuildSlides()
+    private void RebuildSlides(IReadOnlyList<ReplayEvent> sourceEvents)
     {
         currentSlides.Clear();
 
-        if (currentLog == null || currentLog.events == null)
+        if (sourceEvents == null)
         {
             return;
         }
 
         TurnSlide activeSlide = null;
-        foreach (ReplayEvent replayEvent in currentLog.events)
+        foreach (ReplayEvent replayEvent in sourceEvents)
         {
             if (replayEvent == null)
             {
@@ -237,7 +303,7 @@ public class TileReplayViewer : MonoBehaviour
             return string.Empty;
         }
 
-        System.Collections.Generic.List<ReplayEvent> orderedEvents = new System.Collections.Generic.List<ReplayEvent>(slide.events);
+        List<ReplayEvent> orderedEvents = new List<ReplayEvent>(slide.events);
         orderedEvents.Sort(CompareReplayEventsForDisplay);
 
         System.Text.StringBuilder builder = new System.Text.StringBuilder();
@@ -285,7 +351,6 @@ public class TileReplayViewer : MonoBehaviour
 
         return left.sequenceNumber.CompareTo(right.sequenceNumber);
     }
-
     private void EnsureUi()
     {
         if (panelRoot != null)
@@ -322,8 +387,8 @@ public class TileReplayViewer : MonoBehaviour
         panelRect.anchorMin = new Vector2(1f, 0f);
         panelRect.anchorMax = new Vector2(1f, 0f);
         panelRect.pivot = new Vector2(1f, 0f);
-        panelRect.sizeDelta = new Vector2(420f, 240f);
-        panelRect.anchoredPosition = new Vector2(-20f, 130f);
+        panelRect.sizeDelta = new Vector2(500f, 240f);
+        panelRect.anchoredPosition = new Vector2(-20f, 190f);
 
         UnityEngine.UI.Image panelImage = panelObject.AddComponent<UnityEngine.UI.Image>();
         panelImage.color = new Color(0.15f, 0.15f, 0.15f, 0.92f);
@@ -388,7 +453,13 @@ public class TileReplayViewer : MonoBehaviour
         nextButton = CreateButton("NextButton", panelObject.transform, font, "Next", new Vector2(116f, 8f));
         nextButton.onClick.AddListener(StepForward);
 
-        closeButton = CreateButton("CloseButton", panelObject.transform, font, "Close", new Vector2(316f, 8f));
+        globalViewButton = CreateButton("GlobalButton", panelObject.transform, font, "Match", new Vector2(216f, 8f));
+        globalViewButton.onClick.AddListener(OpenGlobalReplay);
+
+        tileViewButton = CreateButton("TileButton", panelObject.transform, font, "Tile", new Vector2(316f, 8f));
+        tileViewButton.onClick.AddListener(OpenReplayForSelectedTile);
+
+        closeButton = CreateButton("CloseButton", panelObject.transform, font, "Close", new Vector2(396f, 8f));
         closeButton.onClick.AddListener(() => SetPanelVisible(false));
 
     }
@@ -442,7 +513,6 @@ public class TileReplayViewer : MonoBehaviour
 
         return button;
     }
-
     private void TryCreateOpenButton()
     {
         if (openButton != null)
@@ -471,9 +541,10 @@ public class TileReplayViewer : MonoBehaviour
         }
 
         openButton.ClearActions();
-        openButton.onClick += (_) => OpenReplayForSelectedTile();
+        openButton.onClick += (_) => OpenGlobalReplay();
         openButton.SetText("Replay");
         openButton.SetState(Button.BUTTON_STATE.ACTIVE);
+        CopyButtonVisuals(passTurnTemplate.gameObject, replayButtonObject);
 
         RectTransform templateRect = passTurnTemplate.GetComponent<RectTransform>();
         RectTransform replayRect = replayButtonObject.GetComponent<RectTransform>();
@@ -485,6 +556,54 @@ public class TileReplayViewer : MonoBehaviour
             replayRect.pivot = templateRect.pivot;
             replayRect.sizeDelta = templateRect.sizeDelta;
             replayRect.anchoredPosition = templateRect.anchoredPosition + new Vector2(templateRect.rect.width + 20f, 0f);
+        }
+    }
+
+    private static void CopyButtonVisuals(GameObject templateButton, GameObject targetButton)
+    {
+        if (templateButton == null || targetButton == null)
+        {
+            return;
+        }
+
+        UnityEngine.UI.Graphic[] templateGraphics = templateButton.GetComponentsInChildren<UnityEngine.UI.Graphic>(true);
+        UnityEngine.UI.Graphic[] targetGraphics = targetButton.GetComponentsInChildren<UnityEngine.UI.Graphic>(true);
+        int count = Mathf.Min(templateGraphics.Length, targetGraphics.Length);
+
+        for (int i = 0; i < count; i++)
+        {
+            if (templateGraphics[i] == null || targetGraphics[i] == null)
+            {
+                continue;
+            }
+
+            targetGraphics[i].color = templateGraphics[i].color;
+            targetGraphics[i].material = templateGraphics[i].material;
+        }
+
+        TextMeshProUGUI[] templateTexts = templateButton.GetComponentsInChildren<TextMeshProUGUI>(true);
+        TextMeshProUGUI[] targetTexts = targetButton.GetComponentsInChildren<TextMeshProUGUI>(true);
+        count = Mathf.Min(templateTexts.Length, targetTexts.Length);
+
+        for (int i = 0; i < count; i++)
+        {
+            if (templateTexts[i] == null || targetTexts[i] == null)
+            {
+                continue;
+            }
+
+            targetTexts[i].font = templateTexts[i].font;
+            targetTexts[i].fontSharedMaterial = templateTexts[i].fontSharedMaterial;
+            targetTexts[i].fontSize = templateTexts[i].fontSize;
+            targetTexts[i].fontStyle = templateTexts[i].fontStyle;
+            targetTexts[i].alignment = templateTexts[i].alignment;
+            targetTexts[i].color = templateTexts[i].color;
+            targetTexts[i].enableAutoSizing = templateTexts[i].enableAutoSizing;
+            targetTexts[i].characterSpacing = templateTexts[i].characterSpacing;
+            targetTexts[i].wordSpacing = templateTexts[i].wordSpacing;
+            targetTexts[i].lineSpacing = templateTexts[i].lineSpacing;
+            targetTexts[i].margin = templateTexts[i].margin;
+            targetTexts[i].raycastTarget = templateTexts[i].raycastTarget;
         }
     }
 
