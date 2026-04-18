@@ -106,9 +106,8 @@ public static class GridAdapter{
 
         foreach (TileData tileData in gridData.tiles)
         {
-            if (tileData == null || tileData.occupant == null)
+            if (tileData == null || !tileData.hasOccupant || tileData.occupant == null)
                 continue;
-
             Tile tile = grid.GetTileById(tileData.tileId);
             if (tile == null)
                 continue;

@@ -9,9 +9,9 @@ public static class TileAdapter{
         {
             return null;
         }
-
-        Debug.Log($"Saving tile {tile.tileId}, occupant null? {tile.occupant == null}");
         
+        TileOccupantData occupantData = ToOccupantData(tile.occupant);
+
         var data = new TileData
         {
             tileId = tile.tileId,
@@ -22,7 +22,8 @@ public static class TileAdapter{
             moveCost = tile.moveCost,
             passable = tile.passable,
             neighborIds = new List<int>(tile.neighborIds),
-            occupant = ToOccupantData(tile.occupant)
+            hasOccupant = occupantData != null,
+            occupant = occupantData
         };
 
         return data;
