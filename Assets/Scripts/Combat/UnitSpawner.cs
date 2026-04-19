@@ -16,13 +16,8 @@ public class UnitSpawner : Singleton<UnitSpawner>
         grid = HexGridManager.Instance;
     }
 
-    public enum TagUnitType
-    {
-        Knight, Archer, Swordsman, Spearman
-    }
-
     // NOTE: duplicated code; needed for setup phase; to clean up later.
-    public UnitController SpawnUnit(Player team, Tile tile, TagUnitType unitType)
+    public UnitController SpawnUnit(Player team, Tile tile, UnitDataSO.UnitType unitType)
     {
         unitPrefab = GetPrefabForType(unitType);
 
@@ -40,16 +35,6 @@ public class UnitSpawner : Singleton<UnitSpawner>
         return null;
     }
 
-    public UnitController SpawnUnit(Player team, Vector2Int gridPos, TagUnitType unitType)
-    {
-        GameObject previousPrefab = unitPrefab;
-        unitPrefab = GetPrefabForType(unitType);
-        UnitController spawned = SpawnUnit(team, gridPos);
-        unitPrefab = previousPrefab;
-        return spawned;
-    }
-
-
     public UnitController SpawnUnit(Player team, Vector2Int gridPos)
     {
         Tile tile = FindPassableTileNear(gridPos);
@@ -62,7 +47,7 @@ public class UnitSpawner : Singleton<UnitSpawner>
         return SpawnUnitOnTile(team, tile, unitPrefab, recordReplay: true, notifyGameState: true);
     }
 
-    public UnitController SpawnUnit(Player team, Vector2Int gridPos, TagUnitType unitType)
+    public UnitController SpawnUnit(Player team, Vector2Int gridPos, UnitDataSO.UnitType unitType)
     {
         GameObject prefab = GetPrefabForType(unitType);
         if (prefab == null)
@@ -103,23 +88,6 @@ public class UnitSpawner : Singleton<UnitSpawner>
         }
 
         return null;
-    }
-
-    private GameObject GetPrefabForType(TagUnitType unitType)
-    {
-        switch (unitType)
-        {
-            case TagUnitType.Knight:
-                return knightPrefab != null ? knightPrefab : unitPrefab;
-            case TagUnitType.Archer:
-                return archerPrefab != null ? archerPrefab : unitPrefab;
-            case TagUnitType.Swordsman:
-                return swordsmanPrefab != null ? swordsmanPrefab : unitPrefab;
-            case TagUnitType.Spearman:
-                return spearmanPrefab != null ? spearmanPrefab : unitPrefab;
-            default:
-                return unitPrefab;
-        }
     }
 
     private GameObject GetPrefabForType(UnitDataSO.UnitType unitType)

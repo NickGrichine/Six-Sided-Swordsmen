@@ -32,7 +32,10 @@ public class SetupManager : Singleton<SetupManager>
     {
         HexGridManager hex_grid_manager = HexGridManager.Instance;
         GridData grid_data = GridAdapter.ToData(hex_grid_manager);
-        DataManager.Instance.Save(hex_grid_manager, grid_data, _save_slot);
+
+        // should store the grid_data in a cache, without writing to file
+        // cache can be in a different class from data manager
+        //DataManager.Instance.Save(hex_grid_manager, grid_data, _save_slot);
         SceneLoader.Instance.LoadScene("New Game Scene");
     }
 }

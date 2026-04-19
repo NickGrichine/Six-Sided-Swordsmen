@@ -26,17 +26,17 @@ public class ShowcaseSetup : MonoBehaviour
         new Vector2Int(1, 1),
     };
 
-    private static readonly UnitSpawner.TagUnitType[] ArmyComposition =
+    private static readonly UnitDataSO.UnitType[] ArmyComposition =
     {
-        UnitSpawner.TagUnitType.Archer,
-        UnitSpawner.TagUnitType.Archer,
-        UnitSpawner.TagUnitType.Archer,
-        UnitSpawner.TagUnitType.Swordsman,
-        UnitSpawner.TagUnitType.Swordsman,
-        UnitSpawner.TagUnitType.Spearman,
-        UnitSpawner.TagUnitType.Spearman,
-        UnitSpawner.TagUnitType.Knight,
-        UnitSpawner.TagUnitType.Knight,
+        UnitDataSO.UnitType.Archer,
+        UnitDataSO.UnitType.Archer,
+        UnitDataSO.UnitType.Archer,
+        UnitDataSO.UnitType.Swordsman,
+        UnitDataSO.UnitType.Swordsman,
+        UnitDataSO.UnitType.Spearman,
+        UnitDataSO.UnitType.Spearman,
+        UnitDataSO.UnitType.Knight,
+        UnitDataSO.UnitType.Knight,
     };
 
     private void Start()
@@ -94,7 +94,7 @@ public class ShowcaseSetup : MonoBehaviour
         for (int i = 0; i < ArmyComposition.Length; i++)
         {
             Vector2Int spawnPos = center + FormationOffsets[i];
-            UnitSpawner.TagUnitType unitType = ArmyComposition[i];
+            UnitDataSO.UnitType unitType = ArmyComposition[i];
 
             UnitController spawned = unitSpawner.SpawnUnit(team, spawnPos, unitType);
             if (spawned == null)

@@ -329,10 +329,6 @@ PrefabInstance:
       value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
-      propertyPath: tilePrefab
-      value: 
-      objectReference: {fileID: 3786522473565270464, guid: 13139b24087ea4440bda16628e2b0466, type: 3}
-    - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: oceanChance
       value: 0.18
       objectReference: {fileID: 0}
@@ -934,6 +930,6 @@ SceneRoots:
   - {fileID: 1153814719}
   - {fileID: 2057721467}
   - {fileID: 2119828636}
-  - {fileID: 2115567388}
   - {fileID: 116641633}
+  - {fileID: 2115567388}
   - {fileID: 4237892884833491862}

@@ -20,4 +20,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Setup Scene.unity
     guid: c885fb75f55294d7fa1e893fd600a5b4
+  - enabled: 0
+    path: Assets/Scenes/Showcase_Load_Save.unity
+    guid: 913152f28c753429ebe780f047bdc77b
+  - enabled: 1
+    path: Assets/Scenes/Showcase Game Scene.unity
+    guid: 13c8fde30180e2640b13a89c0952a106
   m_configObjects: {}

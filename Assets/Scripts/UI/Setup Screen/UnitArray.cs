@@ -65,27 +65,8 @@ public class UnitArray : Singleton<UnitArray>
         if (selected_unit == null) return;
         if (ResourceManager.Instance.CheckValidDeductionOfResource(team, unit.cost) == false) return;
 
-        UnitSpawner.TagUnitType tagUnitType = _toTagUnitType(unit);
-        UnitSpawner.Instance.SpawnUnit(team, tile, tagUnitType);
+        UnitSpawner.Instance.SpawnUnit(team, tile, unit.unitType);
 
         OnUnitPlacement?.Invoke(team, unit, tile);
     }
-    private UnitSpawner.TagUnitType _toTagUnitType(UnitDataSO unit)
-    {
-        switch (unit.unitType)
-        {
-            case UnitDataSO.UnitType.Archer:
-                return UnitSpawner.TagUnitType.Archer;
-            case UnitDataSO.UnitType.Knight:
-                return UnitSpawner.TagUnitType.Knight;
-            case UnitDataSO.UnitType.Spearman:
-                return UnitSpawner.TagUnitType.Spearman;
-            case UnitDataSO.UnitType.Swordsman:
-                return UnitSpawner.TagUnitType.Swordsman;
-            default:
-                throw new System.Exception("Unit type unrecognized.");
-        }
-    }
-
-
 }

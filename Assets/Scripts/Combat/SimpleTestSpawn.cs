@@ -9,8 +9,8 @@ public class SimpleTestSpawn : MonoBehaviour
     [SerializeField] private Vector2Int player1Spawn = new Vector2Int(20, 13);
     [SerializeField] private Vector2Int player2Spawn = new Vector2Int(20, 27);
 
-    [SerializeField] private UnitSpawner.TagUnitType player1Type = UnitSpawner.TagUnitType.Swordsman;
-    [SerializeField] private UnitSpawner.TagUnitType player2Type = UnitSpawner.TagUnitType.Swordsman;
+    [SerializeField] private UnitDataSO.UnitType player1Type = UnitDataSO.UnitType.Swordsman;
+    [SerializeField] private UnitDataSO.UnitType player2Type = UnitDataSO.UnitType.Swordsman;
 
     private void Start()
     {

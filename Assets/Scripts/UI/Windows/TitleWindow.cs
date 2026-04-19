@@ -13,7 +13,6 @@ public class TitleWindow : MonoBehaviour
 
     private void LoadGameScene(Button button)
     {
-        // SceneLoader.Instance.LoadScene("Game Scene");
-        SceneLoader.Instance.LoadScene("Setup Scene");
+        SceneLoader.Instance.LoadScene("showcase game scene");
     }
 }
