@@ -10,6 +10,7 @@ public class UnitDataSO : ScriptableObject
     public int maxMovesPerTurn;
     public int attackRange;
     public int visionRange = 2;
+    public int cost = 10;
 
 
     // Unit bonus damage info

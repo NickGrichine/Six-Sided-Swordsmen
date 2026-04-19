@@ -20,6 +20,7 @@ public class TurnInfoBar : Singleton<TurnInfoBar>
             GameManager.Instance.OnTurnStart += Initialize;
             GameManager.Instance.OnTurnEnd += Initialize;
         }
+        Initialize(GameManager.Instance.TurnNumber);
     }
 
     private void Initialize(int turnNumber)

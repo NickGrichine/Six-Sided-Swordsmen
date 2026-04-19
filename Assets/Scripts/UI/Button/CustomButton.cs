@@ -6,7 +6,6 @@ using System.Collections;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-// TODO:
 public class CustomButton : Button
 {
     public IButtonDisplayable displayedObject { get; private set; }
