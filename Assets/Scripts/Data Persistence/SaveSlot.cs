@@ -1,61 +1,119 @@
+using System.IO;
 using UnityEngine;
 
-[System.Serializable]
-public class SaveSlot {
-    [SerializeField] private SaveData data; //Created when new slot is created --> need constructor
-    [SerializeField]private string path; //File path
+public class SaveSlot : IButtonDisplayable
+{
+    public readonly int id;
+    public readonly string path;
 
-    public SaveSlot(SaveData data, string path) 
+    private SaveData data;
+    private static readonly Sprite DEFAULT_ICON = null; // Can be set to a save icon sprite if desired
+
+    public SaveData Data
     {
-        this.data = data;
-        this.path = path;
+        get { return data; }
+        set { data = value; }
     }
 
-    public SaveData Data {
-        get => data;
+    public SaveSlot(int id)
+    {
+        this.id = id;
+        this.path = Path.Combine(Application.persistentDataPath, $"save_{id}.json");
+        this.data = null;
+    }
 
-        set {
-            if(value != null){
-                data = value;
-            }
-            else {
-                Debug.LogError("SaveData cannot be empty!");
-            }
+    public Sprite GetIcon()
+    {
+        return DEFAULT_ICON;
+    }
+
+    public string GetTextDescription()
+    {
+        if (ExistsOnDisk())
+        {
+            if (data != null)
+                return $"Slot {id}: {data.GetName()}";
+            else
+                return $"Slot {id}: [Save exists]";
+        }
+        else
+        {
+            return $"Slot {id}: [Empty]";
         }
     }
 
-    public string Path{
-        get => path;
-        set{
-            if(!string.IsNullOrEmpty(value)){
-                path = value;
-            }
-            else{
-                Debug.LogError("Name cannot be empty!");
-            }
+    public void WriteToDisk()
+    {
+        if (data == null)
+        {
+            Debug.LogError($"SaveSlot {id}: Cannot write null SaveData to disk.");
+            return;
+        }
+
+        try
+        {
+            string json = JsonUtility.ToJson(data, true);
+            File.WriteAllText(path, json);
+            Debug.Log($"SaveSlot {id}: Saved to {path}");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"SaveSlot {id}: Failed to write to disk: {ex.Message}");
         }
     }
 
-    public SaveData GetData(){
-        return data;
-    }
-    
-  // override object.Equals
-    public override bool Equals(object obj)
+    public bool ReadFromDisk()
     {
-        if (obj is not SaveSlot other)
+        if (!File.Exists(path))
+        {
+            Debug.LogWarning($"SaveSlot {id}: File does not exist at {path}");
+            data = null;
             return false;
+        }
 
-        if (data == null || other.data == null)
+        try
+        {
+            string json = File.ReadAllText(path);
+            data = JsonUtility.FromJson<SaveData>(json);
+            if (data == null)
+            {
+                Debug.LogError($"SaveSlot {id}: Failed to deserialize SaveData from {path}");
+                return false;
+            }
+            Debug.Log($"SaveSlot {id}: Loaded from {path}");
+            return true;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"SaveSlot {id}: Failed to read from disk: {ex.Message}");
+            data = null;
             return false;
-
-        return string.Compare(data.GetName(), other.data.GetName(), true) == 0;
+        }
     }
-    
-    // override object.GetHashCode
-    public override int GetHashCode()
+
+    public void DeleteFromDisk()
     {
-        // TODO: write implementation of GetHashCode() here
-        return data?.GetName()?.ToLower().GetHashCode() ?? 0;
+        if (File.Exists(path))
+        {
+            try
+            {
+                File.Delete(path);
+                data = null;
+                Debug.Log($"SaveSlot {id}: Deleted save file at {path}");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"SaveSlot {id}: Failed to delete file: {ex.Message}");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"SaveSlot {id}: No file to delete at {path}");
+        }
+    }
+
+    public bool ExistsOnDisk()
+    {
+        return File.Exists(path);
     }
 }

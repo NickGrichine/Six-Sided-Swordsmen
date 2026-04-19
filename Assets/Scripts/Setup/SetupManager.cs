@@ -31,12 +31,30 @@ public class SetupManager : Singleton<SetupManager>
     public void EndSetupPhase()
     {
         HexGridManager hex_grid_manager = HexGridManager.Instance;
-        GridData grid_data = GridAdapter.ToData(hex_grid_manager);
+        if (hex_grid_manager == null)
+        {
+            Debug.LogError("SetupManager: HexGridManager.Instance not found");
+            return;
+        }
 
-        // should store the grid_data in a cache, without writing to file
-        // cache can be in a different class from data manager
-        //DataManager.Instance.Save(hex_grid_manager, grid_data, _save_slot);
-        SceneLoader.Instance.LoadScene("New Game Scene");
+        CacheManager cacheManager = CacheManager.Instance;
+        if (cacheManager == null)
+        {
+            Debug.LogError("SetupManager: CacheManager.Instance not found");
+            return;
+        }
+
+        SaveData saveData = new SaveData("Setup Cache", -1, hex_grid_manager);
+        cacheManager.Write(saveData);
+
+        SceneLoader sceneLoader = SceneLoader.Instance;
+        if (sceneLoader == null)
+        {
+            Debug.LogError("SetupManager: SceneLoader.Instance not found");
+            return;
+        }
+
+        sceneLoader.LoadScene("Game Scene");
     }
 }
 

@@ -3,12 +3,17 @@ using UnityEngine;
 [System.Serializable]
 public class SaveData {
 
-    [SerializeField] private string name; //todo
+    [SerializeField] private string name;
     [SerializeField] private int id;
     [SerializeField] private GridData gridData;
 
-    //TileData tileData;
-    //Constructor
+    public SaveData()
+    {
+        this.name = "";
+        this.id = -1;
+        this.gridData = null;
+    }
+
     public SaveData(string name, int id, HexGridManager grid) 
     {
         this.name = name;
@@ -29,8 +34,4 @@ public class SaveData {
     {
         return gridData;
     }
-
-    // public bool IsEmpty(SaveData data) {
-    //     return false; //todo
-    // }
 }

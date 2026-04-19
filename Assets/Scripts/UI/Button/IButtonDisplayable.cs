@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public interface IButtonDisplayable
 {
-    Sprite Icon { get; set; }
-    string TextDescription { get; set; } // text on hover.
+    Sprite GetIcon();
+    string GetTextDescription();
 }
 

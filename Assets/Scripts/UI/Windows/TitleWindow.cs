@@ -4,15 +4,17 @@ using UnityEngine;
 public class TitleWindow : MonoBehaviour
 {
     [SerializeField] private Button startButton;
+    [SerializeField] private GameObject loadGameMenuPrefab;
 
     private void Start()
     {
         startButton.SetState(Button.BUTTON_STATE.ACTIVE);
-        startButton.onClick += LoadGameScene;
+        startButton.onClick += OpenLoadMenu;
     }
 
-    private void LoadGameScene(Button button)
+    private void OpenLoadMenu(Button button)
     {
-        SceneLoader.Instance.LoadScene("showcase game scene");
+
+        
     }
 }

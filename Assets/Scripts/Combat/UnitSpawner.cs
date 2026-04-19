@@ -4,7 +4,6 @@ using UnityEngine;
 public class UnitSpawner : Singleton<UnitSpawner>
 {
     public HexGridManager grid;
-    public GameObject unitPrefab;
     public GameObject knightPrefab;
     public GameObject archerPrefab;
     public GameObject swordsmanPrefab;
@@ -16,50 +15,12 @@ public class UnitSpawner : Singleton<UnitSpawner>
         grid = HexGridManager.Instance;
     }
 
-    // NOTE: duplicated code; needed for setup phase; to clean up later.
     public UnitController SpawnUnit(Player team, Tile tile, UnitDataSO.UnitType unitType)
-    {
-        unitPrefab = GetPrefabForType(unitType);
-
-        GameObject go = Instantiate(unitPrefab, HexGridManager.Instance.transform);
-        var unit = go.GetComponent<UnitController>();
-        unit.SetTeam(team);
-        if (tile.TryEnter(unit))
-        {
-            GameManager.Instance?.NotifyGameStateChanged();
-            return unit;
-        }
-
-        Destroy(go);
-        Debug.LogError($"TryEnter() failed for tile at {tile.gridPos}");
-        return null;
-    }
-
-    public UnitController SpawnUnit(Player team, Vector2Int gridPos)
-    {
-        Tile tile = FindPassableTileNear(gridPos);
-        if (tile == null)
-        {
-            Debug.LogError($"No passable tile found near {gridPos}");
-            return null;
-        }
-
-        return SpawnUnitOnTile(team, tile, unitPrefab, recordReplay: true, notifyGameState: true);
-    }
-
-    public UnitController SpawnUnit(Player team, Vector2Int gridPos, UnitDataSO.UnitType unitType)
     {
         GameObject prefab = GetPrefabForType(unitType);
         if (prefab == null)
         {
             Debug.LogError($"SpawnUnit failed: no prefab found for unit type {unitType}.");
-            return null;
-        }
-
-        Tile tile = FindPassableTileNear(gridPos);
-        if (tile == null)
-        {
-            Debug.LogError($"No passable tile found near {gridPos}");
             return null;
         }
 
@@ -95,15 +56,15 @@ public class UnitSpawner : Singleton<UnitSpawner>
         switch (unitType)
         {
             case UnitDataSO.UnitType.Knight:
-                return knightPrefab != null ? knightPrefab : unitPrefab;
+                return knightPrefab;
             case UnitDataSO.UnitType.Archer:
-                return archerPrefab != null ? archerPrefab : unitPrefab;
+                return archerPrefab;
             case UnitDataSO.UnitType.Swordsman:
-                return swordsmanPrefab != null ? swordsmanPrefab : unitPrefab;
+                return swordsmanPrefab;
             case UnitDataSO.UnitType.Spearman:
-                return spearmanPrefab != null ? spearmanPrefab : unitPrefab;
+                return spearmanPrefab;
             default:
-                return unitPrefab;
+                return null;
         }
     }
 

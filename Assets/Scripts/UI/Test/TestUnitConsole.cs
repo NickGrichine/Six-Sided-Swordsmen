@@ -19,8 +19,7 @@ public class TestUnitConsole : MonoBehaviour
     void Start()
     {
         displayedObject = ScriptableObject.CreateInstance<UnitCommandSO>();
-        displayedObject.Icon = icon;
-        displayedObject.TextDescription = textDescription;
+        // Note: IButtonDisplayable now uses getter methods only, so icon and textDescription come from the UnitCommandSO's serialized fields
         foreach (CustomButton cmd in unitConsole.commandButtons)
         {
             cmd.onClick += TestDrawButton;

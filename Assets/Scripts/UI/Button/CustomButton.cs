@@ -10,6 +10,7 @@ public class CustomButton : Button
 {
     public IButtonDisplayable displayedObject { get; private set; }
     [SerializeField] private Image buttonImage;
+    [SerializeField] private bool supressPopup = false;
 
     void Awake() { }
 
@@ -35,11 +36,11 @@ public class CustomButton : Button
 
         // Set text desc.
         if (Text)
-            Text.text = displayedObject.TextDescription;
+            Text.text = displayedObject.GetTextDescription();
 
         // Set icon.
         if (buttonImage)
-            buttonImage.sprite = displayedObject.Icon;
+            buttonImage.sprite = displayedObject.GetIcon();
     }
 
     public void Initialize(Sprite sprite)
@@ -57,12 +58,14 @@ public class CustomButton : Button
     public override void OnPointerExit(PointerEventData eventData)
     {
         if (State == BUTTON_STATE.INACTIVE) return;
-        PopupHandler.Instance.Hide();
+        if (!supressPopup)
+            PopupHandler.Instance.Hide();
     }
     public override void OnPointerEnter(PointerEventData eventData)
     {
         if (State == BUTTON_STATE.INACTIVE) return;
-        PopupHandler.Instance.Show(HoverText);
+        if (!supressPopup)
+            PopupHandler.Instance.Show(HoverText);
     }
 
     private void DisableRendering()
@@ -84,7 +87,8 @@ public class CustomButton : Button
 
     public void ChangeIconColor(Color32 color)
     {
-        buttonImage.color = color;
+        if (buttonImage)
+            buttonImage.color = color;
     }
 }
 

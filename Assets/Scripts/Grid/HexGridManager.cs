@@ -564,18 +564,33 @@ public class HexGridManager : Singleton<HexGridManager>
             Destroy(child.gameObject);
     }
 
-    void Awake()
+    protected override void Awake()
     {
         base.Awake();
-        
-        if (generateOnStart && ! hasLoadedFromSave)
 
-        if (generateOnStart)
+        bool loadedFromCache = false;
+        CacheManager cacheManager = CacheManager.Instance;
+        if (cacheManager != null && cacheManager.HasCachedData())
         {
-
-            GenerateGrid();
+            loadedFromCache = cacheManager.TryRead(this);
+            if (loadedFromCache)
+            {
+                cacheManager.Clear();
+            }
+        }
+        else if (cacheManager == null)
+        {
+            Debug.LogWarning("HexGridManager: CacheManager.Instance not found, falling back to startup generation");
+        }
+        else
+        {
+            Debug.LogWarning("HexGridManager: No cached data found, falling back to startup generation");
         }
 
+        if (!loadedFromCache && generateOnStart)
+        {
+            GenerateGrid();
+        }
     }
 
     public void MarkLoadedFromSave()
