@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -73,7 +74,12 @@ public class GameManager : Singleton<GameManager>
     {
         print("Game state change event invoked");
         OnGameStateChanged?.Invoke();
-        CheckGameOver();
+
+        string activeSceneName = SceneManager.GetActiveScene().name;
+        if (activeSceneName == "Game Scene")
+        {
+            CheckGameOver();
+        }
     }
 
     private void CheckGameOver()

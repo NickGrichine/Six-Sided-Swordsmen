@@ -144,6 +144,8 @@ public class DataManager : Singleton<DataManager>
             cacheManager.Clear();
         }
 
+        Debug.Log($"11223344 Selected Slot: {slot.id}");
+
         SceneLoader sceneLoader = SceneLoader.Instance;
         if (sceneLoader == null)
         {
@@ -181,7 +183,7 @@ public class DataManager : Singleton<DataManager>
     }
 
     private void OnTurnStart(int turnNumber)
-    {
+    {        
         if (selectedSaveSlot == null)
         {
             return;
