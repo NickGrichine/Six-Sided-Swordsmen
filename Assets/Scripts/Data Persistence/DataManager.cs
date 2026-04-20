@@ -39,14 +39,14 @@ public class DataManager : Singleton<DataManager>
     {
         if (observedGameManager != null)
         {
-            observedGameManager.OnTurnEnd -= OnTurnEnd;
+            observedGameManager.OnTurnStart -= OnTurnStart;
         }
 
         observedGameManager = gameManager;
 
         if (observedGameManager != null)
         {
-            observedGameManager.OnTurnEnd += OnTurnEnd;
+            observedGameManager.OnTurnStart += OnTurnStart;
         }
     }
 
@@ -54,7 +54,7 @@ public class DataManager : Singleton<DataManager>
     {
         if (observedGameManager == gameManager && observedGameManager != null)
         {
-            observedGameManager.OnTurnEnd -= OnTurnEnd;
+            observedGameManager.OnTurnStart -= OnTurnStart;
             observedGameManager = null;
         }
     }
@@ -170,7 +170,17 @@ public class DataManager : Singleton<DataManager>
         }
     }
 
-    private void OnTurnEnd(int turnNumber)
+    public void DeleteActiveGame()
+    {
+        if (selectedSaveSlot == null)
+        {
+            return;
+        }
+
+        DeleteGame(selectedSaveSlot);
+    }
+
+    private void OnTurnStart(int turnNumber)
     {
         if (selectedSaveSlot == null)
         {

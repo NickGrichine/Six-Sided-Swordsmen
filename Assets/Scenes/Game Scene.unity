@@ -133,7 +133,6 @@ GameObject:
   - component: {fileID: 169639241}
   - component: {fileID: 169639240}
   - component: {fileID: 169639242}
-  - component: {fileID: 169639243}
   m_Layer: 0
   m_Name: Game Manager
   m_TagString: Untagged
@@ -153,6 +152,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b27a671bc7b34888a3f47fbb2cc97dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameEndWindowPrefab: {fileID: 980715270849317187, guid: eafc7e16d0b62b24faa257eedc889e60, type: 3}
+  canvasObject: {fileID: 2115567390}
 --- !u!4 &169639241
 Transform:
   m_ObjectHideFlags: 0
@@ -178,18 +179,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4844007373957134cadcf3fe0658883b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &169639243
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 169639239}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81a9b3a7e54b3e370ab5f75a11b5f7ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &1016460509
