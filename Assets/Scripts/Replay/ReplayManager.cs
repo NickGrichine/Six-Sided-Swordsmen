@@ -15,6 +15,7 @@ public class ReplayManager : Singleton<ReplayManager>
     [Serializable]
     public class ReplayStateData
     {
+        // Tile logs are now derived from the global timeline, but kept here so older code and saved data do not break.
         public List<TileReplayLog> tileLogs = new List<TileReplayLog>();
         public List<ReplayEvent> globalEvents = new List<ReplayEvent>();
     }
@@ -66,33 +67,18 @@ public class ReplayManager : Singleton<ReplayManager>
             CurrentState = new ReplayStateData();
         }
 
-        foreach (TileReplayLog log in CurrentState.tileLogs)
-        {
-            if (log == null)
-            {
-                continue;
-            }
-
-            logsByCoord[(log.tile.q, log.tile.r)] = log;
-
-            if (log.events == null)
-            {
-                log.events = new List<ReplayEvent>();
-                continue;
-            }
-
-            foreach (ReplayEvent replayEvent in log.events)
-            {
-                if (replayEvent != null)
-                {
-                    nextSequenceNumber = Mathf.Max(nextSequenceNumber, replayEvent.sequenceNumber + 1);
-                }
-            }
-        }
-
         if (CurrentState.globalEvents == null)
         {
             CurrentState.globalEvents = new List<ReplayEvent>();
+        }
+
+        if (CurrentState.tileLogs == null)
+        {
+            CurrentState.tileLogs = new List<TileReplayLog>();
+        }
+        else
+        {
+            CurrentState.tileLogs.Clear();
         }
 
         foreach (ReplayEvent replayEvent in CurrentState.globalEvents)
@@ -100,8 +86,53 @@ public class ReplayManager : Singleton<ReplayManager>
             if (replayEvent != null)
             {
                 nextSequenceNumber = Mathf.Max(nextSequenceNumber, replayEvent.sequenceNumber + 1);
+                IndexEventByTile(replayEvent);
             }
         }
+    }
+
+    public IReadOnlyList<ReplayEvent> GetGlobalEvents()
+    {
+        if (CurrentState == null || CurrentState.globalEvents == null)
+        {
+            return Array.Empty<ReplayEvent>();
+        }
+
+        return CurrentState.globalEvents;
+    }
+
+    public List<ReplayEvent> GetEventsVisibleToCurrentPlayer(IReadOnlyList<ReplayEvent> sourceEvents)
+    {
+        List<ReplayEvent> filteredEvents = new List<ReplayEvent>();
+        if (sourceEvents == null)
+        {
+            return filteredEvents;
+        }
+
+        Player viewer = ResolveReplayViewer();
+        if (viewer == Player.NULL)
+        {
+            foreach (ReplayEvent replayEvent in sourceEvents)
+            {
+                if (replayEvent != null)
+                {
+                    filteredEvents.Add(replayEvent);
+                }
+            }
+
+            return filteredEvents;
+        }
+
+        HashSet<(int q, int r)> visibleTiles = GetCurrentlyVisibleTiles();
+        foreach (ReplayEvent replayEvent in sourceEvents)
+        {
+            if (ShouldShowEventToPlayer(replayEvent, viewer, visibleTiles))
+            {
+                filteredEvents.Add(replayEvent);
+            }
+        }
+
+        return filteredEvents;
     }
 
     public TileReplayLog GetLogForTile(Tile tile)
@@ -120,7 +151,7 @@ public class ReplayManager : Singleton<ReplayManager>
         currentTurnNumber = turnNumber;
         currentTurnPlayer = actingPlayer;
 
-        RecordGlobalEvent(CreateEvent(ReplayEventType.TurnStarted, null, null, null, null, null,
+        RecordEvent(CreateEvent(ReplayEventType.TurnStarted, null, null, null, null, null,
             $"Turn {turnNumber} started for {FormatPlayer(actingPlayer)}."));
     }
 
@@ -129,7 +160,7 @@ public class ReplayManager : Singleton<ReplayManager>
         currentTurnNumber = turnNumber;
         currentTurnPlayer = actingPlayer;
 
-        RecordGlobalEvent(CreateEvent(ReplayEventType.TurnEnded, null, null, null, null, null,
+        RecordEvent(CreateEvent(ReplayEventType.TurnEnded, null, null, null, null, null,
             $"Turn {turnNumber} ended for {FormatPlayer(actingPlayer)}."));
     }
 
@@ -157,28 +188,16 @@ public class ReplayManager : Singleton<ReplayManager>
             return;
         }
 
-        // Movement is recorded against both tiles so either one can tell its side of the story later.
-        if (from != null)
-        {
-            RecordEvent(CreateEvent(
-                ReplayEventType.UnitLeftTile,
-                unitController,
-                null,
-                from,
-                from,
-                to,
-                $"{GetUnitLabel(unitController)} left tile {FormatTile(from)} for tile {FormatTile(to)}."));
-        }
-
         RecordEvent(CreateEvent(
-            ReplayEventType.UnitEnteredTile,
+            ReplayEventType.UnitMoved,
             unitController,
             null,
             to,
             from,
             to,
-            $"{GetUnitLabel(unitController)} entered tile {FormatTile(to)}" +
-            (from != null ? $" from {FormatTile(from)}." : ".")));
+            from != null
+                ? $"{GetUnitLabel(unitController)} moved from tile {FormatTile(from)} to tile {FormatTile(to)}."
+                : $"{GetUnitLabel(unitController)} moved to tile {FormatTile(to)}."));
     }
 
     public void RecordUnitAttacked(UnitController attacker, UnitController target, Tile attackerTile, Tile targetTile, int damage, int hpBefore, int hpAfter)
@@ -188,38 +207,18 @@ public class ReplayManager : Singleton<ReplayManager>
             return;
         }
 
-        // The attacker tile and target tile can be different, so each tile gets its own replay line.
-        if (attackerTile != null)
-        {
-            ReplayEvent attackerEvent = CreateEvent(
-                ReplayEventType.UnitAttackedOnTile,
-                attacker,
-                target,
-                attackerTile,
-                attackerTile,
-                targetTile,
-                $"{GetUnitLabel(attacker)} attacked {GetUnitLabel(target)} for {damage} damage.");
+        ReplayEvent replayEvent = CreateEvent(
+            ReplayEventType.UnitAttackedOnTile,
+            attacker,
+            target,
+            targetTile != null ? targetTile : attackerTile,
+            attackerTile,
+            targetTile,
+            $"{GetUnitLabel(attacker)} attacked {GetUnitLabel(target)} for {damage} damage.");
 
-            attackerEvent.hpBefore = hpBefore;
-            attackerEvent.hpAfter = hpAfter;
-            RecordEvent(attackerEvent);
-        }
-
-        if (targetTile != null && targetTile != attackerTile)
-        {
-            ReplayEvent targetEvent = CreateEvent(
-                ReplayEventType.UnitAttackedOnTile,
-                attacker,
-                target,
-                targetTile,
-                attackerTile,
-                targetTile,
-                $"{GetUnitLabel(target)} was attacked by {GetUnitLabel(attacker)} for {damage} damage.");
-
-            targetEvent.hpBefore = hpBefore;
-            targetEvent.hpAfter = hpAfter;
-            RecordEvent(targetEvent);
-        }
+        replayEvent.hpBefore = hpBefore;
+        replayEvent.hpAfter = hpAfter;
+        RecordEvent(replayEvent);
     }
 
     public void RecordUnitDied(UnitController unit, Tile tile)
@@ -250,11 +249,20 @@ public class ReplayManager : Singleton<ReplayManager>
             return;
         }
 
-        TileReplayLog log = GetOrCreateLog(replayEvent.tile);
-        // Capture the board at the same moment the text event is written.
+        if (CurrentState == null)
+        {
+            CurrentState = new ReplayStateData();
+        }
+
+        if (CurrentState.globalEvents == null)
+        {
+            CurrentState.globalEvents = new List<ReplayEvent>();
+        }
+
         replayEvent.gameState = CaptureCurrentGridState();
         replayEvent.sequenceNumber = nextSequenceNumber++;
-        log.events.Add(replayEvent);
+        CurrentState.globalEvents.Add(replayEvent);
+        IndexEventByTile(replayEvent);
     }
 
     public string GetEventText(ReplayEvent replayEvent)
@@ -283,6 +291,27 @@ public class ReplayManager : Singleton<ReplayManager>
             ? $" (HP: {replayEvent.hpBefore} -> {replayEvent.hpAfter})"
             : string.Empty;
 
+        switch (replayEvent.type)
+        {
+            case ReplayEventType.UnitSpawnedOnTile:
+                return $"{FormatReplayUnitLabel(replayEvent.unitName, replayEvent.unitPlayerId)} spawned on tile {FormatTile(replayEvent.tile)}.";
+            case ReplayEventType.UnitMoved:
+                if (replayEvent.hasFromTile && replayEvent.hasToTile)
+                {
+                    return $"{FormatReplayUnitLabel(replayEvent.unitName, replayEvent.unitPlayerId)} moved from tile {FormatTile(replayEvent.fromTile)} to tile {FormatTile(replayEvent.toTile)}.";
+                }
+
+                if (replayEvent.hasToTile)
+                {
+                    return $"{FormatReplayUnitLabel(replayEvent.unitName, replayEvent.unitPlayerId)} moved to tile {FormatTile(replayEvent.toTile)}.";
+                }
+                break;
+            case ReplayEventType.UnitAttackedOnTile:
+                return $"{FormatReplayUnitLabel(replayEvent.unitName, replayEvent.unitPlayerId)} attacked {FormatReplayUnitLabel(replayEvent.otherUnitName, replayEvent.otherUnitPlayerId)}{hpText}.";
+            case ReplayEventType.UnitDiedOnTile:
+                return $"{FormatReplayUnitLabel(replayEvent.unitName, replayEvent.unitPlayerId)} died on tile {FormatTile(replayEvent.tile)}.";
+        }
+
         return $"{SanitizeDescription(replayEvent.description)}{hpText}";
     }
 
@@ -305,6 +334,45 @@ public class ReplayManager : Singleton<ReplayManager>
         return created;
     }
 
+    private void IndexEventByTile(ReplayEvent replayEvent)
+    {
+        foreach (TileCoordinate coord in GetTouchedTiles(replayEvent))
+        {
+            TileReplayLog log = GetOrCreateLog(coord);
+            log.events.Add(replayEvent);
+        }
+    }
+
+    private IEnumerable<TileCoordinate> GetTouchedTiles(ReplayEvent replayEvent)
+    {
+        if (replayEvent == null)
+        {
+            yield break;
+        }
+
+        HashSet<(int q, int r)> seen = new HashSet<(int q, int r)>();
+
+        if (replayEvent.hasTile && TryAddTouchedTile(replayEvent.tile, seen))
+        {
+            yield return replayEvent.tile;
+        }
+
+        if (replayEvent.hasFromTile && TryAddTouchedTile(replayEvent.fromTile, seen))
+        {
+            yield return replayEvent.fromTile;
+        }
+
+        if (replayEvent.hasToTile && TryAddTouchedTile(replayEvent.toTile, seen))
+        {
+            yield return replayEvent.toTile;
+        }
+    }
+
+    private static bool TryAddTouchedTile(TileCoordinate coord, HashSet<(int q, int r)> seen)
+    {
+        return seen.Add((coord.q, coord.r));
+    }
+
     private ReplayEvent CreateEvent(
         ReplayEventType eventType,
         UnitController unit,
@@ -319,10 +387,13 @@ public class ReplayManager : Singleton<ReplayManager>
             turnNumber = ResolveTurnNumber(),
             actingPlayerId = unit != null ? (int)unit.teamID : (int)currentTurnPlayer,
             type = eventType,
+            unitPlayerId = unit != null ? (int)unit.teamID : 0,
             unitName = unit != null ? unit.name.Replace("(Clone)", string.Empty).Trim() : string.Empty,
             unitId = unit != null ? GetOrCreatePersistentUnitId(unit) : string.Empty,
+            otherUnitPlayerId = otherUnit != null ? (int)otherUnit.teamID : 0,
             otherUnitName = otherUnit != null ? otherUnit.name.Replace("(Clone)", string.Empty).Trim() : string.Empty,
             otherUnitId = otherUnit != null ? GetOrCreatePersistentUnitId(otherUnit) : string.Empty,
+            hasTile = tile != null,
             tile = tile != null ? ToCoord(tile) : default,
             description = description,
             hpBefore = 0,
@@ -388,18 +459,6 @@ public class ReplayManager : Singleton<ReplayManager>
         return $"{unitName} [{unitId}]";
     }
 
-    private void RecordGlobalEvent(ReplayEvent replayEvent)
-    {
-        if (replayEvent == null)
-        {
-            return;
-        }
-
-        replayEvent.gameState = CaptureCurrentGridState();
-        replayEvent.sequenceNumber = nextSequenceNumber++;
-        CurrentState.globalEvents.Add(replayEvent);
-    }
-
     private GridData CaptureCurrentGridState()
     {
         // Replay snapshots are built from the same GridData structure used for persistence
@@ -409,6 +468,63 @@ public class ReplayManager : Singleton<ReplayManager>
         }
 
         return GridAdapter.ToData(HexGridManager.Instance);
+    }
+
+    private Player ResolveReplayViewer()
+    {
+        if (GameManager.Instance != null && GameManager.Instance.TurnPlayer != Player.NULL)
+        {
+            return GameManager.Instance.TurnPlayer;
+        }
+
+        return currentTurnPlayer;
+    }
+
+    private HashSet<(int q, int r)> GetCurrentlyVisibleTiles()
+    {
+        HashSet<(int q, int r)> visibleTiles = new HashSet<(int q, int r)>();
+        if (HexGridManager.Instance == null || HexGridManager.Instance.Grid == null)
+        {
+            return visibleTiles;
+        }
+
+        foreach (Tile tile in HexGridManager.Instance.Grid)
+        {
+            if (tile != null && tile.Visible)
+            {
+                visibleTiles.Add((tile.gridPos.x, tile.gridPos.y));
+            }
+        }
+
+        return visibleTiles;
+    }
+
+    private bool ShouldShowEventToPlayer(ReplayEvent replayEvent, Player viewer, HashSet<(int q, int r)> visibleTiles)
+    {
+        if (replayEvent == null)
+        {
+            return false;
+        }
+
+        if (replayEvent.type == ReplayEventType.TurnStarted || replayEvent.type == ReplayEventType.TurnEnded)
+        {
+            return true;
+        }
+
+        if (replayEvent.actingPlayerId == (int)viewer)
+        {
+            return true;
+        }
+
+        foreach (TileCoordinate coord in GetTouchedTiles(replayEvent))
+        {
+            if (visibleTiles.Contains((coord.q, coord.r)))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static string FormatPlayer(Player player)
@@ -427,6 +543,29 @@ public class ReplayManager : Singleton<ReplayManager>
     private static string FormatTile(Tile tile)
     {
         return tile == null ? "(?, ?)" : $"({tile.gridPos.x}, {tile.gridPos.y})";
+    }
+
+    private static string FormatTile(TileCoordinate coord)
+    {
+        return $"({coord.q}, {coord.r})";
+    }
+
+    private static string FormatReplayUnitLabel(string unitName, int playerId)
+    {
+        if (string.IsNullOrWhiteSpace(unitName))
+        {
+            return "Unknown unit";
+        }
+
+        string cleanedName = unitName.Replace("(Clone)", string.Empty).Trim();
+        if (!Enum.IsDefined(typeof(Player), playerId) || playerId == (int)Player.NULL)
+        {
+            return cleanedName;
+        }
+
+        Player player = (Player)playerId;
+        string colorHex = ColorUtility.ToHtmlStringRGB(Colours.GetColor(player));
+        return $"<color=#{colorHex}>{FormatPlayer(player)} {cleanedName}</color>";
     }
 
     private static string SanitizeDescription(string description)
