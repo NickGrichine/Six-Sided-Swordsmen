@@ -18,4 +18,10 @@ MonoBehaviour:
   maxMovesPerTurn: 3
   attackRange: 1
   visionRange: 3
+  cost: 10
   unitType: 2
+  damageBonuses:
+  - targetType: 1
+    bonusDamage: 6
+  - targetType: 2
+    bonusDamage: 2

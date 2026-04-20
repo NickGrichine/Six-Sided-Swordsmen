@@ -25,7 +25,7 @@ public class PassTurnWindow : MonoBehaviour, IPopupWindow
         {
             yield return null;
             Player currentPlayer = GameManager.Instance.TurnPlayer;
-            turnPlayerText.text = "Player\n" + (int)currentPlayer;
+            turnPlayerText.text = $"Player {(int)currentPlayer}'s Turn";
         }
         ;
 

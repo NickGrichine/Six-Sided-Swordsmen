@@ -151,6 +151,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b27a671bc7b34888a3f47fbb2cc97dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameEndWindowPrefab: {fileID: 0}
+  canvasObject: {fileID: 0}
 --- !u!4 &169639241
 Transform:
   m_ObjectHideFlags: 0
@@ -871,6 +873,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
+      propertyPath: tilePrefab
+      value: 
+      objectReference: {fileID: 3786522473565270464, guid: 13139b24087ea4440bda16628e2b0466, type: 3}
+    - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: oceanChance
       value: 0.18
       objectReference: {fileID: 0}
@@ -901,7 +907,7 @@ PrefabInstance:
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: biomeControlMask
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 2800000, guid: 1182f2aa95b194f85a4331973664a948, type: 3}
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: grassRock1Sprite
       value: 

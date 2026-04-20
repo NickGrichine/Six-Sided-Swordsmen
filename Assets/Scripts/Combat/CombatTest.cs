@@ -57,7 +57,7 @@ public class CombatTest : MonoBehaviour
         RefreshCommandHighlights();
 
         // Reset selected command when clicking new tile
-        GridEventHandler.Instance.onTileClicked += (_) => ResetToBasicSelectionState();
+        //GridEventHandler.Instance.onTileClicked += (_) => ResetToBasicSelectionState();
     }
 
     private void OnDestroy()
@@ -275,9 +275,13 @@ public class CombatTest : MonoBehaviour
 
         Debug.Log($"CombatTest: '{selectedUnit.name}' attacked '{targetUnit.name}'.");
 
-        // Keep command active so player can attack with another friendly unit next
-        RefreshSelectionModeForCurrentCommand();
-        RefreshCommandHighlights();
+        // Keep the unit selected, but clear the active command after the action
+        ResetToBasicSelectionState();
+
+        if (UnitConsole.Instance != null && selectedUnit != null)
+        {
+            UnitConsole.Instance.Initialize(selectedUnit);
+        }
     }
 
     private IEnumerator MoveUnitAlongPath(UnitController unit, List<Tile> path, float secondsPerStep)
@@ -312,9 +316,13 @@ public class CombatTest : MonoBehaviour
         unit.movesRemaining -= length - 1;
         activeMoveRoutine = null;
 
-        // Move command is still active, so show fresh valid tiles from the new position
-        RefreshSelectionModeForCurrentCommand();
-        RefreshCommandHighlights();
+        // Keep the unit selected, but clear the active command after the action
+        ResetToBasicSelectionState();
+
+        if (UnitConsole.Instance != null && selectedUnit != null)
+        {
+            UnitConsole.Instance.Initialize(selectedUnit);
+        }
     }
 
     private void OnUnitCommandSelected(UnitCommandSO command)

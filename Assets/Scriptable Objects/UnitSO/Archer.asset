@@ -13,18 +13,15 @@ MonoBehaviour:
   m_Name: Archer
   m_EditorClassIdentifier: 
   icon: {fileID: -1356463296, guid: c152a547652e83a47abe29106d5e7d19, type: 3}
-  maxHealth: 8
+  maxHealth: 9
   attackStr: 3
   maxMovesPerTurn: 3
   attackRange: 2
   visionRange: 5
+  cost: 14
   unitType: 0
   damageBonuses:
   - targetType: 0
-    bonusDamage: 0
-  - targetType: 1
-    bonusDamage: 0
+    bonusDamage: 2
   - targetType: 2
-    bonusDamage: 0
-  - targetType: 3
-    bonusDamage: 0
+    bonusDamage: 2
