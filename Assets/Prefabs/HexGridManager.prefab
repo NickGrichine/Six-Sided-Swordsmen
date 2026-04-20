@@ -44,7 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0550519e34ad14ca9b07afb3a8c4704f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tilePrefab: {fileID: 3786522473565270464, guid: 1244cca042012754baf167dca488c431, type: 3}
+  generateOnStart: 1
+  tilePrefab: {fileID: 3786522473565270464, guid: 13139b24087ea4440bda16628e2b0466, type: 3}
   width: 20
   height: 20
   hexSize: 1
@@ -56,14 +57,14 @@ MonoBehaviour:
   generationMode: 0
   biomeControlMask: {fileID: 0}
   grassFlatSprite: {fileID: 481734694, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
+  grassFlowerSprite: {fileID: -82042141, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
   grassRock1Sprite: {fileID: 2087224726, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
   grassRock2Sprite: {fileID: 1382508836, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
-  grassFlowerSprite: {fileID: -82042141, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
+  grassRock3Sprite: {fileID: 0}
   purpleFlowerSprite: {fileID: 209944492, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
   purpleMushroomSprite: {fileID: -1497907793, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
   shoreSprite: {fileID: 584785962, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
   deepOceanSprite: {fileID: -1171527285, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
-  mountainSprite: {fileID: 507983394, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
   baseOutlineSprite: {fileID: -2075421952, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
   selectionOutlineSprite: {fileID: 198324669, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
   oceanBorderThickness: 10
@@ -71,8 +72,8 @@ MonoBehaviour:
   oceanChance: 0.303
   purpleChance: 0.257
   grassFlowerChance: 0.08
-  grassRock1Chance: 0.18
-  grassRock2Chance: 0.07
+  mountainRock1Chance: 0.45
+  mountainRock2Chance: 0.35
   mountainChance: 0.82
   mountainScale: 0.09
   mountainBlendChance: 0.1
