@@ -61,6 +61,7 @@ public class UnitArray : Singleton<UnitArray>
 
     private void PlaceUnit(Player team, UnitDataSO unit, Tile tile)
     {
+        if (!tile.Visible) return;
         if (tile.IsOccupied) return;
         if (selected_unit == null) return;
         if (ResourceManager.Instance.CheckValidDeductionOfResource(team, unit.cost) == false) return;

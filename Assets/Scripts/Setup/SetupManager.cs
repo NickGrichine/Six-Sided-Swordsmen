@@ -1,6 +1,9 @@
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using System;
+using System.Collections;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class SetupManager : Singleton<SetupManager>
 {
@@ -12,12 +15,21 @@ public class SetupManager : Singleton<SetupManager>
     private int _player_index = 1;
     private int _save_slot = 0;
 
+    public event Action onTurnPass;
+    public event Action onSetupStart;
 
 
     void Start()
     {
         FinishSetupButton.onClick += (_) => EndSetupForCurrentPlayer();
         FinishSetupButton.onClick += (_) => ResourceManager.Instance.UpdateResourceDisplay();
+        StartCoroutine(DelayedStart());
+    }
+
+    private IEnumerator DelayedStart()
+    {
+        yield return null;
+        onSetupStart?.Invoke();
     }
 
     public void EndSetupForCurrentPlayer()
@@ -25,6 +37,7 @@ public class SetupManager : Singleton<SetupManager>
         _player_index++;
         if (_player_index >= _player_length) EndSetupPhase();
         CurrentPlayer = (Player)_player_index;
+        onTurnPass?.Invoke();
         Debug.Log("Current player is " + CurrentPlayer);
     }
 

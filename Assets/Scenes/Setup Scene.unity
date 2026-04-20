@@ -302,6 +302,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 244512719}
   m_CullTransparentMesh: 1
+--- !u!1 &366358792
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 366358794}
+  - component: {fileID: 366358793}
+  m_Layer: 0
+  m_Name: Ghost Units Spawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &366358793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 366358792}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6206cf27be66707299b2423929ebf606, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ghostUnitPrefab: {fileID: 453141174523818861, guid: 1db37a10dddc7a5d5935533d89d9cff4, type: 3}
+  numberOfPlayers: 2
+  numberOfGhostsPerPlayer: 2
+  ghostUnitDataSO: {fileID: 11400000, guid: 35e739e1c0b62a6d3aada34e2f587b6a, type: 2}
+--- !u!4 &366358794
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 366358792}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 503.86145, y: 317.57956, z: -2.4679165}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &798694802
 GameObject:
   m_ObjectHideFlags: 0
@@ -691,6 +739,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mouseButton: 0
+--- !u!114 &1083728398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1083728394}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e31c5f346c47084c94644e5cd0628e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  queryGhost: 1
 --- !u!1 &1129569977
 GameObject:
   m_ObjectHideFlags: 0
@@ -924,6 +985,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 9030648936904342042, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1083728397}
+    - targetCorrespondingSourceObject: {fileID: 9030648936904342042, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1083728398}
   m_SourcePrefab: {fileID: 100100000, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
 --- !u!1 &1446639553
 GameObject:
@@ -1491,3 +1555,4 @@ SceneRoots:
   - {fileID: 2057721467}
   - {fileID: 798694806}
   - {fileID: 806359624}
+  - {fileID: 366358794}

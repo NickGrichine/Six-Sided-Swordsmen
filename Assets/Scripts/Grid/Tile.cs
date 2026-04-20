@@ -20,6 +20,8 @@ public class Tile : MonoBehaviour
     public int moveCost = 1; // Cost to travel to current tile
 
     public IOccupant occupant;
+    public IOccupant ghostOccupant; // for the setup phase
+    public bool IsGhostOccupied => ghostOccupant != null;
     public bool IsOccupied => occupant != null;
     public bool BlockSight =>
         altitude >= 2 ||
