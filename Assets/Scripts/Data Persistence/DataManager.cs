@@ -6,6 +6,8 @@ public class DataManager : Singleton<DataManager>
     private const string GameSceneName = "Game Scene";
 
     private SaveSlot[] slots = new SaveSlot[3];
+    private SaveSlot selectedSaveSlot;
+    private GameManager observedGameManager;
 
     protected override void Awake()
     {
@@ -33,6 +35,30 @@ public class DataManager : Singleton<DataManager>
         return slots;
     }
 
+    public void ObserveGameManager(GameManager gameManager)
+    {
+        if (observedGameManager != null)
+        {
+            observedGameManager.OnTurnStart -= OnTurnStart;
+        }
+
+        observedGameManager = gameManager;
+
+        if (observedGameManager != null)
+        {
+            observedGameManager.OnTurnStart += OnTurnStart;
+        }
+    }
+
+    public void StopObservingGameManager(GameManager gameManager)
+    {
+        if (observedGameManager == gameManager && observedGameManager != null)
+        {
+            observedGameManager.OnTurnStart -= OnTurnStart;
+            observedGameManager = null;
+        }
+    }
+
     public void Load(SaveSlot slot)
     {
         if (slot == null)
@@ -40,6 +66,8 @@ public class DataManager : Singleton<DataManager>
             Debug.LogError("DataManager: Cannot load from null slot");
             return;
         }
+
+        selectedSaveSlot = slot;
 
         // Read SaveData from disk
         if (!slot.ReadFromDisk())
@@ -84,6 +112,8 @@ public class DataManager : Singleton<DataManager>
             return;
         }
 
+        selectedSaveSlot = slot;
+
         if (grid == null)
         {
             Debug.LogError("DataManager: Cannot save null grid");
@@ -106,11 +136,15 @@ public class DataManager : Singleton<DataManager>
             return;
         }
 
+        selectedSaveSlot = slot;
+
         CacheManager cacheManager = CacheManager.Instance;
         if (cacheManager != null)
         {
             cacheManager.Clear();
         }
+
+        Debug.Log($"11223344 Selected Slot: {slot.id}");
 
         SceneLoader sceneLoader = SceneLoader.Instance;
         if (sceneLoader == null)
@@ -131,5 +165,30 @@ public class DataManager : Singleton<DataManager>
         }
 
         slot.DeleteFromDisk();
+
+        if (selectedSaveSlot == slot)
+        {
+            selectedSaveSlot = null;
+        }
+    }
+
+    public void DeleteActiveGame()
+    {
+        if (selectedSaveSlot == null)
+        {
+            return;
+        }
+
+        DeleteGame(selectedSaveSlot);
+    }
+
+    private void OnTurnStart(int turnNumber)
+    {        
+        if (selectedSaveSlot == null)
+        {
+            return;
+        }
+
+        Save(selectedSaveSlot, HexGridManager.Instance);
     }
 }

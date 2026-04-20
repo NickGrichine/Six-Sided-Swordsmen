@@ -133,7 +133,6 @@ GameObject:
   - component: {fileID: 169639241}
   - component: {fileID: 169639240}
   - component: {fileID: 169639242}
-  - component: {fileID: 169639243}
   m_Layer: 0
   m_Name: Game Manager
   m_TagString: Untagged
@@ -153,6 +152,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b27a671bc7b34888a3f47fbb2cc97dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameEndWindowPrefab: {fileID: 980715270849317187, guid: eafc7e16d0b62b24faa257eedc889e60, type: 3}
+  canvasObject: {fileID: 2115567390}
 --- !u!4 &169639241
 Transform:
   m_ObjectHideFlags: 0
@@ -180,9 +181,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4844007373957134cadcf3fe0658883b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &169639243
-MonoBehaviour:
+--- !u!1001 &1016460509
+PrefabInstance:
   m_ObjectHideFlags: 0
+<<<<<<< HEAD
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -195,11 +197,14 @@ MonoBehaviour:
 --- !u!1001 &1071073352
 PrefabInstance:
   m_ObjectHideFlags: 0
+=======
+>>>>>>> bfc016d858f3ead65e382bc042c94b255af2d3d4
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+<<<<<<< HEAD
     - target: {fileID: 1139965972745611268, guid: e9e3dfb7835194ea0be05adb3f05bb32, type: 3}
       propertyPath: m_LocalPosition.x
       value: 31.372728
@@ -244,11 +249,81 @@ PrefabInstance:
       propertyPath: m_Name
       value: Game Startup
       objectReference: {fileID: 0}
+=======
+    - target: {fileID: 4854695886583708982, guid: 646bd05c28a8a8064896d80a0a8a478a, type: 3}
+      propertyPath: openButton
+      value: 
+      objectReference: {fileID: 2115567389}
+    - target: {fileID: 4854695886583708982, guid: 646bd05c28a8a8064896d80a0a8a478a, type: 3}
+      propertyPath: canvasObject
+      value: 
+      objectReference: {fileID: 2115567390}
+    - target: {fileID: 8530032863240065607, guid: 646bd05c28a8a8064896d80a0a8a478a, type: 3}
+      propertyPath: m_Name
+      value: Pass Turn Window Initializer
+      objectReference: {fileID: 0}
+    - target: {fileID: 8606201227443857568, guid: 646bd05c28a8a8064896d80a0a8a478a, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8606201227443857568, guid: 646bd05c28a8a8064896d80a0a8a478a, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8606201227443857568, guid: 646bd05c28a8a8064896d80a0a8a478a, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8606201227443857568, guid: 646bd05c28a8a8064896d80a0a8a478a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8606201227443857568, guid: 646bd05c28a8a8064896d80a0a8a478a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8606201227443857568, guid: 646bd05c28a8a8064896d80a0a8a478a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8606201227443857568, guid: 646bd05c28a8a8064896d80a0a8a478a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8606201227443857568, guid: 646bd05c28a8a8064896d80a0a8a478a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8606201227443857568, guid: 646bd05c28a8a8064896d80a0a8a478a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8606201227443857568, guid: 646bd05c28a8a8064896d80a0a8a478a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8606201227443857568, guid: 646bd05c28a8a8064896d80a0a8a478a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8606201227443857568, guid: 646bd05c28a8a8064896d80a0a8a478a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8606201227443857568, guid: 646bd05c28a8a8064896d80a0a8a478a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+>>>>>>> bfc016d858f3ead65e382bc042c94b255af2d3d4
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
+<<<<<<< HEAD
   m_SourcePrefab: {fileID: 100100000, guid: e9e3dfb7835194ea0be05adb3f05bb32, type: 3}
+=======
+  m_SourcePrefab: {fileID: 100100000, guid: 646bd05c28a8a8064896d80a0a8a478a, type: 3}
+>>>>>>> bfc016d858f3ead65e382bc042c94b255af2d3d4
 --- !u!1 &1083728394 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 9030648936904342042, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
@@ -728,6 +803,22 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
+--- !u!114 &2115567389 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5708552064153816779, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
+  m_PrefabInstance: {fileID: 2115567388}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2faa1854c79c6c8c79bee8fbe33fde98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!223 &2115567390 stripped
+Canvas:
+  m_CorrespondingSourceObject: {fileID: 3824215940567521500, guid: 2d694f9a811d0718d8b266ad1191e0ef, type: 3}
+  m_PrefabInstance: {fileID: 2115567388}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2119828636
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -795,4 +886,8 @@ SceneRoots:
   - {fileID: 2057721467}
   - {fileID: 2119828636}
   - {fileID: 2115567388}
+<<<<<<< HEAD
   - {fileID: 1071073352}
+=======
+  - {fileID: 1016460509}
+>>>>>>> bfc016d858f3ead65e382bc042c94b255af2d3d4
