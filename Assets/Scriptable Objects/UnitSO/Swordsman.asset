@@ -13,9 +13,13 @@ MonoBehaviour:
   m_Name: Swordsman
   m_EditorClassIdentifier: 
   icon: {fileID: 2012179291, guid: c152a547652e83a47abe29106d5e7d19, type: 3}
-  maxHealth: 15
+  maxHealth: 14
   attackStr: 5
   maxMovesPerTurn: 3
   attackRange: 1
   visionRange: 2
+  cost: 12
   unitType: 3
+  damageBonuses:
+  - targetType: 2
+    bonusDamage: 2
