@@ -8,7 +8,7 @@ public class Curtain : Singleton<Curtain>
     [SerializeField] private CanvasGroup canvasGroup;
     private Coroutine ongoingCoroutine;    // keep track of this, to stop current transition if need to start a new one
     public bool FadedToBlack { get; private set; }
-    
+
     public void LongTransition()
     {
         if (ongoingCoroutine != null)
@@ -27,10 +27,19 @@ public class Curtain : Singleton<Curtain>
         ongoingCoroutine = StartCoroutine(FadeTransitionCoroutine(0.5f, 0.5f, 0.5f));
     }
 
-    private IEnumerator FadeTransitionCoroutine(float fadeInDuration, float fadeOutDuration, float blackDuration)
+    public void ShortTransitionWithCallback(Action callback)
+    {
+        if (ongoingCoroutine != null)
+        {
+            StopCoroutine(ongoingCoroutine);
+        }
+        ongoingCoroutine = StartCoroutine(FadeTransitionCoroutine(0.0f, 0.3f, 0f, callback));
+    }
+
+    private IEnumerator FadeTransitionCoroutine(float fadeInDuration, float fadeOutDuration, float blackDuration, Action callback = null)
     {
         FadedToBlack = false;
-        
+
         // fade to black
         float timer = 0f;
         while (timer < fadeInDuration)
@@ -42,6 +51,10 @@ public class Curtain : Singleton<Curtain>
 
         canvasGroup.alpha = 1f;
         FadedToBlack = true;
+
+        // call the callback function
+        if (callback != null)
+            callback();
 
         // stay black
         yield return new WaitForSeconds(blackDuration);
