@@ -11,13 +11,16 @@ public class PopupWindowManager : MonoBehaviour
 
     void Start()
     {
-        openButton.onClick += (_) =>
-        {
-            if (withTransition)
-                Curtain.Instance.ShortTransitionWithCallback(Initialize);
-            else
-                Initialize();
-        };
+        openButton.onClick += HandleButtonClick;
+            
+    }
+
+    private void HandleButtonClick(Button button)
+    {
+        if (withTransition)
+            Curtain.Instance.ShortTransitionWithCallback(Initialize);
+        else
+            Initialize();
     }
 
     private void Initialize()

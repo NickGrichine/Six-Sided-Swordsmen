@@ -6,6 +6,8 @@ public class DataManager : Singleton<DataManager>
     private const string GameSceneName = "Game Scene";
 
     private SaveSlot[] slots = new SaveSlot[3];
+    private SaveSlot selectedSaveSlot;
+    private GameManager observedGameManager;
 
     protected override void Awake()
     {
@@ -33,6 +35,30 @@ public class DataManager : Singleton<DataManager>
         return slots;
     }
 
+    public void ObserveGameManager(GameManager gameManager)
+    {
+        if (observedGameManager != null)
+        {
+            observedGameManager.OnTurnEnd -= OnTurnEnd;
+        }
+
+        observedGameManager = gameManager;
+
+        if (observedGameManager != null)
+        {
+            observedGameManager.OnTurnEnd += OnTurnEnd;
+        }
+    }
+
+    public void StopObservingGameManager(GameManager gameManager)
+    {
+        if (observedGameManager == gameManager && observedGameManager != null)
+        {
+            observedGameManager.OnTurnEnd -= OnTurnEnd;
+            observedGameManager = null;
+        }
+    }
+
     public void Load(SaveSlot slot)
     {
         if (slot == null)
@@ -40,6 +66,8 @@ public class DataManager : Singleton<DataManager>
             Debug.LogError("DataManager: Cannot load from null slot");
             return;
         }
+
+        selectedSaveSlot = slot;
 
         // Read SaveData from disk
         if (!slot.ReadFromDisk())
@@ -84,6 +112,8 @@ public class DataManager : Singleton<DataManager>
             return;
         }
 
+        selectedSaveSlot = slot;
+
         if (grid == null)
         {
             Debug.LogError("DataManager: Cannot save null grid");
@@ -105,6 +135,8 @@ public class DataManager : Singleton<DataManager>
             Debug.LogError("DataManager: Cannot create new game in null slot");
             return;
         }
+
+        selectedSaveSlot = slot;
 
         CacheManager cacheManager = CacheManager.Instance;
         if (cacheManager != null)
@@ -131,5 +163,20 @@ public class DataManager : Singleton<DataManager>
         }
 
         slot.DeleteFromDisk();
+
+        if (selectedSaveSlot == slot)
+        {
+            selectedSaveSlot = null;
+        }
+    }
+
+    private void OnTurnEnd(int turnNumber)
+    {
+        if (selectedSaveSlot == null)
+        {
+            return;
+        }
+
+        Save(selectedSaveSlot, HexGridManager.Instance);
     }
 }

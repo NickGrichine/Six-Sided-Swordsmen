@@ -55,6 +55,7 @@ public class ReplayManager : Singleton<ReplayManager>
         RebuildRuntimeIndex();
         // The viewer is runtime-created as well, so scenes do not need manual setup
         TileReplayViewer.EnsureExists();
+        Debug.Log("ReplayManager initialized");
     }
 
     public void RebuildRuntimeIndex()

@@ -17,8 +17,21 @@ public class GameManager : Singleton<GameManager>
 
     private void Start()
     {
+        if (DataManager.Instance != null)
+        {
+            DataManager.Instance.ObserveGameManager(this);
+        }
+
         // For testing purposes, start the game immediately
         // StartGame();
+    }
+
+    private void OnDestroy()
+    {
+        if (DataManager.Instance != null)
+        {
+            DataManager.Instance.StopObservingGameManager(this);
+        }
     }
 
     public void StartGame()

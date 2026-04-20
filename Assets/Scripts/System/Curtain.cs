@@ -33,7 +33,7 @@ public class Curtain : Singleton<Curtain>
         {
             StopCoroutine(ongoingCoroutine);
         }
-        ongoingCoroutine = StartCoroutine(FadeTransitionCoroutine(0.0f, 0.3f, 0f, callback));
+        ongoingCoroutine = StartCoroutine(FadeTransitionCoroutine(0f, 0.5f, 0f, callback));
     }
 
     private IEnumerator FadeTransitionCoroutine(float fadeInDuration, float fadeOutDuration, float blackDuration, Action callback = null)
