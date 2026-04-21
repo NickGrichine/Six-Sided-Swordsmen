@@ -47,6 +47,7 @@ public class GameManager : Singleton<GameManager>
         ReplayManager.EnsureExists().RecordTurnStarted(TurnNumber, TurnPlayer);
         OnTurnStart?.Invoke(TurnNumber);
         NotifyGameStateChanged();
+        LogReplayTurnSummaryForTesting();
     }
 
     public void EndTurn()
@@ -68,6 +69,7 @@ public class GameManager : Singleton<GameManager>
         ReplayManager.EnsureExists().RecordTurnStarted(TurnNumber, TurnPlayer);
         OnTurnStart?.Invoke(TurnNumber);
         NotifyGameStateChanged();
+        LogReplayTurnSummaryForTesting();
     }
 
     public void NotifyGameStateChanged()
@@ -157,5 +159,15 @@ public class GameManager : Singleton<GameManager>
         {
             return Player.PLAYER_1;
         }
+    }
+
+    private void LogReplayTurnSummaryForTesting()
+    {
+        if (!ReplayManager.LogCompressedTurnSummaryToConsole || TurnNumber <= 1)
+        {
+            return;
+        }
+
+        Debug.Log($"Replay turn summary:\n{ReplayTurnSummary.GetLastEnemyTurnSummary(TurnPlayer)}");
     }
 }
