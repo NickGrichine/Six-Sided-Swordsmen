@@ -18,10 +18,16 @@ public class CameraController : Singleton<CameraController>
 
     private const float edgeThreshold = 50f; // pixels from edge in screen space to enable panning
 
-
     [SerializeField] private new Camera camera;
+
+    private bool disableCamera = false;
+
+    public void DisableCamera() => disableCamera = true;
+    public void EnableCamera() => disableCamera = false;
+
     private void Update()
     {
+        if (disableCamera) return;
         HandleMovement();
         HandleZoom();
     }
@@ -73,7 +79,7 @@ public class CameraController : Singleton<CameraController>
             // apply bounds
             newPosition.x = Mathf.Clamp(newPosition.x, minX, maxX);
             newPosition.y = Mathf.Clamp(newPosition.y, minY, maxY);
-            
+
             transform.position = newPosition;
         }
 
@@ -122,8 +128,8 @@ public class CameraController : Singleton<CameraController>
         {
             camera.orthographicSize =
             Mathf.Clamp(
-                camera.orthographicSize - scrollInput * zoomSpeed, 
-                minZoom, 
+                camera.orthographicSize - scrollInput * zoomSpeed,
+                minZoom,
                 maxZoom);
         }
     }
@@ -131,14 +137,15 @@ public class CameraController : Singleton<CameraController>
 
 
 
-    
+
     // public methods for looking at positions
     public void SetPosition(Vector2 position)
     {
-        transform.position = 
+        Debug.Log("Camera position set.");
+        transform.position =
         new Vector3(
-            Mathf.Clamp(position.x, minX, maxX), 
-            Mathf.Clamp(position.y, minY, maxY), 
+            Mathf.Clamp(position.x, minX, maxX),
+            Mathf.Clamp(position.y, minY, maxY),
             transform.position.z);
     }
 

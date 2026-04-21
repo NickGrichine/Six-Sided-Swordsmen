@@ -17,7 +17,7 @@ public class UnitDataSO : ScriptableObject
     // ie. defines how much bonus damage to give when a specific unit type attacks another unit type
 
     // values are to be set in Unity project
-    public enum UnitType { Archer, Knight, Spearman, Swordsman }
+    public enum UnitType { Archer, Knight, Spearman, Swordsman, Ghost }
     public UnitType unitType;
 
     // Unit counters (damage matching)

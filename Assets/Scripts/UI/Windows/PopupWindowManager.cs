@@ -3,6 +3,7 @@ using UnityEngine;
 public class PopupWindowManager : MonoBehaviour
 {
     [SerializeField] bool withTransition = false;
+    [SerializeField] bool disableCameraWhenOpened = true;
     [SerializeField] Button openButton;
     [SerializeField] GameObject windowPrefab;
     [SerializeField] IPopupWindow windowScript;
@@ -12,18 +13,24 @@ public class PopupWindowManager : MonoBehaviour
     void Start()
     {
         openButton.onClick += HandleButtonClick;
-            
     }
 
     private void HandleButtonClick(Button button)
     {
+        if (disableCameraWhenOpened && CameraController.Instance)
+            CameraController.Instance.DisableCamera();
         if (withTransition)
-            Curtain.Instance.ShortTransitionWithCallback(Initialize);
+            InitializeWithTransition();
         else
             Initialize();
     }
 
-    private void Initialize()
+    public void InitializeWithTransition()
+    {
+        Curtain.Instance.ShortTransitionWithCallback(Initialize);
+    }
+
+    public void Initialize()
     {
         GameObject window_object = Instantiate(windowPrefab, canvasObject.transform);
         IPopupWindow window_script = window_object.GetComponent<IPopupWindow>();

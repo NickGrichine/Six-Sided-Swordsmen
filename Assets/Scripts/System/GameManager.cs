@@ -8,6 +8,7 @@ public class GameManager : Singleton<GameManager>
 {
     [SerializeField] private GameObject gameEndWindowPrefab;
     [SerializeField] private Canvas canvasObject;
+    [SerializeField] private PopupWindowManager PassTurnWindowInitializer;
 
     public int TurnNumber { get; private set; }
     public Player TurnPlayer { get; private set; } = Player.NULL;
@@ -28,6 +29,7 @@ public class GameManager : Singleton<GameManager>
         }
 
         Invoke(nameof(StartGame), 0.1f);
+        PassTurnWindowInitializer.Initialize();
     }
 
     private void OnDestroy()
@@ -63,7 +65,7 @@ public class GameManager : Singleton<GameManager>
         ReplayManager.EnsureExists().RecordTurnEnded(TurnNumber, TurnPlayer);
         OnTurnEnd?.Invoke(TurnNumber);
 
-        TurnNumber ++;
+        TurnNumber++;
         TurnPlayer = NextPlayer();
 
         ReplayManager.EnsureExists().RecordTurnStarted(TurnNumber, TurnPlayer);
@@ -144,12 +146,12 @@ public class GameManager : Singleton<GameManager>
         IPopupWindow popupWindow = windowObject.GetComponent<IPopupWindow>();
         popupWindow?.Initialize();
     }
-    
+
     private Player NextPlayer()
     {
         if (TurnPlayer == Player.NULL)
         {
-            
+
         }
         if (TurnPlayer == Player.PLAYER_1)
         {
