@@ -64,7 +64,11 @@ public class CustomButton : Button
     }
     private void RedrawColor()
     {
-        if (!useDimming) return;
+        if (!useDimming)
+        {
+            buttonImage.color = highlightColor;
+            return;
+        }
         if (hovered)
             buttonImage.color = highlightColor;
         else
@@ -89,6 +93,9 @@ public class CustomButton : Button
         // Set icon.
         if (buttonImage && displayedObject.GetIcon())
             buttonImage.sprite = displayedObject.GetIcon();
+
+        if (useDimming)
+            EnableHoverHighlighting();
     }
 
     public void Initialize(Sprite sprite)
@@ -101,6 +108,9 @@ public class CustomButton : Button
         SetState(BUTTON_STATE.ACTIVE);
         if (buttonImage)
             buttonImage.sprite = sprite;
+
+        if (useDimming)
+            EnableHoverHighlighting();
     }
 
     public override void OnPointerExit(PointerEventData eventData)

@@ -9,6 +9,7 @@ using UnityEngine.UI;
 public class HUDCanvas : Singleton<HUDCanvas>
 {
     [SerializeField] private CustomButton passTurnButton;
+    [SerializeField] private CustomButton quitButton;
 
     void Start()
     {
@@ -18,6 +19,10 @@ public class HUDCanvas : Singleton<HUDCanvas>
         passTurnButton.SetText("Pass Turn");
         passTurnButton.SetState(Button.BUTTON_STATE.ACTIVE);
 
+        // Initialize Quit button:
+        quitButton.onClick += LoadTitleScene;
+        quitButton.SetState(Button.BUTTON_STATE.ACTIVE);
+
         StartCoroutine(DelayedStart());
     }
 
@@ -25,6 +30,11 @@ public class HUDCanvas : Singleton<HUDCanvas>
     {
         yield return null;
         SubscribeAllHealthManagersToUnitConsole();
+    }
+
+    private void LoadTitleScene(Button _)
+    {
+        SceneLoader.Instance.LoadScene("Title");
     }
 
     private void SubscribeAllHealthManagersToUnitConsole()

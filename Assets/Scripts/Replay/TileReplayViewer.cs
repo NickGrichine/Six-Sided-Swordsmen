@@ -533,7 +533,7 @@ public class TileReplayViewer : MonoBehaviour
 
         GameObject replayButtonObject = Instantiate(passTurnTemplate.gameObject, passTurnTemplate.transform.parent);
         replayButtonObject.name = "Replay Button";
-        replayButtonObject.transform.SetAsFirstSibling();
+        // replayButtonObject.transform.SetAsFirstSibling();
 
         openButton = replayButtonObject.GetComponent<CustomButton>();
         if (openButton == null)
@@ -543,7 +543,7 @@ public class TileReplayViewer : MonoBehaviour
 
         openButton.ClearActions();
         openButton.onClick += (_) => OpenGlobalReplay();
-        openButton.SetText("Replay");
+        openButton.SetText("Log");
         openButton.SetState(Button.BUTTON_STATE.ACTIVE);
         CopyButtonVisuals(passTurnTemplate.gameObject, replayButtonObject);
 
