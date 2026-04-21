@@ -5,6 +5,10 @@ using UnityEngine;
 // Central place that records replay history and hands it back to the viewer by tile
 public class ReplayManager : Singleton<ReplayManager>
 {
+    // Toggle on/off for old replay panel
+    public const bool EnableDetailedReplayUi = true;
+    public const bool LogCompressedTurnSummaryToConsole = true;
+
     [Serializable]
     public class TileReplayLog
     {
@@ -15,7 +19,7 @@ public class ReplayManager : Singleton<ReplayManager>
     [Serializable]
     public class ReplayStateData
     {
-        // Tile logs are now derived from the global timeline, but kept here so older code and saved data do not break.
+        // Tile logs are derived from the global timeline, but kept here so older code and saved data do not break.
         public List<TileReplayLog> tileLogs = new List<TileReplayLog>();
         public List<ReplayEvent> globalEvents = new List<ReplayEvent>();
     }
@@ -53,8 +57,11 @@ public class ReplayManager : Singleton<ReplayManager>
         base.Awake();
         DontDestroyOnLoad(gameObject);
         RebuildRuntimeIndex();
-        // The viewer is runtime-created as well, so scenes do not need manual setup
-        TileReplayViewer.EnsureExists();
+        // The viewer is runtime-created, so scenes do not need manual setup.
+        if (EnableDetailedReplayUi)
+        {
+            TileReplayViewer.EnsureExists();
+        }
     }
 
     public void RebuildRuntimeIndex()
@@ -103,13 +110,18 @@ public class ReplayManager : Singleton<ReplayManager>
 
     public List<ReplayEvent> GetEventsVisibleToCurrentPlayer(IReadOnlyList<ReplayEvent> sourceEvents)
     {
+        Player viewer = ResolveReplayViewer();
+        return GetEventsVisibleToPlayer(sourceEvents, viewer);
+    }
+
+    public List<ReplayEvent> GetEventsVisibleToPlayer(IReadOnlyList<ReplayEvent> sourceEvents, Player viewer)
+    {
         List<ReplayEvent> filteredEvents = new List<ReplayEvent>();
         if (sourceEvents == null)
         {
             return filteredEvents;
         }
 
-        Player viewer = ResolveReplayViewer();
         if (viewer == Player.NULL)
         {
             foreach (ReplayEvent replayEvent in sourceEvents)
