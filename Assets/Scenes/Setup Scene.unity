@@ -1442,6 +1442,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1343101098783418708, guid: a658a0c4d402ff43fb0373babcacd275, type: 3}
+      propertyPath: maxNumberOfGhostsPerPlayer
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
