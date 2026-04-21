@@ -92,6 +92,8 @@ MonoBehaviour:
   Text: {fileID: 0}
   HoverText: 
   buttonImage: {fileID: 962335574130187774}
+  supressPopup: 0
+  highlightIntensity: 0
 --- !u!1 &687068302162335098
 GameObject:
   m_ObjectHideFlags: 0
@@ -1272,6 +1274,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6772064109017868828}
     m_Modifications:
+    - target: {fileID: 5599372495910464846, guid: 40bd99eae5ae94b43aa2026b3e4e5bc9, type: 3}
+      propertyPath: highlightIntensity
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 5659928906377693716, guid: 40bd99eae5ae94b43aa2026b3e4e5bc9, type: 3}
       propertyPath: m_Name
       value: Command Button (4)
@@ -1385,6 +1391,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6772064109017868828}
     m_Modifications:
+    - target: {fileID: 5599372495910464846, guid: 40bd99eae5ae94b43aa2026b3e4e5bc9, type: 3}
+      propertyPath: highlightIntensity
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 5659928906377693716, guid: 40bd99eae5ae94b43aa2026b3e4e5bc9, type: 3}
       propertyPath: m_Name
       value: Command Button (1)
@@ -1498,6 +1508,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6772064109017868828}
     m_Modifications:
+    - target: {fileID: 5599372495910464846, guid: 40bd99eae5ae94b43aa2026b3e4e5bc9, type: 3}
+      propertyPath: highlightIntensity
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 5659928906377693716, guid: 40bd99eae5ae94b43aa2026b3e4e5bc9, type: 3}
       propertyPath: m_Name
       value: Command Button (2)
@@ -1611,6 +1625,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6772064109017868828}
     m_Modifications:
+    - target: {fileID: 5599372495910464846, guid: 40bd99eae5ae94b43aa2026b3e4e5bc9, type: 3}
+      propertyPath: highlightIntensity
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 5659928906377693716, guid: 40bd99eae5ae94b43aa2026b3e4e5bc9, type: 3}
       propertyPath: m_Name
       value: Command Button
@@ -1724,6 +1742,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6772064109017868828}
     m_Modifications:
+    - target: {fileID: 5599372495910464846, guid: 40bd99eae5ae94b43aa2026b3e4e5bc9, type: 3}
+      propertyPath: highlightIntensity
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 5659928906377693716, guid: 40bd99eae5ae94b43aa2026b3e4e5bc9, type: 3}
       propertyPath: m_Name
       value: Command Button (3)

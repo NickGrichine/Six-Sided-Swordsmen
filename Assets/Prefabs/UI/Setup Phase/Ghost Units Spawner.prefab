@@ -46,5 +46,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ghostUnitPrefab: {fileID: 453141174523818861, guid: 1db37a10dddc7a5d5935533d89d9cff4, type: 3}
   numberOfPlayers: 2
-  maxNumberOfGhostsPerPlayer: 2
+  maxNumberOfGhostsPerPlayer: 1
   ghostUnitDataSO: {fileID: 11400000, guid: 35e739e1c0b62a6d3aada34e2f587b6a, type: 2}

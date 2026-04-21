@@ -14,14 +14,16 @@ public class Button : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, 
     [SerializeField] protected string HoverText;
     public BUTTON_STATE State { get; private set; }
     public Action<Button> onClick;
-    public Action<Button> onHover;
+    public Action<Button> onHoverEnter;
+    public Action<Button> onHoverExit;
 
     void Awake() { }
 
     public void ClearActions()
     {
         onClick = null;
-        onHover = null;
+        onHoverEnter = null;
+        onHoverExit = null;
     }
 
     public void SetState(BUTTON_STATE state)
@@ -52,16 +54,14 @@ public class Button : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, 
     public virtual void OnPointerExit(PointerEventData eventData)
     {
         if (State == BUTTON_STATE.INACTIVE) return;
-        // TODO:
-        // SetText("Exit");
+        onHoverExit?.Invoke(this);
         Debug.Log("Exit on " + this);
     }
 
     public virtual void OnPointerEnter(PointerEventData eventData)
     {
         if (State == BUTTON_STATE.INACTIVE) return;
-        // TODO:
-        // SetText("Hover");
+        onHoverEnter?.Invoke(this);
         Debug.Log("Hover on " + this);
     }
 

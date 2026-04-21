@@ -23,7 +23,7 @@ public class SceneLoader : Singleton<SceneLoader>
     private IEnumerator LoadSceneCoroutine(string sceneName)
     {
         Curtain.Instance.LongTransition();
-        
+
         // wait until the screen is fully black before changing scenes
         yield return new WaitUntil(() => Curtain.Instance.FadedToBlack);
 

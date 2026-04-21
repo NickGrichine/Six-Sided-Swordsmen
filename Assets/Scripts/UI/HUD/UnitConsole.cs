@@ -81,7 +81,7 @@ public class UnitConsole : Singleton<UnitConsole>
         // Set command buttons:
         foreach (UnitCommandSO command in unitController.commands)
         {
-            SetCommandButton(OnCommandClicked, null, command);
+            SetCommandButton(OnCommandClicked, null, null, command);
         }
 
         // Set unit icon:
@@ -125,7 +125,8 @@ public class UnitConsole : Singleton<UnitConsole>
     private int _command_index = 0;
     private bool SetCommandButton(
             Action<Button> onClick,
-            Action<Button> onHover,
+            Action<Button> onHoverEnter,
+            Action<Button> onHoverExit,
             IButtonDisplayable displayedObject)
     {
         if (_command_index >= _command_size) return false;
@@ -134,11 +135,13 @@ public class UnitConsole : Singleton<UnitConsole>
         // NOTE: removing then adding an action ensures that a specific action
         // is not added multiple times. nothing happens if it doesn't exist.
         commandButtons[_command_index].onClick -= onClick;
-        commandButtons[_command_index].onHover -= onHover;
+        commandButtons[_command_index].onHoverEnter -= onHoverEnter;
+        commandButtons[_command_index].onHoverExit -= onHoverExit;
 
         // Initialize custom button:
         commandButtons[_command_index].onClick += onClick;
-        commandButtons[_command_index].onHover += onHover;
+        commandButtons[_command_index].onHoverEnter += onHoverEnter;
+        commandButtons[_command_index].onHoverExit += onHoverExit;
         commandButtons[_command_index].Initialize(displayedObject);
 
         _command_index = (_command_index + 1) % _command_size;

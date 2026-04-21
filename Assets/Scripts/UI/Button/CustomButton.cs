@@ -11,8 +11,24 @@ public class CustomButton : Button
     public IButtonDisplayable displayedObject { get; private set; }
     [SerializeField] private Image buttonImage;
     [SerializeField] private bool supressPopup = false;
+    [SerializeField] private float highlightIntensity = 0.1f;
 
-    void Awake() { }
+    private bool useDimming = false;
+    private Color baseColor;
+    private Color highlightColor;
+    private Color clickColor;
+    private bool hovered = false;
+
+    void Awake()
+    {
+        useDimming = highlightIntensity > 0.0f;
+        if (!buttonImage)
+            buttonImage = GetComponent<Image>();
+        ChangeIconColor(buttonImage.color);
+        if (useDimming)
+            EnableHoverHighlighting();
+    }
+
 
     public new void SetState(BUTTON_STATE state)
     {
@@ -21,6 +37,38 @@ public class CustomButton : Button
             DisableRendering();
         else if (state == BUTTON_STATE.ACTIVE)
             EnableRendering();
+    }
+
+    private void EnableHoverHighlighting()
+    {
+        onHoverEnter += (_) =>
+        {
+            hovered = true;
+            UseHighlightColor();
+        };
+        onHoverExit += (_) =>
+        {
+            hovered = false;
+            UseBaseColor();
+        };
+    }
+    private void UseHighlightColor()
+    {
+        buttonImage.color = highlightColor;
+        RedrawColor();
+    }
+    private void UseBaseColor()
+    {
+        buttonImage.color = baseColor;
+        RedrawColor();
+    }
+    private void RedrawColor()
+    {
+        if (!useDimming) return;
+        if (hovered)
+            buttonImage.color = highlightColor;
+        else
+            buttonImage.color = baseColor;
     }
 
     public void Initialize(IButtonDisplayable displayedObject)
@@ -39,7 +87,7 @@ public class CustomButton : Button
             Text.text = displayedObject.GetTextDescription();
 
         // Set icon.
-        if (buttonImage)
+        if (buttonImage && displayedObject.GetIcon())
             buttonImage.sprite = displayedObject.GetIcon();
     }
 
@@ -57,12 +105,14 @@ public class CustomButton : Button
 
     public override void OnPointerExit(PointerEventData eventData)
     {
+        base.OnPointerExit(eventData);
         if (State == BUTTON_STATE.INACTIVE) return;
         if (!supressPopup)
             PopupHandler.Instance.Hide();
     }
     public override void OnPointerEnter(PointerEventData eventData)
     {
+        base.OnPointerEnter(eventData);
         if (State == BUTTON_STATE.INACTIVE) return;
         if (!supressPopup)
             PopupHandler.Instance.Show(HoverText);
@@ -85,10 +135,12 @@ public class CustomButton : Button
         }
     }
 
-    public void ChangeIconColor(Color32 color)
+    public void ChangeIconColor(Color color)
     {
-        if (buttonImage)
-            buttonImage.color = color;
+        if (!buttonImage) return;
+        baseColor = color * (1f - highlightIntensity);
+        highlightColor = color;
+        RedrawColor();
     }
 }
 
