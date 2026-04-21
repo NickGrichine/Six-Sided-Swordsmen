@@ -35,7 +35,7 @@ public class CombatExecutor : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("CombatTest: GridEventHandler.Instance is missing, click movement prototype will not run.");
+            Debug.LogWarning("CombatExecutor: GridEventHandler.Instance is missing, click movement prototype will not run.");
         }
 
         if (UnitConsole.Instance != null)
@@ -44,7 +44,7 @@ public class CombatExecutor : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("CombatTest: UnitConsole.Instance is missing, command button mapping is disabled.");
+            Debug.LogWarning("CombatExecutor: UnitConsole.Instance is missing, command button mapping is disabled.");
         }
 
         // Subscribe to GameManager events
@@ -90,7 +90,7 @@ public class CombatExecutor : MonoBehaviour
         {
             StopCoroutine(activeMoveRoutine);
             activeMoveRoutine = null;
-            Debug.Log("CombatTest: active movement coroutine stopped by ESC.");
+            Debug.Log("CombatExecutor: active movement coroutine stopped by ESC.");
         }
 
         selectedUnit = null;
@@ -108,7 +108,7 @@ public class CombatExecutor : MonoBehaviour
             HexGridManager.Instance.ClearAllCommandHighlights();
         }
 
-        Debug.Log("CombatTest: selection/command mode cancelled (ESC). State reset to Idle.");
+        Debug.Log("CombatExecutor: selection/command mode cancelled (ESC). State reset to Idle.");
     }
     private void OnTileClicked(Tile clickedTile)
     {
@@ -117,7 +117,7 @@ public class CombatExecutor : MonoBehaviour
 
         if (selectionMode == SelectionMode.Moving)
         {
-            Debug.Log("CombatTest: currently moving, click ignored.");
+            Debug.Log("CombatExecutor: currently moving, click ignored.");
             return;
         }
 
@@ -126,7 +126,7 @@ public class CombatExecutor : MonoBehaviour
             TrySelectUnit(clickedTile);
             return;
         }
-
+        //Second case: we already selected a unit, now we want to select a command target by either clicking an enemy unit or an empty tile.
         if (clickedTile.occupant is UnitController occupantUnit)
         {
             HandleClickedUnit(occupantUnit);
@@ -151,7 +151,7 @@ public class CombatExecutor : MonoBehaviour
         RefreshSelectionModeForCurrentCommand();
         // Refresh command highlights (attack or move)
         RefreshCommandHighlights();
-        Debug.Log($"CombatTest: selected unit '{selectedUnit.name}' at {selectedUnit.position?.gridPos}. Mode={selectionMode}, Command={commandMode}");
+        Debug.Log($"CombatExecutor: selected unit '{selectedUnit.name}' at {selectedUnit.position?.gridPos}. Mode={selectionMode}, Command={commandMode}");
     }
     private void HandleClickedEmptyTile(Tile clickedTile)
     {
@@ -171,13 +171,13 @@ public class CombatExecutor : MonoBehaviour
             ResetToBasicSelectionState();
             return;
         }
-        Debug.Log("CombatTest: no command selected.");
+        Debug.Log("CombatExecutor: no command selected.");
     }
     private void TrySelectUnit(Tile tile)
     {
         if (!(tile.occupant is UnitController unit))
         {
-            Debug.Log("CombatTest: clicked tile has no unit to select.");
+            Debug.Log("CombatExecutor: clicked tile has no unit to select.");
             return;
         }
 
@@ -185,7 +185,7 @@ public class CombatExecutor : MonoBehaviour
         RefreshSelectionModeForCurrentCommand();
         RefreshCommandHighlights();
 
-        Debug.Log($"CombatTest: selected unit '{selectedUnit.name}' at {selectedUnit.position?.gridPos}. Mode={selectionMode}, Command={commandMode}");
+        Debug.Log($"CombatExecutor: selected unit '{selectedUnit.name}' at {selectedUnit.position?.gridPos}. Mode={selectionMode}, Command={commandMode}");
     }
     private void TryMoveSelectedUnitTo(Tile destination)
     {
@@ -235,13 +235,13 @@ public class CombatExecutor : MonoBehaviour
     {
         if (command == null)
         {
-            Debug.LogWarning("CombatTest: received null command from UnitConsole.");
+            Debug.LogWarning("CombatExecutor: received null command from UnitConsole.");
             return;
         }
 
         if (selectedUnit == null)
         {
-            Debug.Log("CombatTest: no selected unit for command.");
+            Debug.Log("CombatExecutor: no selected unit for command.");
             return;
         }
 
@@ -258,7 +258,7 @@ public class CombatExecutor : MonoBehaviour
         RefreshSelectionModeForCurrentCommand();
         RefreshCommandHighlights();
 
-        Debug.Log($"CombatTest: command selected '{command.category}'. Mode={selectionMode}, Command={commandMode}.");
+        Debug.Log($"CombatExecutor: command selected '{command.category}'. Mode={selectionMode}, Command={commandMode}.");
     }
     private CommandMode CommandModeFromCategory(CommandCategory category)
     {
