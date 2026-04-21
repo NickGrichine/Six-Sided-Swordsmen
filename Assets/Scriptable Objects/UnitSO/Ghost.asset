@@ -19,7 +19,7 @@ MonoBehaviour:
   attackRange: 0
   visionRange: 6
   cost: 0
-  unitType: 0
+  unitType: 4
   damageBonuses:
   - targetType: 0
     bonusDamage: 0

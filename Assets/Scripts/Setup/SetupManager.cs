@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public class SetupManager : Singleton<SetupManager>
 {
     [SerializeField] private Button FinishSetupButton;
+    [SerializeField] private PopupWindowManager PassTurnWindowInitializer;
 
     public Player CurrentPlayer { get; private set; } = Player.PLAYER_1;
 
@@ -23,6 +24,7 @@ public class SetupManager : Singleton<SetupManager>
     {
         FinishSetupButton.onClick += (_) => EndSetupForCurrentPlayer();
         FinishSetupButton.onClick += (_) => ResourceManager.Instance.UpdateResourceDisplay();
+        PassTurnWindowInitializer.Initialize();
         StartCoroutine(DelayedStart());
     }
 
