@@ -533,6 +533,7 @@ public class TileReplayViewer : MonoBehaviour
 
         GameObject replayButtonObject = Instantiate(passTurnTemplate.gameObject, passTurnTemplate.transform.parent);
         replayButtonObject.name = "Replay Button";
+        replayButtonObject.transform.SetAsFirstSibling();
 
         openButton = replayButtonObject.GetComponent<CustomButton>();
         if (openButton == null)

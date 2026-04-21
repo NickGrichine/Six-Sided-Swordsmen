@@ -34,6 +34,7 @@ public class PopupWindowManager : MonoBehaviour
     {
         GameObject window_object = Instantiate(windowPrefab, canvasObject.transform);
         IPopupWindow window_script = window_object.GetComponent<IPopupWindow>();
+        window_object.transform.SetAsLastSibling();
         window_script.Initialize();
     }
 }

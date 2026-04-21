@@ -11,7 +11,7 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private PopupWindowManager PassTurnWindowInitializer;
 
     public int TurnNumber { get; private set; }
-    public Player TurnPlayer { get; private set; } = Player.NULL;
+    public Player TurnPlayer { get; private set; } = Player.PLAYER_1;
 
     public event Action<int> OnTurnStart;   // passes new turn
     public event Action<int> OnTurnEnd;     // passes turn that's ending
@@ -42,7 +42,8 @@ public class GameManager : Singleton<GameManager>
 
     public void StartGame()
     {
-        TurnPlayer = NextPlayer();
+        // TurnPlayer = NextPlayer();
+        TurnPlayer = Player.PLAYER_1;
         TurnNumber = 1;
         gameOngoing = true;
         gameEnded = false;
