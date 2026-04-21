@@ -110,6 +110,7 @@ MonoBehaviour:
   tileId: -1
   passable: 1
   moveCost: 1
+  commandHighlight: {fileID: 0}
   fogSprites:
   - {fileID: 2132583203, guid: b3eace87035a5894aad4f7ebdc14d7c6, type: 3}
   - {fileID: 2132583203, guid: b3eace87035a5894aad4f7ebdc14d7c6, type: 3}
@@ -194,7 +195,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7494627868338116577
 Transform:
   m_ObjectHideFlags: 0

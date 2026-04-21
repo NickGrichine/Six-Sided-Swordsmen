@@ -112,7 +112,7 @@ public class UnitController : MonoBehaviour, IOccupant
 
     public void StartTurn()
     {
-        movesRemaining = refData != null ? refData.maxMovesPerTurn : 0;    
+        movesRemaining = refData != null ? refData.maxMovesPerTurn : 0;
     }
 
     private void Start()
@@ -162,7 +162,7 @@ public class UnitController : MonoBehaviour, IOccupant
         {
             return 0;
         }
-        
+
         UnitDataSO.UnitType targetType = target.refData.unitType;
 
         foreach (UnitDataSO.DamageBonus bonus in refData.damageBonuses)
@@ -174,7 +174,7 @@ public class UnitController : MonoBehaviour, IOccupant
         }
 
         return 0;
-        
+
     }
 
 
