@@ -2,30 +2,30 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CombatTest : MonoBehaviour
+public class CombatExecutor : MonoBehaviour
 {
-    private SelectionMode selectionMode = SelectionMode.Idle;
+    private readonly MoveExecutor moveExecutor = new MoveExecutor();
+    private readonly AttackExecutor attackExecutor = new AttackExecutor();
     private UnitController selectedUnit;
     private Coroutine activeMoveRoutine;
-    private readonly IUnitCommand attackCommand = new AttackCommand();
-
+    private enum SelectionMode
+     {
+         Idle,
+         UnitSelected,
+         AwaitingMoveTarget,
+         AwaitingAttackTarget,
+          Moving,
+     }
     private enum CommandMode
     {
         None,
         Move,
         Attack,
     }
-
+    private SelectionMode selectionMode = SelectionMode.Idle;
     private CommandMode commandMode = CommandMode.None;
 
-    private enum SelectionMode
-    {
-        Idle,
-        UnitSelected,
-        AwaitingMoveTarget,
-        AwaitingAttackTarget,
-        Moving,
-    }
+
 
     void Start()
     {
@@ -56,10 +56,9 @@ public class CombatTest : MonoBehaviour
         // No blue command outlines are left active
         RefreshCommandHighlights();
 
-        // Reset selected command when clicking new tile
+        // Reset selected command when clicking new tile. Not sure why this is here, it creates a bug where it deselects everytime we click a tile.
         //GridEventHandler.Instance.onTileClicked += (_) => ResetToBasicSelectionState();
     }
-
     private void OnDestroy()
     {
         if (GridEventHandler.Instance != null)
@@ -78,7 +77,6 @@ public class CombatTest : MonoBehaviour
             GameManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
         }
     }
-
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -86,7 +84,32 @@ public class CombatTest : MonoBehaviour
             CancelSelectionMode();
         }
     }
+    private void CancelSelectionMode()
+    {
+        if (activeMoveRoutine != null)
+        {
+            StopCoroutine(activeMoveRoutine);
+            activeMoveRoutine = null;
+            Debug.Log("CombatTest: active movement coroutine stopped by ESC.");
+        }
 
+        selectedUnit = null;
+        selectionMode = SelectionMode.Idle;
+        commandMode = CommandMode.None;
+
+        if (GridEventHandler.Instance != null)
+        {
+            GridEventHandler.Instance.ClearSelectedTile();
+        }
+
+        // Clears command highlights
+        if (HexGridManager.Instance != null)
+        {
+            HexGridManager.Instance.ClearAllCommandHighlights();
+        }
+
+        Debug.Log("CombatTest: selection/command mode cancelled (ESC). State reset to Idle.");
+    }
     private void OnTileClicked(Tile clickedTile)
     {
         if (clickedTile == null)
@@ -112,7 +135,6 @@ public class CombatTest : MonoBehaviour
 
         HandleClickedEmptyTile(clickedTile);
     }
-
     private void HandleClickedUnit(UnitController clickedUnit)
     {
         if (clickedUnit == null)
@@ -125,45 +147,30 @@ public class CombatTest : MonoBehaviour
             TryAttackSelectedUnit(clickedUnit);
             return;
         }
-
         selectedUnit = clickedUnit;
         RefreshSelectionModeForCurrentCommand();
-
         // Refresh command highlights (attack or move)
         RefreshCommandHighlights();
-
         Debug.Log($"CombatTest: selected unit '{selectedUnit.name}' at {selectedUnit.position?.gridPos}. Mode={selectionMode}, Command={commandMode}");
     }
-
     private void HandleClickedEmptyTile(Tile clickedTile)
     {
         if (selectedUnit == null)
             return;
-
         if (commandMode == CommandMode.Move && selectionMode == SelectionMode.AwaitingMoveTarget)
         {
-            if (HexGridManager.Instance != null)
-            {
-                HashSet<Tile> validMoveTiles = HexGridManager.Instance.GetValidMoveTiles(selectedUnit);
-                if (validMoveTiles.Contains(clickedTile))
-                {
-                    TryMoveSelectedUnitTo(clickedTile);
-                    return;
-                }
-            }
-
-            // Invalid move target -> remove movement command
+            TryMoveSelectedUnitTo(clickedTile); //delegate all responsibility for validating move target to TryMoveSelectedUnitTo which calls the MoveExecutor, which will handle command cancellation if invalid
+            
+            // Else could be invalid move target -> remove movement command
             ResetToBasicSelectionState();
             return;
         }
-
         if (commandMode == CommandMode.Attack && selectionMode == SelectionMode.AwaitingAttackTarget)
         {
             // Empty tile can never be a valid attack target
             ResetToBasicSelectionState();
             return;
         }
-
         Debug.Log("CombatTest: no command selected.");
     }
     private void TrySelectUnit(Tile tile)
@@ -180,151 +187,50 @@ public class CombatTest : MonoBehaviour
 
         Debug.Log($"CombatTest: selected unit '{selectedUnit.name}' at {selectedUnit.position?.gridPos}. Mode={selectionMode}, Command={commandMode}");
     }
-
     private void TryMoveSelectedUnitTo(Tile destination)
     {
-        if (selectedUnit == null || selectedUnit.position == null)
-        {
-            Debug.LogWarning("CombatTest: no selected unit or unit has no current tile.");
-            return;
-        }
-
-        // Checks if destination is valid
-        if (destination == null)
-        {
-            Debug.LogWarning("CombatTest: destination is null.");
-            return;
-        }
-
-        if (destination == selectedUnit.position)
-        {
-            Debug.Log("CombatTest: destination is current tile, no movement needed.");
-            return;
-        }
-
-        if (HexGridManager.Instance == null)
-        {
-            Debug.LogWarning("CombatTest: HexGridManager.Instance is null.");
-            return;
-        }
-
-        HashSet<Tile> validMoveTiles = HexGridManager.Instance.GetValidMoveTiles(selectedUnit);
-        if (!validMoveTiles.Contains(destination))
-        {
-            Debug.Log($"CombatTest: clicked tile {destination.gridPos} is not a valid move target.");
-            return;
-        }
-
-        List<Tile> path = HexPathfinder.FindPath(selectedUnit.position, destination);
-        if (path == null || path.Count < 2)
-        {
-            Debug.LogWarning($"CombatTest: no valid move path for '{selectedUnit.name}' from {selectedUnit.position.gridPos} to {destination.gridPos}.");
-            return;
-        }
-
         // Remove blue highlights before movement begins
         HexGridManager.Instance.ClearAllCommandHighlights();
+    
+        if (!moveExecutor.TryBuildMovePath(selectedUnit, destination, out List<Tile> path))
+        return;
+
+        if (HexGridManager.Instance != null)
+            HexGridManager.Instance.ClearAllCommandHighlights();
 
         if (activeMoveRoutine != null)
             StopCoroutine(activeMoveRoutine);
 
-        activeMoveRoutine = StartCoroutine(MoveUnitAlongPath(selectedUnit, path, 0.3f));
+        selectionMode = SelectionMode.Moving;
+        activeMoveRoutine = StartCoroutine(
+            moveExecutor.ExecuteMove(
+                selectedUnit,
+                path,
+                0.3f,
+                OnMoveSucceeded,
+                OnMoveFailed));
     }
-
+    private void OnMoveSucceeded(UnitController unit, int stepsMoved)
+    {
+        selectionMode = SelectionMode.Idle;
+        unit.movesRemaining -= stepsMoved;
+        activeMoveRoutine = null;
+        ResetToBasicSelectionState();
+    }
+    private void OnMoveFailed(UnitController unit)
+    {
+        selectionMode = SelectionMode.Idle;
+        activeMoveRoutine = null;
+        RefreshSelectionModeForCurrentCommand();
+        RefreshCommandHighlights();
+    }
     private void TryAttackSelectedUnit(UnitController targetUnit)
     {
-        if (selectedUnit == null)
-        {
-            Debug.LogWarning("CombatTest: no selected unit to perform attack.");
+        if (!attackExecutor.TryExecuteAttack(selectedUnit, targetUnit, out CommandExecutionRecord result))
             return;
-        }
 
-        if (targetUnit == null)
-        {
-            Debug.LogWarning("CombatTest: attack target is null.");
-            return;
-        }
-
-        if (HexGridManager.Instance == null)
-        {
-            Debug.LogWarning("CombatTest: HexGridManager.Instance is null.");
-            return;
-        }
-
-        // Get all valid attack tiles
-        HashSet<Tile> validAttackTiles = HexGridManager.Instance.GetValidAttackTiles(selectedUnit);
-        if (targetUnit.position == null || !validAttackTiles.Contains(targetUnit.position))
-        {
-            Debug.Log($"CombatTest: attack invalid from '{selectedUnit.name}' to '{targetUnit.name}'.");
-            return;
-        }
-
-        var target = new CommandTarget(targetUnit.position, targetUnit);
-        if (!attackCommand.CanExecute(selectedUnit, target))
-        {
-            Debug.Log($"CombatTest: attack invalid from '{selectedUnit.name}' to '{targetUnit.name}'.");
-            return;
-        }
-
-        CommandExecutionRecord result = attackCommand.Execute(selectedUnit, target);
-        if (result == null)
-        {
-            Debug.LogWarning("CombatTest: attack execution returned null.");
-            return;
-        }
-
-        Debug.Log($"CombatTest: '{selectedUnit.name}' attacked '{targetUnit.name}'.");
-
-        // Keep the unit selected, but clear the active command after the action
         ResetToBasicSelectionState();
-
-        if (UnitConsole.Instance != null && selectedUnit != null)
-        {
-            UnitConsole.Instance.Initialize(selectedUnit);
-        }
     }
-
-    private IEnumerator MoveUnitAlongPath(UnitController unit, List<Tile> path, float secondsPerStep)
-    {
-        selectionMode = SelectionMode.Moving;
-        Debug.Log($"CombatTest: starting movement for '{unit.name}', steps={path.Count - 1}.");
-
-        int length = path.Count;
-
-        for (int i = 1; i < path.Count; i++)
-        {
-            Tile next = path[i];
-            bool moved = unit.MoveToAdjacentTile(next);
-            if (!moved)
-            {
-                Debug.LogWarning($"CombatTest: movement failed at step {i}/{path.Count - 1} toward {next.gridPos}. Unit stopped at {unit.position?.gridPos}.");
-                selectionMode = SelectionMode.Idle;
-                activeMoveRoutine = null;
-
-                // Re-show valid tiles after failed movement
-                RefreshSelectionModeForCurrentCommand();
-                RefreshCommandHighlights();
-                yield break;
-            }
-
-            Debug.Log($"CombatTest: moved step {i}/{path.Count - 1} to {unit.position.gridPos}.");
-            yield return new WaitForSeconds(secondsPerStep);
-        }
-
-        Debug.Log($"CombatTest: '{unit.name}' arrived at {unit.position.gridPos}. Movement complete.");
-        selectionMode = SelectionMode.Idle;
-        unit.movesRemaining -= length - 1;
-        activeMoveRoutine = null;
-
-        // Keep the unit selected, but clear the active command after the action
-        ResetToBasicSelectionState();
-
-        if (UnitConsole.Instance != null && selectedUnit != null)
-        {
-            UnitConsole.Instance.Initialize(selectedUnit);
-        }
-    }
-
     private void OnUnitCommandSelected(UnitCommandSO command)
     {
         if (command == null)
@@ -354,7 +260,6 @@ public class CombatTest : MonoBehaviour
 
         Debug.Log($"CombatTest: command selected '{command.category}'. Mode={selectionMode}, Command={commandMode}.");
     }
-
     private CommandMode CommandModeFromCategory(CommandCategory category)
     {
         switch (category)
@@ -367,7 +272,6 @@ public class CombatTest : MonoBehaviour
                 return CommandMode.None;
         }
     }
-
     private void RefreshSelectionModeForCurrentCommand()
     {
         if (selectionMode == SelectionMode.Moving)
@@ -390,7 +294,6 @@ public class CombatTest : MonoBehaviour
             selectionMode = SelectionMode.AwaitingAttackTarget;
         }
     }
-
     private void RefreshCommandHighlights()
     {
         if (HexGridManager.Instance == null)
@@ -432,34 +335,6 @@ public class CombatTest : MonoBehaviour
         // Show blue command highlight on every valid tile
         HexGridManager.Instance.ShowCommandHighlights(validTiles);
     }
-
-    private void CancelSelectionMode()
-    {
-        if (activeMoveRoutine != null)
-        {
-            StopCoroutine(activeMoveRoutine);
-            activeMoveRoutine = null;
-            Debug.Log("CombatTest: active movement coroutine stopped by ESC.");
-        }
-
-        selectedUnit = null;
-        selectionMode = SelectionMode.Idle;
-        commandMode = CommandMode.None;
-
-        if (GridEventHandler.Instance != null)
-        {
-            GridEventHandler.Instance.ClearSelectedTile();
-        }
-
-        // Clears command highlights
-        if (HexGridManager.Instance != null)
-        {
-            HexGridManager.Instance.ClearAllCommandHighlights();
-        }
-
-        Debug.Log("CombatTest: selection/command mode cancelled (ESC). State reset to Idle.");
-    }
-
     private void HandleGameStateChanged()
     {
         // Clear highlight if unit moving
@@ -495,7 +370,6 @@ public class CombatTest : MonoBehaviour
         RefreshSelectionModeForCurrentCommand();
         RefreshCommandHighlights();
     }
-
     private void ResetToBasicSelectionState()
     {
         // Resets the command mode
@@ -506,8 +380,14 @@ public class CombatTest : MonoBehaviour
         else
             // If a unit is still selected
             selectionMode = SelectionMode.UnitSelected;
+            RefreshSelectedUnitConsole();
 
         if (HexGridManager.Instance != null)
             HexGridManager.Instance.ClearAllCommandHighlights();
+    }
+    private void RefreshSelectedUnitConsole()
+    {
+        if (UnitConsole.Instance != null && selectedUnit != null)
+            UnitConsole.Instance.Initialize(selectedUnit);
     }
 }
