@@ -25,6 +25,8 @@ public class HelpWindowManager : MonoBehaviour, IPopupWindow
         nextButton.onClick += (_) => NextPage();
     }
 
+    public Button GetChainButton() => nextButton;
+
     public void NextPage()
     {
         if (!currentPage) throw new System.Exception("Current help page can't be null");
