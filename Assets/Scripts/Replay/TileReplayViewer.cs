@@ -95,7 +95,7 @@ public class TileReplayViewer : MonoBehaviour
             OpenReplayForSelectedTile();
         }
 
-        TryCreateOpenButton();
+        // TryCreateOpenButton();
 
         if (panelRoot == null || !panelRoot.activeSelf)
         {

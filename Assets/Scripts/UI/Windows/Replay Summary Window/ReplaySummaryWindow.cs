@@ -6,23 +6,21 @@ using System.Collections;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class PassTurnWindow : MonoBehaviour, IPopupWindow
+public class ReplaySummaryWindow : MonoBehaviour, IPopupWindow
 {
     [SerializeField] private bool enableCameraWhenClosed = true;
     [SerializeField] private Button closeButton;
     [SerializeField] private TextMeshProUGUI turnPlayerText;
-    [SerializeField] private bool useForSetupPhase = false;
+    [SerializeField] private TextMeshProUGUI replaySummaryText;
 
+
+    public Button GetChainButton() => closeButton;
 
     public void Initialize()
     {
         InitializeTurnPlayerText();
+        InitializeReplaySummaryText();
         closeButton.onClick += HandleCloseButtonClick;
-    }
-
-    public Button GetChainButton()
-    {
-        return closeButton;
     }
 
     private void HandleCloseButtonClick(Button _)
@@ -32,12 +30,17 @@ public class PassTurnWindow : MonoBehaviour, IPopupWindow
         Destroy(this.gameObject);
     }
 
+    private void InitializeReplaySummaryText()
+    {
+        replaySummaryText.text = ReplayTurnSummary.GetLastEnemyTurnSummary();
+    }
+
     private void InitializeTurnPlayerText()
     {
         IEnumerator DelayedStart()
         {
             yield return null;
-            Player currentPlayer = useForSetupPhase ? SetupManager.Instance.CurrentPlayer : GameManager.Instance.TurnPlayer;
+            Player currentPlayer = GameManager.Instance.TurnPlayer;
             turnPlayerText.text = $"Player {(int)currentPlayer}'s Turn";
         }
         ;
