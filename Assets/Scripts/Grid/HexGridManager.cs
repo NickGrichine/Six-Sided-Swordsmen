@@ -300,8 +300,22 @@ public class HexGridManager : Singleton<HexGridManager>
                 tile.grassVariant = 0;
                 break;
 
-            case TileType.MOUNTAIN:
-                tile.altitude = RollMountainAltitude();
+            case TileType.MOUNTAIN_1:
+                tile.altitude = 1;
+                tile.passable = true;
+                tile.moveCost = 2;
+                tile.grassVariant = 0;
+                break;
+
+            case TileType.MOUNTAIN_2:
+                tile.altitude = 2;
+                tile.passable = true;
+                tile.moveCost = 2;
+                tile.grassVariant = 0;
+                break;
+
+            case TileType.MOUNTAIN_3:
+                tile.altitude = 3;
                 tile.passable = true;
                 tile.moveCost = 2;
                 tile.grassVariant = 0;
@@ -312,21 +326,6 @@ public class HexGridManager : Singleton<HexGridManager>
     private int RollGrassVariant()
     {
         return Random.value < grassFlowerChance ? 1 : 0;
-    }
-
-    private int RollMountainAltitude()
-    {
-        float roll = Random.value;
-
-        if (roll < mountainRock1Chance)
-            return 1; // 1 rock
-
-        roll -= mountainRock1Chance;
-
-        if (roll < mountainRock2Chance)
-            return 2;
-
-        return 3;
     }
 
     private void EnsureSelectionOutline(Tile tile)
@@ -426,7 +425,7 @@ public class HexGridManager : Singleton<HexGridManager>
 
                     if (neighbor.type == TileType.GRASSLAND ||
                         neighbor.type == TileType.PURPLELAND ||
-                        neighbor.type == TileType.MOUNTAIN)
+                        IsMountainType(neighbor.type))
                     {
                         tile.type = TileType.SHORE;
                         break;
@@ -477,13 +476,27 @@ public class HexGridManager : Singleton<HexGridManager>
             case TileType.OCEAN_DEEP:
                 return deepOceanSprite;
 
-            case TileType.MOUNTAIN:
-                return GetMountainSprite(tile);
+            case TileType.MOUNTAIN_1:
+                return grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite;
+
+            case TileType.MOUNTAIN_2:
+                return grassRock2Sprite != null
+                    ? grassRock2Sprite
+                    : (grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite);
+
+            case TileType.MOUNTAIN_3:
+                return grassRock3Sprite != null
+                    ? grassRock3Sprite
+                    : (grassRock2Sprite != null
+                        ? grassRock2Sprite
+                        : (grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite));
 
             default:
                 return grassFlatSprite;
         }
     }
+
+
 
     private Sprite GetGrassSprite(Tile tile)
     {
@@ -492,27 +505,11 @@ public class HexGridManager : Singleton<HexGridManager>
             : grassFlatSprite;
     }
 
-    private Sprite GetMountainSprite(Tile tile)
+    public static bool IsMountainType(TileType type)
     {
-        switch (tile.altitude)
-        {
-            case 1:
-                return grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite;
-
-            case 2:
-                return grassRock2Sprite != null
-                    ? grassRock2Sprite
-                    : (grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite);
-
-            case 3:
-                return grassRock3Sprite != null
-                    ? grassRock3Sprite
-                    : (grassRock2Sprite != null
-                        ? grassRock2Sprite
-                        : (grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite));
-            default:
-                return grassFlatSprite;
-        }
+        return type == TileType.MOUNTAIN_1 ||
+            type == TileType.MOUNTAIN_2 ||
+            type == TileType.MOUNTAIN_3;
     }
 
     private Sprite GetPurpleSprite()
