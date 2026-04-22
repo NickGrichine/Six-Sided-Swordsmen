@@ -34,6 +34,7 @@ public class PassTurnWindow : MonoBehaviour, IPopupWindow
             yield return null;
             Player currentPlayer = useForSetupPhase ? SetupManager.Instance.CurrentPlayer : GameManager.Instance.TurnPlayer;
             turnPlayerText.text = $"Player {(int)currentPlayer}'s Turn";
+            turnPlayerText.color = Colours.GetColor(currentPlayer);
         }
         ;
 

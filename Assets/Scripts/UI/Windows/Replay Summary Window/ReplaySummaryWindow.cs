@@ -42,6 +42,7 @@ public class ReplaySummaryWindow : MonoBehaviour, IPopupWindow
             yield return null;
             Player currentPlayer = GameManager.Instance.TurnPlayer;
             turnPlayerText.text = $"Player {(int)currentPlayer}'s Turn";
+            turnPlayerText.color = Colours.GetColor(currentPlayer);
         }
         ;
 

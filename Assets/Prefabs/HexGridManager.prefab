@@ -67,7 +67,7 @@ MonoBehaviour:
   deepOceanSprite: {fileID: -1171527285, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
   baseOutlineSprite: {fileID: -2075421952, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
   selectionOutlineSprite: {fileID: 198324669, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
-  oceanBorderThickness: 10
+  oceanBorderThickness: 30
   cameraBorderTiles: 3
   oceanChance: 0.303
   purpleChance: 0.257

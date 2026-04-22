@@ -186,8 +186,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83f62935e760757b58c561597c294c86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableCameraWhenClosed: 1
   closeButton: {fileID: 6399755342019086935}
   turnPlayerText: {fileID: 1677775931114980570}
+  useForSetupPhase: 0
 --- !u!1 &5681313343992594340
 GameObject:
   m_ObjectHideFlags: 0
@@ -496,7 +498,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 18
-  m_fontStyle: 17
+  m_fontStyle: 16
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
