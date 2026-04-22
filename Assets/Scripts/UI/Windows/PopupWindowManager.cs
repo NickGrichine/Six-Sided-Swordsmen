@@ -7,21 +7,13 @@ public class PopupWindowManager : MonoBehaviour
     [SerializeField] Button openButton;
     [SerializeField] GameObject windowPrefab;
     [SerializeField] IPopupWindow windowScript;
-    [SerializeField] Canvas canvasObject;
-    [Header("Chain Another Popup Window Upon Closing")]
-    [SerializeField] PopupWindowManager windowInitializerFollowUp;
+    [SerializeField] Canvas canvasObject; // NOTE: this is needed to make sure that 
+                                          // the popup window appears on top of every element in the canvas.
 
     void Start()
     {
         openButton.onClick += HandleButtonClick;
     }
-
-    public void SubscribeOnClickAction()
-    {
-        openButton.onClick += HandleButtonClick;
-    }
-
-    public void SetOpenButton(Button button) => openButton = button;
 
     private void HandleButtonClick(Button button)
     {
@@ -44,11 +36,6 @@ public class PopupWindowManager : MonoBehaviour
         IPopupWindow window_script = window_object.GetComponent<IPopupWindow>();
         window_object.transform.SetAsLastSibling();
         window_script.Initialize();
-        if (windowInitializerFollowUp)
-        {
-            windowInitializerFollowUp.SetOpenButton(window_script.GetChainButton());
-            windowInitializerFollowUp.SubscribeOnClickAction();
-        }
     }
 }
 

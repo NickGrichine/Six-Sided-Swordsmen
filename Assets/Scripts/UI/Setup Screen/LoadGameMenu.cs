@@ -11,7 +11,6 @@ public class LoadGameMenu : MonoBehaviour, IPopupWindow
     private SaveSlot[] slots;
     private SaveSlot currentlySelectedSlot;
 
-    public Button GetChainButton() => null;
 
     public void Initialize()
     {

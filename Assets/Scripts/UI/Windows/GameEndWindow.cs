@@ -9,8 +9,6 @@ public class GameEndWindow : MonoBehaviour, IPopupWindow
     [SerializeField] private Button closeButton;
 
 
-    public Button GetChainButton() => closeButton;
-
     public void Initialize()
     {
         string winnerText = $"Player {(int)GameManager.Instance.TurnPlayer} Wins!";
