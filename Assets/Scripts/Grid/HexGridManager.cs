@@ -566,14 +566,12 @@ public class HexGridManager : Singleton<HexGridManager>
         base.Awake();
 
         bool loadedFromCache = false;
+
         CacheManager cacheManager = CacheManager.Instance;
+
         if (cacheManager != null && cacheManager.HasCachedData())
         {
             loadedFromCache = cacheManager.TryRead(this);
-            if (loadedFromCache)
-            {
-                cacheManager.Clear();
-            }
         }
         else if (cacheManager == null)
         {

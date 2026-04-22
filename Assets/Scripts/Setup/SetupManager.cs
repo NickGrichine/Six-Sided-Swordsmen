@@ -59,7 +59,7 @@ public class SetupManager : Singleton<SetupManager>
             return;
         }
 
-        SaveData saveData = new SaveData("Setup Cache", -1, hex_grid_manager);
+        SaveData saveData = new SaveData("Setup Cache", -1, hex_grid_manager, 1, Player.PLAYER_1);
         cacheManager.Write(saveData);
 
         SceneLoader sceneLoader = SceneLoader.Instance;
