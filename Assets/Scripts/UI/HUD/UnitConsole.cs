@@ -86,8 +86,6 @@ public class UnitConsole : Singleton<UnitConsole>
 
         // Set unit icon:
         unitIcon.Initialize(unitController.refData.icon);
-        Color32 color = Colours.GetColor(unitController.teamID);
-        unitIcon.ChangeIconColor(color);
 
         Player current_turn_player = GameManager.Instance.TurnPlayer;
         Player unit_belongs_to = (Player)unitController.teamID;

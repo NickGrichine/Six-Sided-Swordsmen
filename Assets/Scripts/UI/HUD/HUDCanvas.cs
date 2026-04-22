@@ -10,6 +10,9 @@ public class HUDCanvas : Singleton<HUDCanvas>
 {
     [SerializeField] private CustomButton passTurnButton;
     [SerializeField] private CustomButton quitButton;
+    [SerializeField] private PopupWindowManager ReplaySummaryWindowInitializer;
+
+    private Action<Button> EnableReplaySummary = null;
 
     void Start()
     {
@@ -18,7 +21,6 @@ public class HUDCanvas : Singleton<HUDCanvas>
         passTurnButton.onClick += (button) =>
         {
             ClearUnitConsole();
-            UpdateUnitConsole();
         };
         passTurnButton.SetText("Pass Turn");
         passTurnButton.SetState(Button.BUTTON_STATE.ACTIVE);
@@ -26,6 +28,19 @@ public class HUDCanvas : Singleton<HUDCanvas>
         // Initialize Quit button:
         quitButton.onClick += LoadTitleScene;
         quitButton.SetState(Button.BUTTON_STATE.ACTIVE);
+
+        // Disable replay summary on turn 1:
+        ReplaySummaryWindowInitializer.Disable();
+        EnableReplaySummary = (_) =>
+        {
+            if (GameManager.Instance.TurnNumber > 1)
+            {
+                ReplaySummaryWindowInitializer.Enable();
+                passTurnButton.onClick -= EnableReplaySummary;
+            }
+        };
+        passTurnButton.onClick += EnableReplaySummary;
+
 
         StartCoroutine(DelayedStart());
     }

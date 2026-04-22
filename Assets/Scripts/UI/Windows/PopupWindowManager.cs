@@ -11,10 +11,15 @@ public class PopupWindowManager : MonoBehaviour
     [Header("Chain Another Popup Window Upon Closing")]
     [SerializeField] PopupWindowManager windowInitializerFollowUp;
 
+    private bool disabled = false;
+
     void Start()
     {
         openButton.onClick += HandleButtonClick;
     }
+
+    public void Disable() => disabled = true;
+    public void Enable() => disabled = false;
 
     public void SubscribeOnClickAction()
     {
@@ -25,6 +30,7 @@ public class PopupWindowManager : MonoBehaviour
 
     private void HandleButtonClick(Button button)
     {
+        if (disabled) return;
         if (disableCameraWhenOpened && CameraController.Instance)
             CameraController.Instance.DisableCamera();
         if (withTransition)

@@ -24,6 +24,7 @@ public class SetupManager : Singleton<SetupManager>
     {
         FinishSetupButton.onClick += (_) => EndSetupForCurrentPlayer();
         FinishSetupButton.onClick += (_) => ResourceManager.Instance.UpdateResourceDisplay();
+        FinishSetupButton.onClick += (_) => UnitDisplay.Instance.ClearUnitDisplay();
         PassTurnWindowInitializer.Initialize();
         StartCoroutine(DelayedStart());
     }
@@ -37,7 +38,11 @@ public class SetupManager : Singleton<SetupManager>
     public void EndSetupForCurrentPlayer()
     {
         _player_index++;
-        if (_player_index >= _player_length) EndSetupPhase();
+        if (_player_index >= _player_length)
+        {
+            EndSetupPhase();
+            return;
+        }
         CurrentPlayer = (Player)_player_index;
         onTurnPass?.Invoke();
         Debug.Log("Current player is " + CurrentPlayer);
@@ -45,6 +50,7 @@ public class SetupManager : Singleton<SetupManager>
 
     public void EndSetupPhase()
     {
+        PassTurnWindowInitializer.Disable();
         HexGridManager hex_grid_manager = HexGridManager.Instance;
         if (hex_grid_manager == null)
         {

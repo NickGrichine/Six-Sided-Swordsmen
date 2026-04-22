@@ -867,6 +867,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6943896920484338764, guid: 6f2100e6d1f371b90b39a91f63c5f646, type: 3}
+      propertyPath: ReplaySummaryWindowInitializer
+      value: 
+      objectReference: {fileID: 1308162179}
     - target: {fileID: 7907195516960990080, guid: 6f2100e6d1f371b90b39a91f63c5f646, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0
@@ -975,11 +979,46 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3607792878384279091, guid: 6f2100e6d1f371b90b39a91f63c5f646, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2075321234542563152, guid: 6f2100e6d1f371b90b39a91f63c5f646, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5734017039538661385}
   m_SourcePrefab: {fileID: 100100000, guid: 6f2100e6d1f371b90b39a91f63c5f646, type: 3}
+--- !u!1 &5734017039538661384 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2075321234542563152, guid: 6f2100e6d1f371b90b39a91f63c5f646, type: 3}
+  m_PrefabInstance: {fileID: 5734017039538661383}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5734017039538661385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5734017039538661384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 0
+  m_Spacing: 0
+  m_ChildForceExpandWidth: 1
+  m_ChildForceExpandHeight: 1
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 0
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
