@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   icon: {fileID: 21300000, guid: 93cca237c510bc7468ae7fbe51198c8b, type: 3}
   maxHealth: 9
-  attackStr: 3
+  attackStr: 4
   maxMovesPerTurn: 3
-  attackRange: 2
-  visionRange: 5
+  attackRange: 3
+  visionRange: 3
   cost: 14
   unitType: 0
   damageBonuses:
