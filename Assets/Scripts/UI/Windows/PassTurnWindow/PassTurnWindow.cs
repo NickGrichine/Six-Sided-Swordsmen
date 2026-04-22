@@ -20,6 +20,11 @@ public class PassTurnWindow : MonoBehaviour, IPopupWindow
         closeButton.onClick += HandleCloseButtonClick;
     }
 
+    public Button GetChainButton()
+    {
+        return closeButton;
+    }
+
     private void HandleCloseButtonClick(Button _)
     {
         if (enableCameraWhenClosed && CameraController.Instance)
