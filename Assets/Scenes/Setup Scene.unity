@@ -153,6 +153,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameEndWindowPrefab: {fileID: 0}
   canvasObject: {fileID: 0}
+  PassTurnWindowInitializer: {fileID: 0}
 --- !u!4 &169639241
 Transform:
   m_ObjectHideFlags: 0
@@ -896,10 +897,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
-      propertyPath: tilePrefab
-      value: 
-      objectReference: {fileID: 3786522473565270464, guid: 13139b24087ea4440bda16628e2b0466, type: 3}
     - target: {fileID: 7537681685364899693, guid: d6921783fb2a8476ea2ce900d12d2382, type: 3}
       propertyPath: oceanChance
       value: 0.18
