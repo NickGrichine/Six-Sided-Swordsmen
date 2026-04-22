@@ -10,6 +10,7 @@ public class TurnInfoBar : Singleton<TurnInfoBar>
 {
     [SerializeField] private TextMeshProUGUI turnCounter;
     [SerializeField] private TextMeshProUGUI playerTurnIndicator;
+    [SerializeField] private Image playerTurnIndicatorBackground;
 
     void Start()
     {
@@ -26,7 +27,8 @@ public class TurnInfoBar : Singleton<TurnInfoBar>
     private void Initialize(int turnNumber)
     {
         turnCounter.text = "Turn " + turnNumber;
-        switch (GameManager.Instance.TurnPlayer)
+        Player turnPlayer = GameManager.Instance.TurnPlayer;
+        switch (turnPlayer)
         {
             case Player.PLAYER_1:
                 playerTurnIndicator.text = "Player 1";
@@ -37,6 +39,8 @@ public class TurnInfoBar : Singleton<TurnInfoBar>
             default:
                 break;
         }
+
+        playerTurnIndicatorBackground.color = Colours.GetColor(turnPlayer);
     }
 
 }
