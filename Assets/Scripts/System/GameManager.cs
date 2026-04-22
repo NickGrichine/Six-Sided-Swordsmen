@@ -42,11 +42,28 @@ public class GameManager : Singleton<GameManager>
 
     public void StartGame()
     {
-        // TurnPlayer = NextPlayer();
-        TurnPlayer = Player.PLAYER_1;
-        TurnNumber = 1;
+        int loadedTurnNumber = 1;
+        Player loadedTurnPlayer = Player.PLAYER_1;
+
+        CacheManager cacheManager = CacheManager.Instance;
+        if (cacheManager != null && cacheManager.HasCachedData())
+        {
+            SaveData cached = cacheManager.GetCachedSaveData();
+            if (cached != null)
+            {
+                loadedTurnNumber = cached.GetTurnNumber();
+                loadedTurnPlayer = cached.GetTurnPlayer();
+            }
+
+            cacheManager.Clear();
+        }
+
+        TurnNumber = loadedTurnNumber;
+        TurnPlayer = loadedTurnPlayer;
+
         gameOngoing = true;
         gameEnded = false;
+
         ReplayManager.EnsureExists().RecordTurnStarted(TurnNumber, TurnPlayer);
         OnTurnStart?.Invoke(TurnNumber);
         NotifyGameStateChanged();

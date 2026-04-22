@@ -465,12 +465,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Player 1 is victorious!
 
-    Turns: 10
-
-    Units Lost: 5
-
-    Units Defeated:
-    10'
+    Turns: 10'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7930148983eae2dac81cc5342968701f, type: 2}
   m_sharedMaterial: {fileID: 125442094865265601, guid: 7930148983eae2dac81cc5342968701f, type: 2}

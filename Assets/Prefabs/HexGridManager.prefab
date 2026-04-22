@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   generateOnStart: 1
-  tilePrefab: {fileID: 3786522473565270464, guid: 1244cca042012754baf167dca488c431, type: 3}
+  tilePrefab: {fileID: 3786522473565270464, guid: 13139b24087ea4440bda16628e2b0466, type: 3}
   width: 20
   height: 20
   hexSize: 1
@@ -55,7 +55,7 @@ MonoBehaviour:
   horizontalNudge: 0
   verticalNudge: 0
   generationMode: 0
-  biomeControlMask: {fileID: 0}
+  biomeControlMask: {fileID: 2800000, guid: a56dbbd93a650402db81aaba4019e6cb, type: 3}
   grassFlatSprite: {fileID: 481734694, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
   grassFlowerSprite: {fileID: -82042141, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
   grassRock1Sprite: {fileID: 2087224726, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
@@ -67,7 +67,7 @@ MonoBehaviour:
   deepOceanSprite: {fileID: -1171527285, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
   baseOutlineSprite: {fileID: -2075421952, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
   selectionOutlineSprite: {fileID: 198324669, guid: a3e43f6a22ef8144790576001c72a8b7, type: 3}
-  oceanBorderThickness: 10
+  oceanBorderThickness: 20
   cameraBorderTiles: 3
   oceanChance: 0.303
   purpleChance: 0.257

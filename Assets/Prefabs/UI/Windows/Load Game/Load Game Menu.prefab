@@ -1,80 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &4677171706692922515
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1434730172161703938}
-  - component: {fileID: 8206024512136071562}
-  - component: {fileID: 6506747293509446827}
-  m_Layer: 0
-  m_Name: Title Image
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1434730172161703938
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4677171706692922515}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8109393647583949797}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -332, y: 178}
-  m_SizeDelta: {x: 500, y: 720}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &8206024512136071562
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4677171706692922515}
-  m_CullTransparentMesh: 1
---- !u!114 &6506747293509446827
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4677171706692922515}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.39215687, g: 0.57254905, b: 0.6313726, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 1ac0b7e1fee528445a07564f7582bf69, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 1
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &5077136421483817326
 GameObject:
   m_ObjectHideFlags: 0
@@ -105,7 +30,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1299876471512866689}
-  - {fileID: 1434730172161703938}
   - {fileID: 6007586059968547576}
   - {fileID: 3424099112729086226}
   m_Father: {fileID: 0}
@@ -351,26 +275,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sword Button (2)
       objectReference: {fileID: 0}
-    - target: {fileID: 3641463744452182672, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
-      propertyPath: m_Color.a
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3641463744452182672, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
-      propertyPath: m_Color.b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3641463744452182672, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
-      propertyPath: m_Color.g
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3641463744452182672, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
-      propertyPath: m_Color.r
-      value: 0.4811321
-      objectReference: {fileID: 0}
-    - target: {fileID: 3641463744452182672, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
-      propertyPath: m_Material
-      value: 
-      objectReference: {fileID: 2100000, guid: c7fdb296bed60874d867f76bdd87daa2, type: 3}
     - target: {fileID: 3787503175429600132, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -454,22 +358,6 @@ PrefabInstance:
     - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
       propertyPath: m_text
       value: Delete Game
-      objectReference: {fileID: 0}
-    - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
-      propertyPath: m_fontAsset
-      value: 
-      objectReference: {fileID: 11400000, guid: 7930148983eae2dac81cc5342968701f, type: 2}
-    - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
-      propertyPath: m_fontStyle
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
-      propertyPath: m_sharedMaterial
-      value: 
-      objectReference: {fileID: 125442094865265601, guid: 7930148983eae2dac81cc5342968701f, type: 2}
-    - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
-      propertyPath: m_hasFontAssetChanged
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -672,10 +560,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sword Button
       objectReference: {fileID: 0}
-    - target: {fileID: 3641463744452182672, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
-      propertyPath: m_UseSpriteMesh
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 3787503175429600132, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -759,22 +643,6 @@ PrefabInstance:
     - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
       propertyPath: m_text
       value: New Game
-      objectReference: {fileID: 0}
-    - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
-      propertyPath: m_fontAsset
-      value: 
-      objectReference: {fileID: 11400000, guid: 7930148983eae2dac81cc5342968701f, type: 2}
-    - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
-      propertyPath: m_fontStyle
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
-      propertyPath: m_sharedMaterial
-      value: 
-      objectReference: {fileID: 125442094865265601, guid: 7930148983eae2dac81cc5342968701f, type: 2}
-    - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
-      propertyPath: m_hasFontAssetChanged
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1052,22 +920,6 @@ PrefabInstance:
     - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
       propertyPath: m_text
       value: Load Game
-      objectReference: {fileID: 0}
-    - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
-      propertyPath: m_fontAsset
-      value: 
-      objectReference: {fileID: 11400000, guid: 7930148983eae2dac81cc5342968701f, type: 2}
-    - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
-      propertyPath: m_fontStyle
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
-      propertyPath: m_sharedMaterial
-      value: 
-      objectReference: {fileID: 125442094865265601, guid: 7930148983eae2dac81cc5342968701f, type: 2}
-    - target: {fileID: 7978699516437171410, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
-      propertyPath: m_hasFontAssetChanged
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

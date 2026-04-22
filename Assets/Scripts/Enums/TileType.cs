@@ -6,6 +6,8 @@ public enum TileType
     PURPLELAND,
     SHORE,
     OCEAN_DEEP,
-    MOUNTAIN
+    MOUNTAIN_1,
+    MOUNTAIN_2,
+    MOUNTAIN_3
     
 }

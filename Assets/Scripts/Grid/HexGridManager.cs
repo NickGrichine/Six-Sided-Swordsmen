@@ -141,62 +141,13 @@ public class HexGridManager : Singleton<HexGridManager>
         if (cam == null || !cam.orthographic)
             return;
 
-        float minWorldX = float.MaxValue;
-        float maxWorldX = float.MinValue;
-        float minWorldY = float.MaxValue;
-        float maxWorldY = float.MinValue;
+        if (!TryGetLandWorldExtents(out float minWorldX, out float maxWorldX, out float minWorldY, out float maxWorldY))
+            return;
 
-        int boundedMinQ = Mathf.Max(0, playableOffsetQ - cameraBorderTiles);
-        int boundedMaxQ = Mathf.Min(totalWidth - 1, playableOffsetQ + width - 1 + cameraBorderTiles);
-        int boundedMinR = Mathf.Max(0, playableOffsetR - cameraBorderTiles);
-        int boundedMaxR = Mathf.Min(totalHeight - 1, playableOffsetR + height - 1 + cameraBorderTiles);
-
-        for (int q = boundedMinQ; q <= boundedMaxQ; q++)
-        {
-            for (int r = boundedMinR; r <= boundedMaxR; r++)
-            {
-                Tile tile = grid[q, r];
-                if (tile == null)
-                    continue;
-
-                Vector3 pos = tile.transform.position;
-
-                if (pos.x < minWorldX) minWorldX = pos.x;
-                if (pos.x > maxWorldX) maxWorldX = pos.x;
-                if (pos.y < minWorldY) minWorldY = pos.y;
-                if (pos.y > maxWorldY) maxWorldY = pos.y;
-            }
-        }
-
-        float worldBorderX = oceanBorderThickness * hexSize * horizontalStepMultiplier;
-        float worldBorderY = oceanBorderThickness * hexSize * verticalStepMultiplier * 0.5f;
-
-        minWorldX -= worldBorderX;
-        maxWorldX += worldBorderX;
-        minWorldY -= worldBorderY;
-        maxWorldY += worldBorderY;
-
-        float halfCameraHeight = cam.orthographicSize;
-        float halfCameraWidth = cam.orthographicSize * cam.aspect;
-
-        float clampedMinX = minWorldX + halfCameraWidth;
-        float clampedMaxX = maxWorldX - halfCameraWidth;
-        float clampedMinY = minWorldY + halfCameraHeight;
-        float clampedMaxY = maxWorldY - halfCameraHeight;
-
-        if (clampedMinX > clampedMaxX)
-        {
-            float centerX = (minWorldX + maxWorldX) * 0.5f;
-            clampedMinX = centerX;
-            clampedMaxX = centerX;
-        }
-
-        if (clampedMinY > clampedMaxY)
-        {
-            float centerY = (minWorldY + maxWorldY) * 0.5f;
-            clampedMinY = centerY;
-            clampedMaxY = centerY;
-        }
+        float clampedMinX = minWorldX;
+        float clampedMaxX = maxWorldX;
+        float clampedMinY = minWorldY;
+        float clampedMaxY = maxWorldY;
 
         CameraController.Instance.SetBounds(
             clampedMinX,
@@ -217,23 +168,33 @@ public class HexGridManager : Singleton<HexGridManager>
         if (cam == null)
             return;
 
-        float minWorldX = float.MaxValue;
-        float maxWorldX = float.MinValue;
-        float minWorldY = float.MaxValue;
-        float maxWorldY = float.MinValue;
+        if (!TryGetLandWorldExtents(out float minWorldX, out float maxWorldX, out float minWorldY, out float maxWorldY))
+            return;
 
-        int boundedMinQ = Mathf.Max(0, playableOffsetQ - cameraBorderTiles);
-        int boundedMaxQ = Mathf.Min(totalWidth - 1, playableOffsetQ + width - 1 + cameraBorderTiles);
-        int boundedMinR = Mathf.Max(0, playableOffsetR - cameraBorderTiles);
-        int boundedMaxR = Mathf.Min(totalHeight - 1, playableOffsetR + height - 1 + cameraBorderTiles);
+        Vector3 camPos = cam.transform.position;
+        camPos.x = (minWorldX + maxWorldX) * 0.5f;
+        camPos.y = (minWorldY + maxWorldY) * 0.5f;
+        cam.transform.position = camPos;
+    }
 
-        for (int q = boundedMinQ; q <= boundedMaxQ; q++)
+    private bool TryGetLandWorldExtents(out float minWorldX, out float maxWorldX, out float minWorldY, out float maxWorldY)
+    {
+        minWorldX = float.MaxValue;
+        maxWorldX = float.MinValue;
+        minWorldY = float.MaxValue;
+        maxWorldY = float.MinValue;
+
+        bool foundLand = false;
+
+        for (int q = 0; q < totalWidth; q++)
         {
-            for (int r = boundedMinR; r <= boundedMaxR; r++)
+            for (int r = 0; r < totalHeight; r++)
             {
                 Tile tile = grid[q, r];
-                if (tile == null) continue;
+                if (tile == null || !tile.passable)
+                    continue;
 
+                foundLand = true;
                 Vector3 pos = tile.transform.position;
 
                 if (pos.x < minWorldX) minWorldX = pos.x;
@@ -243,10 +204,31 @@ public class HexGridManager : Singleton<HexGridManager>
             }
         }
 
-        Vector3 camPos = cam.transform.position;
-        camPos.x = (minWorldX + maxWorldX) * 0.5f;
-        camPos.y = (minWorldY + maxWorldY) * 0.5f;
-        cam.transform.position = camPos;
+        if (foundLand)
+            return true;
+
+        int minQ = playableOffsetQ;
+        int maxQ = playableOffsetQ + width - 1;
+        int minR = playableOffsetR;
+        int maxR = playableOffsetR + height - 1;
+
+        for (int q = minQ; q <= maxQ; q++)
+        {
+            for (int r = minR; r <= maxR; r++)
+            {
+                Tile tile = grid[q, r];
+                if (tile == null)
+                    continue;
+
+                Vector3 pos = tile.transform.position;
+                if (pos.x < minWorldX) minWorldX = pos.x;
+                if (pos.x > maxWorldX) maxWorldX = pos.x;
+                if (pos.y < minWorldY) minWorldY = pos.y;
+                if (pos.y > maxWorldY) maxWorldY = pos.y;
+            }
+        }
+
+        return minWorldX != float.MaxValue;
     }
 
     private Tile CreateTile(int q, int r, TileType plannedType)
@@ -300,8 +282,22 @@ public class HexGridManager : Singleton<HexGridManager>
                 tile.grassVariant = 0;
                 break;
 
-            case TileType.MOUNTAIN:
-                tile.altitude = RollMountainAltitude();
+            case TileType.MOUNTAIN_1:
+                tile.altitude = 1;
+                tile.passable = true;
+                tile.moveCost = 1;      // lowest alttitude mountains have same movement cost as grassland
+                tile.grassVariant = 0;
+                break;
+
+            case TileType.MOUNTAIN_2:
+                tile.altitude = 2;
+                tile.passable = true;
+                tile.moveCost = 2;
+                tile.grassVariant = 0;
+                break;
+
+            case TileType.MOUNTAIN_3:
+                tile.altitude = 3;
                 tile.passable = true;
                 tile.moveCost = 2;
                 tile.grassVariant = 0;
@@ -312,21 +308,6 @@ public class HexGridManager : Singleton<HexGridManager>
     private int RollGrassVariant()
     {
         return Random.value < grassFlowerChance ? 1 : 0;
-    }
-
-    private int RollMountainAltitude()
-    {
-        float roll = Random.value;
-
-        if (roll < mountainRock1Chance)
-            return 1; // 1 rock
-
-        roll -= mountainRock1Chance;
-
-        if (roll < mountainRock2Chance)
-            return 2;
-
-        return 3;
     }
 
     private void EnsureSelectionOutline(Tile tile)
@@ -426,7 +407,7 @@ public class HexGridManager : Singleton<HexGridManager>
 
                     if (neighbor.type == TileType.GRASSLAND ||
                         neighbor.type == TileType.PURPLELAND ||
-                        neighbor.type == TileType.MOUNTAIN)
+                        IsMountainType(neighbor.type))
                     {
                         tile.type = TileType.SHORE;
                         break;
@@ -477,13 +458,27 @@ public class HexGridManager : Singleton<HexGridManager>
             case TileType.OCEAN_DEEP:
                 return deepOceanSprite;
 
-            case TileType.MOUNTAIN:
-                return GetMountainSprite(tile);
+            case TileType.MOUNTAIN_1:
+                return grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite;
+
+            case TileType.MOUNTAIN_2:
+                return grassRock2Sprite != null
+                    ? grassRock2Sprite
+                    : (grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite);
+
+            case TileType.MOUNTAIN_3:
+                return grassRock3Sprite != null
+                    ? grassRock3Sprite
+                    : (grassRock2Sprite != null
+                        ? grassRock2Sprite
+                        : (grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite));
 
             default:
                 return grassFlatSprite;
         }
     }
+
+
 
     private Sprite GetGrassSprite(Tile tile)
     {
@@ -492,27 +487,11 @@ public class HexGridManager : Singleton<HexGridManager>
             : grassFlatSprite;
     }
 
-    private Sprite GetMountainSprite(Tile tile)
+    public static bool IsMountainType(TileType type)
     {
-        switch (tile.altitude)
-        {
-            case 1:
-                return grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite;
-
-            case 2:
-                return grassRock2Sprite != null
-                    ? grassRock2Sprite
-                    : (grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite);
-
-            case 3:
-                return grassRock3Sprite != null
-                    ? grassRock3Sprite
-                    : (grassRock2Sprite != null
-                        ? grassRock2Sprite
-                        : (grassRock1Sprite != null ? grassRock1Sprite : grassFlatSprite));
-            default:
-                return grassFlatSprite;
-        }
+        return type == TileType.MOUNTAIN_1 ||
+            type == TileType.MOUNTAIN_2 ||
+            type == TileType.MOUNTAIN_3;
     }
 
     private Sprite GetPurpleSprite()
@@ -569,14 +548,12 @@ public class HexGridManager : Singleton<HexGridManager>
         base.Awake();
 
         bool loadedFromCache = false;
+
         CacheManager cacheManager = CacheManager.Instance;
+
         if (cacheManager != null && cacheManager.HasCachedData())
         {
             loadedFromCache = cacheManager.TryRead(this);
-            if (loadedFromCache)
-            {
-                cacheManager.Clear();
-            }
         }
         else if (cacheManager == null)
         {

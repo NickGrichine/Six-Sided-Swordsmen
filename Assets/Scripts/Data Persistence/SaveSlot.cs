@@ -20,6 +20,12 @@ public class SaveSlot : IButtonDisplayable
         this.id = id;
         this.path = Path.Combine(Application.persistentDataPath, $"save_{id}.json");
         this.data = null;
+
+        // Hydrate slot state as soon as the slot object is created.
+        if (File.Exists(path))
+        {
+            ReadFromDisk();
+        }
     }
 
     public Sprite GetIcon()
@@ -29,17 +35,12 @@ public class SaveSlot : IButtonDisplayable
 
     public string GetTextDescription()
     {
-        if (ExistsOnDisk())
+        if (data == null)
         {
-            if (data != null)
-                return $"Slot {id}: {data.GetName()}";
-            else
-                return $"Slot {id}: [Save exists]";
+            return "Empty";
         }
-        else
-        {
-            return $"Slot {id}: [Empty]";
-        }
+
+        return $"{data.GetName()}\n[turn {data.GetTurnNumber()}]";
     }
 
     public void WriteToDisk()

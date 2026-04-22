@@ -23,9 +23,13 @@ public class Tile : MonoBehaviour
     public IOccupant ghostOccupant; // for the setup phase
     public bool IsGhostOccupied => ghostOccupant != null;
     public bool IsOccupied => occupant != null;
+
     public bool BlockSight =>
-        altitude >= 2 ||
-        type == TileType.MOUNTAIN; // Mountain always blocks
+    altitude >= 2 ||
+    type == TileType.MOUNTAIN_1 ||
+    type == TileType.MOUNTAIN_2 ||
+    type == TileType.MOUNTAIN_3; // Mountain always blocks
+    
     private bool hasFog = true;
     public bool Visible => !hasFog;
 

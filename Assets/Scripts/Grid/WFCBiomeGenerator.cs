@@ -14,8 +14,10 @@ public static class WFCBiomeGenerator
     {
         TileType.GRASSLAND,
         TileType.PURPLELAND,
-        TileType.MOUNTAIN,
-        TileType.OCEAN_DEEP
+        TileType.MOUNTAIN_1,
+        TileType.MOUNTAIN_2,
+        TileType.MOUNTAIN_3,
+        TileType.OCEAN_DEEP    
     };
 
     private static readonly HashSet<TileType> PlayableBiomeTypes = new HashSet<TileType>(AllBiomeTypes);
@@ -93,6 +95,16 @@ public static class WFCBiomeGenerator
             }
         }
 
+        Debug.Log(
+            $"AnalyzeSample counts -> " +
+            $"Grass={stats.TileCounts[TileType.GRASSLAND]}, " +
+            $"Purple={stats.TileCounts[TileType.PURPLELAND]}, " +
+            $"Mountain1={stats.TileCounts[TileType.MOUNTAIN_1]}, " +
+            $"Mountain2={stats.TileCounts[TileType.MOUNTAIN_2]}, " +
+            $"Mountain3={stats.TileCounts[TileType.MOUNTAIN_3]}, " +
+            $"Ocean={stats.TileCounts[TileType.OCEAN_DEEP]}"
+        );
+
         foreach (TileType type in AllBiomeTypes)
         {
             stats.TileRatios[type] = stats.TotalCells > 0 ? (float)stats.TileCounts[type] / stats.TotalCells : 0f;
@@ -152,13 +164,24 @@ public static class WFCBiomeGenerator
 
     private static void EnsureSafeFallbackRules(SampleStats stats)
     {
-        stats.AllowedNeighbors[TileType.GRASSLAND].Add(TileType.MOUNTAIN);
-        stats.AllowedNeighbors[TileType.MOUNTAIN].Add(TileType.GRASSLAND);
         stats.AllowedNeighbors[TileType.GRASSLAND].Add(TileType.PURPLELAND);
         stats.AllowedNeighbors[TileType.PURPLELAND].Add(TileType.GRASSLAND);
-        stats.AllowedNeighbors[TileType.OCEAN_DEEP].Add(TileType.OCEAN_DEEP);
-        stats.AllowedNeighbors[TileType.MOUNTAIN].Add(TileType.MOUNTAIN);
         stats.AllowedNeighbors[TileType.PURPLELAND].Add(TileType.PURPLELAND);
+        stats.AllowedNeighbors[TileType.OCEAN_DEEP].Add(TileType.OCEAN_DEEP);
+
+        // Mountain adjacency rules: mostly allow altitude difference <= 1
+        stats.AllowedNeighbors[TileType.MOUNTAIN_1].Add(TileType.MOUNTAIN_1);
+        stats.AllowedNeighbors[TileType.MOUNTAIN_1].Add(TileType.MOUNTAIN_2);
+        stats.AllowedNeighbors[TileType.MOUNTAIN_1].Add(TileType.GRASSLAND);
+
+        stats.AllowedNeighbors[TileType.MOUNTAIN_2].Add(TileType.MOUNTAIN_1);
+        stats.AllowedNeighbors[TileType.MOUNTAIN_2].Add(TileType.MOUNTAIN_2);
+        stats.AllowedNeighbors[TileType.MOUNTAIN_2].Add(TileType.MOUNTAIN_3);
+
+        stats.AllowedNeighbors[TileType.MOUNTAIN_3].Add(TileType.MOUNTAIN_2);
+        stats.AllowedNeighbors[TileType.MOUNTAIN_3].Add(TileType.MOUNTAIN_3);
+
+        stats.AllowedNeighbors[TileType.GRASSLAND].Add(TileType.MOUNTAIN_1);
     }
 
     private static bool TryGenerate(HexGridManager gridManager, TileType[,] plannedTypes, SampleStats stats, int attempt)
@@ -216,6 +239,9 @@ public static class WFCBiomeGenerator
 
         EnforceTargetRatios(gridManager, plannedTypes, stats);
         ForceMountainPresence(gridManager, plannedTypes);
+
+        DebugFinalCounts(gridManager, plannedTypes);
+
         return true;
     }
 
@@ -389,6 +415,7 @@ public static class WFCBiomeGenerator
         float sampleV = Mathf.Clamp01((v + attempt * 0.113f) % 1f);
         int sampleQ = Mathf.Clamp(Mathf.RoundToInt(sampleU * (stats.SampleWidth - 1)), 0, stats.SampleWidth - 1);
         int sampleR = Mathf.Clamp(Mathf.RoundToInt(sampleV * (stats.SampleHeight - 1)), 0, stats.SampleHeight - 1);
+
         TileType sampledType = SampleAt(stats, sampleQ, sampleR);
         if (sampledType == type)
             weight *= SampleWeightStrength;
@@ -398,8 +425,13 @@ public static class WFCBiomeGenerator
         {
             if (type == TileType.OCEAN_DEEP)
                 weight *= BorderWaterBias;
-            if (type == TileType.MOUNTAIN)
+
+            if (type == TileType.MOUNTAIN_1 ||
+                type == TileType.MOUNTAIN_2 ||
+                type == TileType.MOUNTAIN_3)
+            {
                 weight *= 0.2f;
+            }
         }
         else if (type == TileType.OCEAN_DEEP)
         {
@@ -408,6 +440,9 @@ public static class WFCBiomeGenerator
 
         int collapsedNeighbors = 0;
         int matchingNeighbors = 0;
+        int mountainNeighbors = 0;
+        int sameTypeNeighbors = 0;
+
         foreach (Vector2Int dir in HexMath.GetNeighborDirections(q))
         {
             int nq = q + dir.x;
@@ -420,15 +455,42 @@ public static class WFCBiomeGenerator
             {
                 collapsedNeighbors++;
                 TileType neighbor = First(domain);
+
                 if (stats.NeighborCounts[type].TryGetValue(neighbor, out int count))
                     matchingNeighbors += count;
                 else if (stats.AllowedNeighbors[type].Contains(neighbor))
                     matchingNeighbors += 1;
+
+                if (HexGridManager.IsMountainType(neighbor))
+                    mountainNeighbors++;
+
+                if (neighbor == type)
+                    sameTypeNeighbors++;
             }
         }
 
         if (collapsedNeighbors > 0)
             weight *= 1f + (matchingNeighbors / (float)(collapsedNeighbors + 1));
+
+        // Preserve rare mountain tiers a little more strongly
+        if (type == TileType.MOUNTAIN_3)
+        {
+            weight *= 1.75f;
+            if (mountainNeighbors == 0)
+                weight *= 0.55f; // avoid isolated peaks
+            if (mountainNeighbors >= 1)
+                weight *= 1.2f;
+        }
+        else if (type == TileType.MOUNTAIN_2)
+        {
+            weight *= 1.25f;
+            if (sameTypeNeighbors >= 2)
+                weight *= 1.1f;
+        }
+        else if (type == TileType.MOUNTAIN_1)
+        {
+            weight *= 1.05f;
+        }
 
         return Mathf.Max(0.0001f, weight);
     }
@@ -441,8 +503,13 @@ public static class WFCBiomeGenerator
         if (stats.Anchors.TryGetValue(new Vector2Int(Mathf.RoundToInt(u * 4f), Mathf.RoundToInt(v * 4f)), out TileType anchorType))
             return anchorType;
 
+       if (v < 0.12f)
+            return TileType.MOUNTAIN_3;
         if (v < 0.20f)
-            return TileType.MOUNTAIN;
+            return TileType.MOUNTAIN_2;
+        if (v < 0.28f)
+            return TileType.MOUNTAIN_1;
+
         if (u > 0.70f && v > 0.55f)
             return TileType.PURPLELAND;
         if (u < 0.18f || v < 0.12f || u > 0.88f || v > 0.88f)
@@ -481,6 +548,17 @@ public static class WFCBiomeGenerator
         int totalPlayable = width * height;
 
         Dictionary<TileType, int> counts = new Dictionary<TileType, int>();
+
+        TileType[] enforcementOrder =
+        {
+            TileType.OCEAN_DEEP,
+            TileType.PURPLELAND,
+            TileType.MOUNTAIN_2,
+            TileType.MOUNTAIN_1,
+            TileType.MOUNTAIN_3,
+            TileType.GRASSLAND
+        };
+
         foreach (TileType type in AllBiomeTypes)
             counts[type] = 0;
 
@@ -492,10 +570,11 @@ public static class WFCBiomeGenerator
             }
         }
 
-        foreach (TileType targetType in AllBiomeTypes)
+        foreach (TileType targetType in enforcementOrder)
         {
             int targetCount = Mathf.RoundToInt(stats.TileRatios[targetType] * totalPlayable);
             int safety = totalPlayable;
+
             while (counts[targetType] < targetCount && safety-- > 0)
             {
                 Vector2Int candidate = FindConvertibleCell(gridManager, plannedTypes, counts, targetType, stats, true);
@@ -535,11 +614,11 @@ public static class WFCBiomeGenerator
                 if (current == targetType)
                     continue;
 
-                if (current == TileType.MOUNTAIN && targetType != TileType.MOUNTAIN)
+                if (HexGridManager.IsMountainType(current) && !HexGridManager.IsMountainType(targetType))
                     continue;
 
                 bool nearBorder = q <= 1 || r <= 1 || q >= width - 2 || r >= height - 2;
-                if (nearBorder && targetType == TileType.MOUNTAIN)
+                if (nearBorder && HexGridManager.IsMountainType(targetType))
                     continue;
 
                 if (requireCompatibility && !CanPlaceTypeAt(q, r, targetType, plannedTypes, gridManager, stats))
@@ -582,34 +661,45 @@ public static class WFCBiomeGenerator
         int width = gridManager.width;
         int height = gridManager.height;
 
-        bool foundMountain = false;
-        for (int q = 0; q < width && !foundMountain; q++)
+        bool foundMountain1 = false;
+        bool foundMountain2 = false;
+        bool foundMountain3 = false;
+
+        for (int q = 0; q < width; q++)
         {
             for (int r = 0; r < height; r++)
             {
-                if (plannedTypes[playableOffsetQ + q, playableOffsetR + r] == TileType.MOUNTAIN)
-                {
-                    foundMountain = true;
-                    break;
-                }
+                TileType type = plannedTypes[playableOffsetQ + q, playableOffsetR + r];
+                if (type == TileType.MOUNTAIN_1) foundMountain1 = true;
+                if (type == TileType.MOUNTAIN_2) foundMountain2 = true;
+                if (type == TileType.MOUNTAIN_3) foundMountain3 = true;
             }
         }
 
-        if (foundMountain)
-            return;
-
         int centerQ = playableOffsetQ + width / 2;
         int centerR = playableOffsetR + height / 2;
-        plannedTypes[centerQ, centerR] = TileType.MOUNTAIN;
+
+        if (!foundMountain2)
+            plannedTypes[centerQ, centerR] = TileType.MOUNTAIN_2;
 
         foreach (Vector2Int dir in HexMath.GetNeighborDirections(centerQ))
         {
             int nq = centerQ + dir.x;
             int nr = centerR + dir.y;
-            if (nq >= playableOffsetQ && nq < playableOffsetQ + width && nr >= playableOffsetR && nr < playableOffsetR + height)
+
+            if (nq < playableOffsetQ || nq >= playableOffsetQ + width ||
+                nr < playableOffsetR || nr >= playableOffsetR + height)
+                continue;
+
+            if (!foundMountain1 && plannedTypes[nq, nr] == TileType.GRASSLAND)
             {
-                if (plannedTypes[nq, nr] == TileType.GRASSLAND)
-                    plannedTypes[nq, nr] = TileType.MOUNTAIN;
+                plannedTypes[nq, nr] = TileType.MOUNTAIN_1;
+                foundMountain1 = true;
+            }
+            else if (!foundMountain3 && plannedTypes[nq, nr] == TileType.GRASSLAND)
+            {
+                plannedTypes[nq, nr] = TileType.MOUNTAIN_3;
+                foundMountain3 = true;
             }
         }
     }
@@ -625,14 +715,30 @@ public static class WFCBiomeGenerator
     {
         Color32 color = (Color32)c;
 
+        // temporary debug for mountain-like greys
+        if (Mathf.Abs(color.r - color.g) <= 3 && Mathf.Abs(color.g - color.b) <= 3)
+        {
+            if (color.r >= 85 && color.r <= 205)
+            {
+                Debug.Log($"Sample grey pixel seen: ({color.r}, {color.g}, {color.b})");
+            }
+        }
+
+
         if (IsNear(color, 50, 220, 50, 8))
             return TileType.GRASSLAND;
 
         if (IsNear(color, 40, 120, 230, 8))
             return TileType.OCEAN_DEEP;
 
-        if (IsNear(color, 140, 140, 140, 8))
-            return TileType.MOUNTAIN;
+        if (IsNear(color, 100, 100, 100, 20))
+            return TileType.MOUNTAIN_1;
+
+        if (IsNear(color, 140, 140, 140, 20))
+            return TileType.MOUNTAIN_2;
+
+        if (IsNear(color, 255, 255, 255, 20))
+            return TileType.MOUNTAIN_3;
 
         if (IsNear(color, 180, 60, 220, 8))
             return TileType.PURPLELAND;
@@ -654,7 +760,9 @@ public static class WFCBiomeGenerator
         Debug.Log(
             $"Sample ratios => Grass: {stats.TileRatios[TileType.GRASSLAND]:P1}, " +
             $"Purple: {stats.TileRatios[TileType.PURPLELAND]:P1}, " +
-            $"Mountain: {stats.TileRatios[TileType.MOUNTAIN]:P1}, " +
+            $"Mountain1: {stats.TileRatios[TileType.MOUNTAIN_1]:P1}, " +
+            $"Mountain2: {stats.TileRatios[TileType.MOUNTAIN_2]:P1}, " +
+            $"Mountain3: {stats.TileRatios[TileType.MOUNTAIN_3]:P1}, " +
             $"Ocean: {stats.TileRatios[TileType.OCEAN_DEEP]:P1}");
 
         foreach (TileType type in AllBiomeTypes)
@@ -669,5 +777,44 @@ public static class WFCBiomeGenerator
             }
             Debug.Log(line);
         }
+    }
+
+    private static void DebugFinalCounts(HexGridManager gridManager, TileType[,] plannedTypes)
+    {
+        int playableOffsetQ = gridManager.PlayableOffsetQ;
+        int playableOffsetR = gridManager.PlayableOffsetR;
+        int width = gridManager.width;
+        int height = gridManager.height;
+
+        int grass = 0;
+        int purple = 0;
+        int mountain1 = 0;
+        int mountain2 = 0;
+        int mountain3 = 0;
+        int ocean = 0;
+
+        for (int q = 0; q < width; q++)
+        {
+            for (int r = 0; r < height; r++)
+            {
+                TileType type = plannedTypes[playableOffsetQ + q, playableOffsetR + r];
+                switch (type)
+                {
+                    case TileType.GRASSLAND: grass++; break;
+                    case TileType.PURPLELAND: purple++; break;
+                    case TileType.MOUNTAIN_1: mountain1++; break;
+                    case TileType.MOUNTAIN_2: mountain2++; break;
+                    case TileType.MOUNTAIN_3: mountain3++; break;
+                    case TileType.OCEAN_DEEP: ocean++; break;
+                }
+            }
+        }
+
+        Debug.Log(
+            $"WFC final counts -> " +
+            $"Grass={grass}, Purple={purple}, " +
+            $"Mountain1={mountain1}, Mountain2={mountain2}, Mountain3={mountain3}, " +
+            $"Ocean={ocean}"
+        );
     }
 }

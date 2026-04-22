@@ -345,6 +345,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startButton: {fileID: 5795621525719727348}
+  loadGameMenuPrefab: {fileID: 0}
 --- !u!1001 &4437190326455217202
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -419,7 +420,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3787503175429600132, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: -200
       objectReference: {fileID: 0}
     - target: {fileID: 3787503175429600132, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -560,7 +561,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3787503175429600132, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -340
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 3787503175429600132, guid: e9727a7aa5d24a44db9a519e51c7dc26, type: 3}
       propertyPath: m_AnchoredPosition.y

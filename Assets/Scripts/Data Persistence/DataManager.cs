@@ -120,11 +120,26 @@ public class DataManager : Singleton<DataManager>
             return;
         }
 
-        // Capture current grid state into SaveData
-        SaveData saveData = new SaveData($"Save_{slot.id}", slot.id, grid);
-        slot.Data = saveData;
+        int turnNumber = 1;
+        Player turnPlayer = Player.PLAYER_1;
+
+        if (GameManager.Instance != null)
+        {
+            turnNumber = GameManager.Instance.TurnNumber;
+            turnPlayer = GameManager.Instance.TurnPlayer;
+        }
+
+        SaveData saveData = new SaveData(
+            $"Save_{slot.id}",
+            slot.id,
+            grid,
+            turnNumber,
+            turnPlayer
+        );
+
 
         // Write to disk
+        slot.Data = saveData;
         slot.WriteToDisk();
     }
 
