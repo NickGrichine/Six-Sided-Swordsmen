@@ -5,6 +5,7 @@ using UnityEngine;
 public class UnitDataSO : ScriptableObject
 {
     public Sprite icon;
+    public Sprite worldSpaceIcon;
     public int maxHealth;
     public int attackStr;
     public int maxMovesPerTurn;

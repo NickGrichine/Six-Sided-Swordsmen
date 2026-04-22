@@ -109,7 +109,7 @@ public class UnitConsole : Singleton<UnitConsole>
         onCommandSelected?.Invoke(unitCommand);
     }
 
-    private void ClearUnitConsole()
+    public void ClearUnitConsole()
     {
         HideUnitIcon();
         ClearCommandButtons();

@@ -21,12 +21,12 @@ public class UnitArray : Singleton<UnitArray>
         {
             GameObject instance = Instantiate(unitButtonPrefab, this.transform);
             Image image = instance.GetComponent<Image>();
-            image.sprite = unit.icon;
+            image.sprite = unit.worldSpaceIcon;
 
             // Subscribe "select unit" function to onClick event:
             Button button = instance.GetComponent<Button>();
             button.onClick += (_) => { SelectUnit(unit); };
-
+            button.onClick += (_) => { _update_unit_display(unit); };
         }
 
         // Subscribe "place unit" function to onTileClicked event:
@@ -34,6 +34,9 @@ public class UnitArray : Singleton<UnitArray>
 
         ForceResizePanel();
     }
+
+    private void _update_unit_display(UnitDataSO unitData) =>
+        UnitDisplay.Instance.UpdateUnitDisplay(unitData);
 
     void OnDestroy()
     {

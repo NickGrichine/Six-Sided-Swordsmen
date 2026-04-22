@@ -15,7 +15,11 @@ public class HUDCanvas : Singleton<HUDCanvas>
     {
         // Initialize PassTurnButton:
         if (GameManager.Instance) passTurnButton.onClick += EndTurn;
-        passTurnButton.onClick += (button) => { UpdateUnitConsole(); };
+        passTurnButton.onClick += (button) =>
+        {
+            ClearUnitConsole();
+            UpdateUnitConsole();
+        };
         passTurnButton.SetText("Pass Turn");
         passTurnButton.SetState(Button.BUTTON_STATE.ACTIVE);
 
@@ -51,6 +55,7 @@ public class HUDCanvas : Singleton<HUDCanvas>
         }
     }
 
+    private void ClearUnitConsole() => UnitConsole.Instance.ClearUnitConsole();
     private void UpdateUnitConsole()
     {
         Tile selected_tile = GridEventHandler.Instance.SelectedTile;
