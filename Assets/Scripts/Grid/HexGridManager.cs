@@ -303,7 +303,7 @@ public class HexGridManager : Singleton<HexGridManager>
             case TileType.MOUNTAIN_1:
                 tile.altitude = 1;
                 tile.passable = true;
-                tile.moveCost = 2;
+                tile.moveCost = 1;      // lowest alttitude mountains have same movement cost as grassland
                 tile.grassVariant = 0;
                 break;
 

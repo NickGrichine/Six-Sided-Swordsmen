@@ -210,10 +210,10 @@ public class CombatExecutor : MonoBehaviour
                 OnMoveSucceeded,
                 OnMoveFailed));
     }
-    private void OnMoveSucceeded(UnitController unit, int stepsMoved)
+    private void OnMoveSucceeded(UnitController unit, int movementCostSpent)
     {
         selectionMode = SelectionMode.Idle;
-        unit.movesRemaining -= stepsMoved;
+        unit.movesRemaining = Mathf.Max(0, unit.movesRemaining - movementCostSpent);
         activeMoveRoutine = null;
         ResetToBasicSelectionState();
     }

@@ -71,6 +71,7 @@ public class MoveExecutor
         }
 
         int steps = path.Count - 1;
+        int totalMoveCost = 0;
         Debug.Log($"MoveExecutor: starting movement for '{unit.name}', steps={steps}.");
 
         for (int i = 1; i < path.Count; i++)
@@ -88,12 +89,14 @@ public class MoveExecutor
                 yield break;
             }
 
+            totalMoveCost += Mathf.Max(1, next.moveCost);
+
             Debug.Log($"MoveExecutor: moved step {i}/{steps} to {unit.position.gridPos}.");
             yield return new WaitForSeconds(secondsPerStep);
         }
 
         Debug.Log($"MoveExecutor: '{unit.name}' arrived at {unit.position.gridPos}. Movement complete.");
-        onSuccess?.Invoke(unit, steps);
+        onSuccess?.Invoke(unit, totalMoveCost);
     }
 }
 
