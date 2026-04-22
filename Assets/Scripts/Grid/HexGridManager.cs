@@ -141,62 +141,13 @@ public class HexGridManager : Singleton<HexGridManager>
         if (cam == null || !cam.orthographic)
             return;
 
-        float minWorldX = float.MaxValue;
-        float maxWorldX = float.MinValue;
-        float minWorldY = float.MaxValue;
-        float maxWorldY = float.MinValue;
+        if (!TryGetLandWorldExtents(out float minWorldX, out float maxWorldX, out float minWorldY, out float maxWorldY))
+            return;
 
-        int boundedMinQ = Mathf.Max(0, playableOffsetQ - cameraBorderTiles);
-        int boundedMaxQ = Mathf.Min(totalWidth - 1, playableOffsetQ + width - 1 + cameraBorderTiles);
-        int boundedMinR = Mathf.Max(0, playableOffsetR - cameraBorderTiles);
-        int boundedMaxR = Mathf.Min(totalHeight - 1, playableOffsetR + height - 1 + cameraBorderTiles);
-
-        for (int q = boundedMinQ; q <= boundedMaxQ; q++)
-        {
-            for (int r = boundedMinR; r <= boundedMaxR; r++)
-            {
-                Tile tile = grid[q, r];
-                if (tile == null)
-                    continue;
-
-                Vector3 pos = tile.transform.position;
-
-                if (pos.x < minWorldX) minWorldX = pos.x;
-                if (pos.x > maxWorldX) maxWorldX = pos.x;
-                if (pos.y < minWorldY) minWorldY = pos.y;
-                if (pos.y > maxWorldY) maxWorldY = pos.y;
-            }
-        }
-
-        float worldBorderX = oceanBorderThickness * hexSize * horizontalStepMultiplier;
-        float worldBorderY = oceanBorderThickness * hexSize * verticalStepMultiplier * 0.5f;
-
-        minWorldX -= worldBorderX;
-        maxWorldX += worldBorderX;
-        minWorldY -= worldBorderY;
-        maxWorldY += worldBorderY;
-
-        float halfCameraHeight = cam.orthographicSize;
-        float halfCameraWidth = cam.orthographicSize * cam.aspect;
-
-        float clampedMinX = minWorldX + halfCameraWidth;
-        float clampedMaxX = maxWorldX - halfCameraWidth;
-        float clampedMinY = minWorldY + halfCameraHeight;
-        float clampedMaxY = maxWorldY - halfCameraHeight;
-
-        if (clampedMinX > clampedMaxX)
-        {
-            float centerX = (minWorldX + maxWorldX) * 0.5f;
-            clampedMinX = centerX;
-            clampedMaxX = centerX;
-        }
-
-        if (clampedMinY > clampedMaxY)
-        {
-            float centerY = (minWorldY + maxWorldY) * 0.5f;
-            clampedMinY = centerY;
-            clampedMaxY = centerY;
-        }
+        float clampedMinX = minWorldX;
+        float clampedMaxX = maxWorldX;
+        float clampedMinY = minWorldY;
+        float clampedMaxY = maxWorldY;
 
         CameraController.Instance.SetBounds(
             clampedMinX,
@@ -217,23 +168,33 @@ public class HexGridManager : Singleton<HexGridManager>
         if (cam == null)
             return;
 
-        float minWorldX = float.MaxValue;
-        float maxWorldX = float.MinValue;
-        float minWorldY = float.MaxValue;
-        float maxWorldY = float.MinValue;
+        if (!TryGetLandWorldExtents(out float minWorldX, out float maxWorldX, out float minWorldY, out float maxWorldY))
+            return;
 
-        int boundedMinQ = Mathf.Max(0, playableOffsetQ - cameraBorderTiles);
-        int boundedMaxQ = Mathf.Min(totalWidth - 1, playableOffsetQ + width - 1 + cameraBorderTiles);
-        int boundedMinR = Mathf.Max(0, playableOffsetR - cameraBorderTiles);
-        int boundedMaxR = Mathf.Min(totalHeight - 1, playableOffsetR + height - 1 + cameraBorderTiles);
+        Vector3 camPos = cam.transform.position;
+        camPos.x = (minWorldX + maxWorldX) * 0.5f;
+        camPos.y = (minWorldY + maxWorldY) * 0.5f;
+        cam.transform.position = camPos;
+    }
 
-        for (int q = boundedMinQ; q <= boundedMaxQ; q++)
+    private bool TryGetLandWorldExtents(out float minWorldX, out float maxWorldX, out float minWorldY, out float maxWorldY)
+    {
+        minWorldX = float.MaxValue;
+        maxWorldX = float.MinValue;
+        minWorldY = float.MaxValue;
+        maxWorldY = float.MinValue;
+
+        bool foundLand = false;
+
+        for (int q = 0; q < totalWidth; q++)
         {
-            for (int r = boundedMinR; r <= boundedMaxR; r++)
+            for (int r = 0; r < totalHeight; r++)
             {
                 Tile tile = grid[q, r];
-                if (tile == null) continue;
+                if (tile == null || !tile.passable)
+                    continue;
 
+                foundLand = true;
                 Vector3 pos = tile.transform.position;
 
                 if (pos.x < minWorldX) minWorldX = pos.x;
@@ -243,10 +204,31 @@ public class HexGridManager : Singleton<HexGridManager>
             }
         }
 
-        Vector3 camPos = cam.transform.position;
-        camPos.x = (minWorldX + maxWorldX) * 0.5f;
-        camPos.y = (minWorldY + maxWorldY) * 0.5f;
-        cam.transform.position = camPos;
+        if (foundLand)
+            return true;
+
+        int minQ = playableOffsetQ;
+        int maxQ = playableOffsetQ + width - 1;
+        int minR = playableOffsetR;
+        int maxR = playableOffsetR + height - 1;
+
+        for (int q = minQ; q <= maxQ; q++)
+        {
+            for (int r = minR; r <= maxR; r++)
+            {
+                Tile tile = grid[q, r];
+                if (tile == null)
+                    continue;
+
+                Vector3 pos = tile.transform.position;
+                if (pos.x < minWorldX) minWorldX = pos.x;
+                if (pos.x > maxWorldX) maxWorldX = pos.x;
+                if (pos.y < minWorldY) minWorldY = pos.y;
+                if (pos.y > maxWorldY) maxWorldY = pos.y;
+            }
+        }
+
+        return minWorldX != float.MaxValue;
     }
 
     private Tile CreateTile(int q, int r, TileType plannedType)

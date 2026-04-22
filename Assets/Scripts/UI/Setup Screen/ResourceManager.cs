@@ -8,7 +8,7 @@ using System;
 
 public class ResourceManager : Singleton<ResourceManager>
 {
-    [SerializeField] private readonly int startingResourceAmount = 100;
+    [SerializeField] private readonly int startingResourceAmount = 150;
     [SerializeField] private TextMeshProUGUI resourceTextObject;
 
     public event Action<Player, int> OnResourceDeduction;
