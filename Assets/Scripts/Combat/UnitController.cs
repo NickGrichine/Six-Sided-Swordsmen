@@ -36,10 +36,10 @@ public class UnitController : MonoBehaviour, IOccupant
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            healthManager.TakeDamage(5);
-        }
+        // if (Input.GetKeyDown(KeyCode.K))
+        // {
+        //     healthManager.TakeDamage(5);
+        // }
 
 
         // TESTING HEALTH BAR
@@ -48,18 +48,18 @@ public class UnitController : MonoBehaviour, IOccupant
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.O))
-        {
-            healthManager.TakeDamage(1);
+        // if (Input.GetKeyDown(KeyCode.O))
+        // {
+        //     healthManager.TakeDamage(1);
 
-            Debug.Log("UNIT TOOK DAMAGE! New health: " + healthManager.health);
-        }
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            healthManager.GainHealth(1);
+        //     Debug.Log("UNIT TOOK DAMAGE! New health: " + healthManager.health);
+        // }
+        // if (Input.GetKeyDown(KeyCode.P))
+        // {
+        //     healthManager.GainHealth(1);
 
-            Debug.Log("UNIT GAINED HEALTH! New health: " + healthManager.health);
-        }
+        //     Debug.Log("UNIT GAINED HEALTH! New health: " + healthManager.health);
+        // }
         // if (Input.GetKeyDown(KeyCode.I))
         // {
         //     healthManager.SetMaxHealth(10);
