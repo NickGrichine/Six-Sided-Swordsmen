@@ -32,6 +32,13 @@ public class GameManager : Singleton<GameManager>
         PassTurnWindowInitializer.Initialize();
     }
 
+    private void OnDisable()
+    {
+        OnTurnEnd = null;
+        OnTurnStart = null;
+        OnGameStateChanged = null;
+    }
+
     private void OnDestroy()
     {
         if (DataManager.Instance != null)

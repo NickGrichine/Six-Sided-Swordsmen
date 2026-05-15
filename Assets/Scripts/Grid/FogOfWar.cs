@@ -12,6 +12,7 @@ public class FogOfWar : MonoBehaviour
         {
             SetupManager.Instance.onTurnPass += UpdateFogForGhost;
             SetupManager.Instance.onSetupStart += UpdateFogForGhost;
+            Debug.Log("Query ghost active.");
             return;
         }
         GameManager.Instance.OnGameStateChanged += UpdateFog;
@@ -31,7 +32,7 @@ public class FogOfWar : MonoBehaviour
 
     public void UpdateFogForGhost()
     {
-        print("Call to update fog");
+        print("Call to update fog for ghost");
         Player currentTurnPlayer = SetupManager.Instance.CurrentPlayer; // setup additions
         HashSet<Tile> visibleTiles = new HashSet<Tile>();
 
