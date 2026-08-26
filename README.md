@@ -4,16 +4,26 @@ A turn-based tactical combat game built in Unity, played on a hexagonal grid. Re
 
 > This repository is a personal copy of a team project I contributed to, kept here for portfolio purposes. The original was built by an 8-person team as the final project for **COMP 361 (Software Engineering Project)** at McGill University. All commit history and authorship from the original team is preserved.
 
-<!-- Add a gameplay screenshot or GIF here, e.g.: -->
-<!-- ![Gameplay screenshot](docs/screenshot.png) -->
+![Title screen](screenshots/title-screen.png)
 
 ## Gameplay
 
 - **Setup phase** — each player recruits units from a roster (Swordsman, Spearman, Archer, Holy Knight, Ghost) and places them on their side of the map before battle begins.
+
+  ![Unit setup phase](screenshots/unit-setup.png)
+
 - **Hex-grid combat** — the map is a procedurally generated hex grid using axial coordinates, with tiles carrying attributes like terrain type and altitude that affect movement and combat.
 - **Turn-based commands** — players select units and issue move/attack commands through a console-style UI, with input validation to prevent illegal actions.
+
+  ![Turn-based combat](screenshots/combat.png)
+
 - **Save & load** — full game state serializes to JSON so a match can be saved and resumed later.
+
+  ![Save / load menu](screenshots/save-load.png)
+
 - **Replay** — every match logs a turn-by-turn event history that can be played back afterward, complete with per-turn summaries.
+
+  ![Match replay viewer](screenshots/replay.png)
 
 ## My contributions
 
