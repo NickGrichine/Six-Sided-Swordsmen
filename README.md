@@ -51,4 +51,4 @@ Open the project in Unity 2022.3.x via Unity Hub, then open `Assets/Scenes/Title
 
 ## Team
 
-Built with Enoch Chan, Russ Morta, Michael Xie, Manshen He, Kinson, Maxim Genov, and mmiladinovgenov.
+Built with Michael Xie, Enoch Chan, Russ Morta, Manshen He, Hoi Kin Chiu, and Maxim Miladinov-Genov.
