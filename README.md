@@ -2,7 +2,7 @@
 
 A turn-based tactical combat game built in Unity, played on a hexagonal grid. Recruit and position a squad of units, then outmaneuver your opponent using terrain, unit classes, and ability commands until one side is wiped out.
 
-> This repository is a personal copy of a team project I contributed to, kept here for portfolio purposes. The original was built by an 8-person team as the final project for **COMP 361 (Software Engineering Project)** at McGill University. All commit history and authorship from the original team is preserved.
+> This repository is a personal copy of a team project I contributed to, kept here for portfolio purposes. The original was built by a 7-person team as the final project for **COMP 361 (Software Engineering Project)** at McGill University. All commit history and authorship from the original team are preserved.
 
 ![Gameplay](screenshots/gameplay.gif)
 
