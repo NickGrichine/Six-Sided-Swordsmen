@@ -1,4 +1,4 @@
-# Six Sided Swordsmen
+# Six-Sided Swordsmen
 
 A turn-based tactical combat game built in Unity, played on a hexagonal grid. Recruit and position a squad of units, then outmaneuver your opponent using terrain, unit classes, and ability commands until one side is wiped out.
 
