@@ -4,7 +4,7 @@ A turn-based tactical combat game built in Unity, played on a hexagonal grid. Re
 
 > This repository is a personal copy of a team project I contributed to, kept here for portfolio purposes. The original was built by an 8-person team as the final project for **COMP 361 (Software Engineering Project)** at McGill University. All commit history and authorship from the original team is preserved.
 
-![Title screen](screenshots/title-screen.png)
+![Gameplay](screenshots/gameplay.gif)
 
 ## Gameplay
 
