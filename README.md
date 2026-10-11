@@ -23,7 +23,8 @@ A turn-based tactical combat game built in Unity, played on a hexagonal grid. Re
 
 - **Replay** — every match logs a turn-by-turn event history that can be played back afterward, complete with per-turn summaries.
 
-  ![Match replay viewer](screenshots/replay.png)
+  ![Match replay viewer](<img width="1375" height="761" alt="replay" src="https://github.com/user-attachments/assets/b5373544-029e-434c-b39a-ad3ad2dbd422" />
+)
 
 ## My contributions
 
